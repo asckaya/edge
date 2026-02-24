@@ -23,11 +23,13 @@ Assembles the components and manages the global state:
 
 ## Integration with Worker
 
-The Web UI is exported as a static site and served by the Cloudflare Worker via `env.ASSETS` on the `/ui` path.
+The Web UI is served by Cloudflare Assets. To prevent the Web UI's `index.html` from intercepting the root API path (`/`), the deployment pipeline moves all assets into a `ui/` subdirectory.
 
-- **Output Path**: `web-ui/out`
-- **Base Path**: The UI is configured with `basePath: '/ui'`, so all assets and links are relative to `/ui`.
-- **Dynamic Configuration**: The generated URL points to the root path (`/`) where the conversion API lives.
+- **URL Path**: `domain.com/ui/`
+- **Output Path**: `web-ui/out/ui` (after build step move)
+- **Base Path**: Configured with `basePath: '/ui'` to match the URL structure.
+- **Worker's Role**: The Worker only handles the canonical redirect from `/ui` to `/ui/`. All other UI asset requests are handled natively by Cloudflare's asset binding.
+- **Conversion API**: The generated configuration points back to the root path (`/`).
 
 ## Field Name Standardization
 

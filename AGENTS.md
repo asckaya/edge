@@ -19,9 +19,12 @@
 
 ### `index.ts`
 
-Worker 主文件，处理所有 HTTP 请求。会自动根据路径分流：
-- `/ui/*`：服务 Web UI 静态资源
-- 其他路径：作为订阅转换 API 处理
+Worker 主文件，处理所有 HTTP 请求。
+- **根路径 (`/`)**：作为订阅转换 API 处理。支持直接通过 URL 参数生成配置。
+- **UI 路径 (`/ui`)**：
+    - `/ui` (无斜杠) 会 301 重定向至 `/ui/` 以确保相对路径正确。
+    - `/ui/` 及其子路径由 Cloudflare Assets 自动服务。
+- **注意**：Worker 已移除手动 `env.ASSETS.fetch` 逻辑，依靠部署流水线将静态资源移至 `out/ui/` 子目录来避免与根路径 API 冲突。
 
 **关键参数：**
 - `type`：`mihomo`（默认）/ `stash` / `stash-mini`
