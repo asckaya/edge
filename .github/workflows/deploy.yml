@@ -28,7 +28,12 @@ jobs:
         run: cd web-ui && bun install
 
       - name: Build web-ui
-        run: cd web-ui && bun run build
+        run: |
+          cd web-ui
+          bun run build
+          mv out temp_out
+          mkdir out
+          mv temp_out out/ui
 
       - name: Deploy
         uses: cloudflare/wrangler-action@v3

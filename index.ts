@@ -18,35 +18,10 @@ export default {
     const url = new URL(request.url);
     const searchParams = url.searchParams;
 
-    const isUIRequest = url.pathname === '/ui' || url.pathname.startsWith('/ui/') || url.pathname.startsWith('/_next/');
-
-    if (isUIRequest) {
-      // Redirect /ui to /ui/ to ensure relative paths work (e.g. _next/...)
-      if (url.pathname === '/ui') {
-        return Response.redirect(new URL('/ui/', request.url).toString(), 301);
-      }
-
-      try {
-        if (env && env.ASSETS) {
-          // Next.js static export with basePath: '/ui' puts files at the root of the 'out' directory.
-          // Browsers request /ui/index.html, but we need to fetch /index.html from the assets.
-          let assetPath = url.pathname;
-          
-          if (assetPath.startsWith('/ui')) {
-            assetPath = assetPath.replace(/^\/ui/, '');
-          }
-          
-          // If empty or just '/', serve root asset. 
-          // IMPORTANT: Do NOT use /index.html here, as Cloudflare's asset server 
-          // will 301 redirect /index.html back to / which then hits our worker 
-          // at the root domain and triggers the API logic.
-          if (assetPath === '') {
-            assetPath = '/';
-          }
-          
-          return await env.ASSETS.fetch(new Request(new URL(assetPath, request.url).toString(), request));
-        }
-      } catch (e) {}
+    // Move Web UI to /ui/ and let Cloudflare Assets handle it automatically.
+    // We only handle the redirect from /ui to /ui/ to ensure relative paths work.
+    if (url.pathname === '/ui') {
+      return Response.redirect(new URL('/ui/', request.url).toString(), 301);
     }
 
     // Config type: 'stash' for iOS Stash app, 'stash-mini' for low-memory iOS (<50MB), default is mihomo/clash-meta
