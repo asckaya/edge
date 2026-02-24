@@ -9,6 +9,9 @@
 支持两种客户端：
 - **Mihomo / Clash Meta**（桌面端）
 - **Stash**（iOS，有 Network Extension 内存限制）
+- **Web UI**（基于 Next.js 的图形界面）
+
+更多 Web UI 详情见：[web-ui/AGENTS.md](file:///Users/didi/test/web-ui/AGENTS.md)
 
 ---
 
