@@ -50,8 +50,8 @@ Mihomo 和 Stash **完整版**共用的规则，不要在这里做 iOS 专属优
 
 | 文件 | 说明 |
 |---|---|
-| `rule-providers.ts` | 48 个 rule-providers（domain 类 + GeoIP ipcidr 类，MRS 格式，MetaCubeX/meta-rules-dat） |
-| `rules.ts` | 与 providers 对应的路由规则，顺序从最具体到最宽泛 |
+| `rule-providers.ts` | 57 个 rule-providers（domain 类 + GeoIP ipcidr 类，MRS 格式，MetaCubeX/meta-rules-dat） |
+| `rules.ts` | 与 providers 对应的路由规则。**优先级：** 核心服务 (MS/Google/Apple) > 遥测拦截 > 开发工具 > AI > 其他 |
 
 ### `templates/mihomo/`
 

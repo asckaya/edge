@@ -9,6 +9,13 @@ export const configRules = `rules:
   # 广告拦截
   - RULE-SET,advertising,🛡️ 隐私防护
 
+  # 谷歌 / 苹果 / 微软
+  - RULE-SET,google,🔍 谷歌服务
+  - RULE-SET,google-ip,🔍 谷歌服务,no-resolve
+  - RULE-SET,apple,🍏 苹果服务
+  - RULE-SET,onedrive,Ⓜ️ 微软服务
+  - RULE-SET,microsoft,Ⓜ️ 微软服务
+
   # Windows 遥测拦截 / Windows Update 直连
   - RULE-SET,win-spy,🛡️ 隐私防护
   - RULE-SET,win-extra,🛡️ 隐私防护
@@ -53,18 +60,7 @@ export const configRules = `rules:
   # 苹果视频优先（在 apple 整体前）
   - RULE-SET,appletv,🎬 苹果视频
 
-  # 谷歌 / 苹果 / 微软
-  - RULE-SET,google,🔍 谷歌服务
-  - RULE-SET,google-ip,🔍 谷歌服务,no-resolve
-  - RULE-SET,apple,🍏 苹果服务
-  - RULE-SET,onedrive,Ⓜ️ 微软服务
-  - RULE-SET,microsoft,Ⓜ️ 微软服务
-
-  # 开发工具（category-dev 含 github/npm/pypi 等，category-container 含 docker/quay）
-  - RULE-SET,microsoft-dev,🐱 开发工具
-  - RULE-SET,gitlab,🐱 开发工具
-  - RULE-SET,jetbrains,🐱 开发工具
-  - RULE-SET,category-container,🐱 开发工具
+  # 开发工具 (category-dev 包含 github/microsoft-dev/gitlab/jetbrains/docker 等)
   - RULE-SET,category-dev,🐱 开发工具
 
   # AI 服务（category 覆盖主流服务；AI 编辑器单独列出确保不遗漏）
@@ -76,7 +72,8 @@ export const configRules = `rules:
   - RULE-SET,manus,💬 AI 服务
   - RULE-SET,jetbrains-ai,💬 AI 服务
 
-  # 即时通讯（category-voip 覆盖 telegram/signal/whatsapp/line/zoom/webex 等）
+  # 即时通讯 & 社交 (category-communication 覆盖 telegram/discord/slack/protonmail/whatsapp 等)
+  - RULE-SET,category-communication,📲 电报消息
   - RULE-SET,category-voip,📲 电报消息
   - RULE-SET,telegram-ip,📲 电报消息,no-resolve
 
@@ -98,12 +95,8 @@ export const configRules = `rules:
   # 教育资源
   - RULE-SET,category-scholar-!cn,📚 教育资源
 
-  # 生产力工具（密码管理器 / 协作 / 云盘 / 隐私邮件）
+  # 生产力工具 (category-communication 已覆盖 slack/protonmail)
   - RULE-SET,category-password-management,🛠️ 生产力工具
-  - RULE-SET,slack,🛠️ 生产力工具
-  - RULE-SET,dropbox,☁️ 云服务
-  - RULE-SET,mega,☁️ 云服务
-  - RULE-SET,protonmail,🛠️ 生产力工具
   - RULE-SET,tutanota,🛠️ 生产力工具
 
   # 金融服务（含加密货币交易所）
@@ -125,6 +118,8 @@ export const configRules = `rules:
   # 云服务 / Cloudflare
   - RULE-SET,cloudflare,☁️ 云服务
   - RULE-SET,cloudflare-ip,☁️ 云服务,no-resolve
+  - RULE-SET,dropbox,☁️ 云服务
+  - RULE-SET,mega,☁️ 云服务
 
   # 非中国兜底
   - RULE-SET,geolocation-!cn,🌐 非中国

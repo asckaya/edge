@@ -262,8 +262,17 @@ export const configRuleProviders = `rule-providers:
     path: ./ruleset/gitlab.mrs
     interval: 86400
 
-  # -- 即时通讯 ------------------------------------------------
-  # category-voip 覆盖 telegram/signal/whatsapp/line/zoom/webex 等
+  # -- 即时通讯 & 社交 ------------------------------------------
+  # category-communication 覆盖 telegram/discord/slack/protonmail/whatsapp 等
+  category-communication:
+    type: http
+    format: mrs
+    behavior: domain
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-communication.mrs"
+    path: ./ruleset/category-communication.mrs
+    interval: 86400
+
+  # category-voip 覆盖 zoom/webex/skype 等 (由 category-communication 互补)
   category-voip:
     type: http
     format: mrs
