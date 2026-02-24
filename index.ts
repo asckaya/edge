@@ -18,24 +18,9 @@ export default {
     const url = new URL(request.url);
     const searchParams = url.searchParams;
 
-    const subscriptions: Subscription[] = [];
+    const isAssetRequest = url.pathname.startsWith('/_next') || url.pathname.endsWith('.html') || url.pathname.endsWith('.ico') || url.pathname.endsWith('.svg');
 
-    for (const [key, value] of searchParams.entries()) {
-      if (!key || !value || key === 'secret' || key === 'proxies' || key === 'type') continue;
-      if (value.startsWith('http://') || value.startsWith('https://')) {
-        subscriptions.push({ name: key, url: value });
-      }
-    }
-
-    const isAssetRequest =
-      url.pathname.startsWith('/_next') ||
-      url.pathname.endsWith('.html') ||
-      url.pathname.endsWith('.ico') ||
-      url.pathname.endsWith('.svg') ||
-      url.pathname.startsWith('/en') ||
-      url.pathname.startsWith('/zh');
-
-    if (isAssetRequest && subscriptions.length === 0 && !searchParams.get('proxies')) {
+    if (isAssetRequest) {
       try {
         if (env && env.ASSETS) return await env.ASSETS.fetch(request);
       } catch (e) {}
@@ -48,10 +33,19 @@ export default {
 
     const providedSecret = searchParams.get('secret') || 'edge-default';
 
+    const subscriptions: Subscription[] = [];
+
+    for (const [key, value] of searchParams.entries()) {
+      if (!key || !value || key === 'secret' || key === 'proxies' || key === 'type') continue;
+      if (value.startsWith('http://') || value.startsWith('https://')) {
+        subscriptions.push({ name: key, url: value });
+      }
+    }
+
     if (subscriptions.length === 0 && !searchParams.get('proxies')) {
       try {
         if (env && env.ASSETS) {
-          return await env.ASSETS.fetch(request);
+          return await env.ASSETS.fetch(new Request(new URL('/', request.url).toString(), request));
         }
       } catch (e) {}
       

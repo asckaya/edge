@@ -9,9 +9,9 @@
 支持两种客户端：
 - **Mihomo / Clash Meta**（桌面端）
 - **Stash**（iOS，有 Network Extension 内存限制）
-- **Web UI**（基于 Next.js 的图形界面，支持中英文 i18n）
+- **Web UI**（基于 Next.js 的图形界面）
 
-更多 Web UI 详情见：[web-ui/README.md](file:///Users/didi/test/web-ui/README.md)
+更多 Web UI 详情见：[web-ui/AGENTS.md](file:///Users/didi/test/web-ui/AGENTS.md)
 
 ---
 
@@ -81,9 +81,6 @@ Mihomo 和 Stash **完整版**共用的规则，不要在这里做 iOS 专属优
 | `rule-providers-mini.ts` | **16 个** providers（完整版 48 个） |
 | `rules-mini.ts` | 与 16 个 provider 对应的路由规则 |
 | `groups-mini.ts` | **13 个**静态分组（完整版 24 个） |
-| `web-ui/messages/` | 语言翻译 JSON (en.json, zh.json) |
-| `web-ui/src/app/[locale]/` | 国际化路由页面 |
-| `web-ui/src/i18n/` | `request.ts` (配置加载), `settings.ts` (语种定义) |
 
 **保留的 16 个 providers：**
 `advertising`, `category-ai-chat-!cn`, `youtube`, `category-entertainment@!cn`,

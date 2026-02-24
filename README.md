@@ -9,7 +9,6 @@
 - **三种配置模式**：Mihomo / Stash iOS / Stash iOS Mini（<50 MB）
 - **节点链（Relay）**：通过 `🏮 入口节点 → 🛫 出口节点` 实现多跳中转
 - **精细分流**：40+ 条 rule-set 按 AI / 流媒体 / 社交 / 开发工具等分组路由
-- **国际化支持**：Web UI 支持中英文双语切换
 
 ## 快速开始
 
@@ -54,7 +53,6 @@ https://your-worker.workers.dev/?type=stash-mini&secret=xxx&Airport1=https://sub
 1. 添减订阅源 URL。
 2. 使用智能表单（React Node Builder）通过协议模板动态拼接 `VLESS, VMess, TUIC, Hysteria2, Trojan, Shadowsocks, Wireguard` 等格式节点并防止语法错误。
 3. 一键生成支持各类客户端配置模板拼接的 Final URL，并自动复制入剪贴板。
-4. **多语言切换**：支持中英文界面，方便不同语言用户使用。
 
 ## 配置模式对比
 
@@ -100,12 +98,6 @@ https://your-worker.workers.dev/?type=stash-mini&secret=xxx&Airport1=https://sub
 │           ├── rule-providers-mini.ts # 15 个 rule-providers
 │           ├── rules-mini.ts          # 精简路由规则
 │           └── groups-mini.ts         # 13 个 proxy-groups
-├── web-ui/                           # 可视化前台 (Next.js)
-│   ├── messages/                     # 国际化翻译文件 (JSON)
-│   ├── src/
-│   │   ├── app/[locale]/             # 动态语言路由
-│   │   └── i18n/                     # i18n 配置与设置
-│   └── ...
 └── wrangler.toml                     # Cloudflare Workers 配置
 ```
 

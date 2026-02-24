@@ -1,6 +1,5 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
 
 interface Props {
   isOpen: boolean;
@@ -9,7 +8,6 @@ interface Props {
 }
 
 export default function NodeModal({ isOpen, onClose, onInject }: Props) {
-  const t = useTranslations('NodeModal');
   const [protocol, setProtocol] = useState('vless');
   
   // Generic Fields
@@ -166,7 +164,7 @@ export default function NodeModal({ isOpen, onClose, onInject }: Props) {
             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
               <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
             </svg>
-            {t('title')}
+            Node Form Builder
           </h3>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-1 rounded-md hover:bg-gray-100 dark:hover:bg-slate-700">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -274,9 +272,9 @@ export default function NodeModal({ isOpen, onClose, onInject }: Props) {
         </div>
         
         <div className="px-6 py-4 bg-gray-50 dark:bg-slate-900/50 border-t border-gray-100 dark:border-slate-700 flex justify-end gap-3 shrink-0">
-          <button onClick={onClose} className="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-xl transition-colors">{t('cancel')}</button>
+          <button onClick={onClose} className="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-xl transition-colors">Cancel</button>
           <button onClick={handleInject} className="px-5 py-2.5 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors shadow-lg shadow-blue-500/20 flex items-center gap-2">
-            {t('add')}
+            Build & Inject
           </button>
         </div>
       </div>
