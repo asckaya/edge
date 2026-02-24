@@ -9,16 +9,16 @@ import fs from 'fs';
  */
 
 const ResponseMock = class {
-  body: any;
-  init: any;
-  constructor(body: any, init?: any) {
+  body: string;
+  init?: Record<string, any>;
+  constructor(body: string, init?: Record<string, any>) {
     this.body = body;
     this.init = init;
   }
-  async text() {
+  async text(): Promise<string> {
     return this.body;
   }
-} as any;
+} as unknown as typeof Response;
 
 (globalThis as any).Response = (globalThis as any).Response || ResponseMock;
 
@@ -43,7 +43,11 @@ async function runLocalTest() {
   }));
 
   const hy2Uri = 'hysteria2://auth@host:20000-40000?sni=sni.com&insecure=1#SigHy2';
-  const customProxiesUri = [vlessUri, trojanUri, ssUri, vmessUri, hy2Uri].join('\n');
+  
+  const tuicUri = 'tuic://uuid:password@host:443?sni=sni.com&alpn=h3&congestion_control=bbr&udp_relay_mode=native#TUIC-Node';
+  const wgUri = 'wireguard://private_key@host:443?public-key=peer_pub_key&ip=10.0.0.1%2F24&mtu=1420#WireGuard-Node';
+  
+  const customProxiesUri = [vlessUri, trojanUri, ssUri, vmessUri, hy2Uri, tuicUri, wgUri].join('\n');
 
   const params = [
     ['secret', 'my-custom-pass-789'],
