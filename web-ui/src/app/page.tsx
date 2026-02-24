@@ -62,7 +62,7 @@ export default function Home() {
           id="proxies-textarea"
           value={proxiesText}
           onChange={(e) => setProxiesText(e.target.value)}
-          placeholder="Paste your individual proxy uris here separated by newline...&#10;For example:&#10;tuic://uuid:password@host:port..." 
+          placeholder={`Paste your individual proxy uris here separated by newline...\nFor example:\ntuic://uuid:password@host:port...`}
           spellCheck="false"
           className="w-full min-h-[140px] p-4 bg-gray-50 dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-xl text-gray-800 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-mono resize-y"
         />

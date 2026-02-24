@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Props {
   isOpen: boolean;
@@ -37,6 +37,43 @@ export default function NodeModal({ isOpen, onClose, onInject }: Props) {
   const [publicKey, setPublicKey] = useState('');
   const [localIp, setLocalIp] = useState('10.0.0.1/24');
   const [mtu, setMtu] = useState('1420');
+
+  // Reset form when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setProtocol('vless');
+      setHost('');
+      setPort('443');
+      setName('');
+      setUuid('');
+      setPassword('');
+      setSni('');
+      setNetwork('tcp');
+      setEncryption('none');
+      setSecurity('tls');
+      setCipher('aes-256-gcm');
+      setAlpn('h3');
+      setCongestion('bbr');
+      setObfs('none');
+      setObfsPassword('');
+      setPrivateKey('');
+      setPublicKey('');
+      setLocalIp('10.0.0.1/24');
+      setMtu('1420');
+    }
+  }, [isOpen]);
+
+  // Optionally reset some fields when protocol changes
+  useEffect(() => {
+    // We could reset protocol-specific fields here, but for now
+    // resetting security to TLS and network to TCP is a good default
+    if (protocol === 'vless' || protocol === 'vmess' || protocol === 'trojan') {
+      setSecurity('tls');
+      setNetwork('tcp');
+    } else if (protocol === 'hysteria2' || protocol === 'tuic') {
+      setSecurity('tls'); // using 'none' for insecure in h2
+    }
+  }, [protocol]);
 
   if (!isOpen) return null;
 
