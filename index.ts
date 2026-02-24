@@ -18,6 +18,27 @@ export default {
     const url = new URL(request.url);
     const searchParams = url.searchParams;
 
+    // If it's a request to the root or simple path without params, let the static assets handle it.
+    if (url.pathname === '/' || url.pathname.startsWith('/_next') || url.pathname.endsWith('.html') || url.pathname.endsWith('.ico') || url.pathname.endsWith('.svg')) {
+      // Return a 404 to let Wrangler Assets binding take over the fallback
+      // Actually, if we reach here and it's a known static asset path or root, fetching env.ASSETS (if available) or falling through allows pages to load.
+      // But in this setup with `assets = ...`, requests to static assets handled by Cloudflare BEFORE invoking the worker script,
+      // EXCEPT when the worker pattern intercepts it. In Wrangler v3/v4 with direct asset bindings, the worker intercepts if it returns a Response.
+      // So if missing params and it's looking for the UI, let's just return undefined to skip worker interception or fetch from ASSETS.
+      // However, fetch must return Response. We can try ASSETS if passed in env.
+      try {
+        if (env && env.ASSETS) {
+          return await env.ASSETS.fetch(request);
+        }
+      } catch (e) {}
+      
+      // If we are strictly an API endpoint right now (e.g., /sub)
+      if (url.pathname !== '/sub') {
+         // It's not the API endpoint but also not caught by ASSETS binding?
+         return new Response('Edge Subscription API. Access the Web UI at the root path if configured correctly.', { status: 404 });
+      }
+    }
+
     // Config type: 'stash' for iOS Stash app, 'stash-mini' for low-memory iOS (<50MB), default is mihomo/clash-meta
     const configType = searchParams.get('type')?.toLowerCase() || 'mihomo';
     const isStash = configType === 'stash';

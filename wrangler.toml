@@ -1,11 +1,22 @@
 name = "edge"
 main = "index.ts"
-compatibility_date = "2025-12-19"
+compatibility_date = "2026-01-20"
 
 [assets]
 directory = "./web-ui/out"
 binding = "ASSETS"
 
-# Wrangler v4 natively bundles TypeScript using esbuild.
-# All imports from templates/ subdirectory are resolved automatically.
-# No custom build step required.
+[observability]
+enabled = false
+head_sampling_rate = 1
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+persist = true
+invocation_logs = true
+
+[observability.traces]
+enabled = false
+persist = true
+head_sampling_rate = 1
