@@ -40,7 +40,8 @@ npx wrangler deploy
 | `type` | 否 | `mihomo`（默认）/ `stash` / `stash-mini` |
 | `secret` | 否 | Mihomo external-controller 密码 |
 | `[ProviderName]` | 至少一个 | 订阅 URL，例如 `Airport1=https://...` |
-| `proxies` | 否 | 自建节点 URI，多个用 `\n` 分隔 |
+| `proxies` | 否 | 自建节点 URI (yaml 格式或 URI)，更多详情请查看 `example.yaml` |
+| `skip-cert-verify` | 否 | 跳过证书验证（`true` / `false`，默认 `false`） |
 
 **原生 API 调用示例：**
 ```

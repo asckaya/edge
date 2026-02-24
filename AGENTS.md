@@ -119,6 +119,7 @@ bun gen-url.ts --type stash-mini  # Stash Mini
 ```
 
 支持的协议：`hysteria2`（含端口跳跃）、`vless`、`trojan`、`ss`、`vmess`。
+自建节点配置需符合 `src/types.ts` 中的 Zod 架构（使用 `type` 而非 `protocol`，`skip-cert-verify` 而非 `insecure`）。
 
 ### `local-test.ts`
 
