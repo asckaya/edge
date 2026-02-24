@@ -23,12 +23,20 @@ export default {
     if (isUIRequest) {
       try {
         if (env && env.ASSETS) {
-          // Map /ui to /index.html if needed, or let ASSETS handle it
-          let targetUrl = request.url;
-          if (url.pathname === '/ui') {
-            targetUrl = new URL('/ui/', request.url).toString();
+          // Next.js static export with basePath: '/ui' puts files at the root of the 'out' directory.
+          // Browsers request /ui/index.html, but we need to fetch /index.html from the assets.
+          let assetPath = url.pathname;
+          
+          if (assetPath.startsWith('/ui')) {
+            assetPath = assetPath.replace(/^\/ui/, '');
           }
-          return await env.ASSETS.fetch(new Request(targetUrl, request));
+          
+          // If empty or just '/', serve index.html
+          if (assetPath === '' || assetPath === '/') {
+            assetPath = '/index.html';
+          }
+          
+          return await env.ASSETS.fetch(new Request(new URL(assetPath, request.url).toString(), request));
         }
       } catch (e) {}
     }
