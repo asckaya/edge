@@ -32,6 +32,7 @@ export const configStashMiniRules = `rules:
 
   # 国内直连
   - RULE-SET,geolocation-cn,🔒 国内服务
+  - RULE-SET,cn,🔒 国内服务,no-resolve
   # GeoIP 国内 IP 段兜底（解决腾讯会议等 CN App 直连 IP 被漏网之鱼匹配的问题）
   - RULE-SET,cn-ip,🔒 国内服务,no-resolve
 

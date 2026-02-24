@@ -163,6 +163,14 @@ export const configStashMiniRuleProviders = `rule-providers:
     path: ./ruleset/geolocation-!cn.mrs
     interval: 86400
 
+  cn:
+    type: http
+    format: mrs
+    behavior: domain
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cn.mrs"
+    path: ./ruleset/cn.mrs
+    interval: 86400
+
   # GeoIP 国内 IP 段（ipcidr）——解决 CN App 直连 IP 绕过域名规则的问题
   # 腾讯会议等 App 媒体流量直接连国内 IP，此规则兜底直连
   cn-ip:
