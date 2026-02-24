@@ -14,7 +14,7 @@ export default function ActionBox({ proxiesText, subs, configType }: Props) {
 
   const generateUrl = () => {
     // Generate URL based on inputs
-    const url = new URL('/sub', window.location.origin);
+    const url = new URL(window.location.origin);
     url.searchParams.set('type', configType);
     
     let hasSub = false;
