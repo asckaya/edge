@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --color-bg-dark: #0f172a;
+  --color-surface-dark: #1e293b;
+  --animate-slideup: slideUp 0.4s ease-out;
+  --animate-fadein: fadeIn 0.3s;
+  --animate-scalein: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 dark:bg-slate-900 dark:text-gray-100 min-h-screen flex items-center justify-center antialiased selection:bg-blue-500/30;
+  }
+}
