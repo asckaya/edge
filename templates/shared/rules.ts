@@ -9,6 +9,9 @@ export const configRules = `rules:
   # 广告拦截
   - RULE-SET,advertising,🛡️ 隐私防护
 
+  # 开发工具 (category-dev 包含 github/microsoft-dev/gitlab/jetbrains/docker 等)
+  - RULE-SET,category-dev,🐱 开发工具
+
   # 谷歌 / 苹果 / 微软
   - RULE-SET,google,🔍 谷歌服务
   - RULE-SET,google-ip,🔍 谷歌服务,no-resolve
@@ -59,9 +62,6 @@ export const configRules = `rules:
 
   # 苹果视频优先（在 apple 整体前）
   - RULE-SET,appletv,🎬 苹果视频
-
-  # 开发工具 (category-dev 包含 github/microsoft-dev/gitlab/jetbrains/docker 等)
-  - RULE-SET,category-dev,🐱 开发工具
 
   # AI 服务（category 覆盖主流服务；AI 编辑器单独列出确保不遗漏）
   - RULE-SET,category-ai-chat-!cn,💬 AI 服务

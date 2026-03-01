@@ -54,13 +54,13 @@ export const configStashMiniRules = `rules:
   # 游戏平台（仅境外）
   - RULE-SET,category-games-!cn,🎮 游戏平台
 
+  # 开发工具（github/npm/pypi 等）
+  - RULE-SET,category-dev,🐱 开发工具
+
   # 谷歌 / 苹果 / 微软
   - RULE-SET,google,🔍 谷歌服务
   - RULE-SET,apple,🍏 苹果服务
   - RULE-SET,microsoft,Ⓜ️ 微软服务
-
-  # 开发工具（github/npm/pypi 等）
-  - RULE-SET,category-dev,🐱 开发工具
 
   # 云服务 / Cloudflare
   - RULE-SET,cloudflare,☁️ 云服务
