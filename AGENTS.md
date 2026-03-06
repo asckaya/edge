@@ -130,7 +130,7 @@ bun gen-url.ts --type stash-mini  # Stash Mini
 
 ### `local-test.ts`
 
-本地验证 Worker 逻辑，输出 `output.yaml`。
+本地验证 Worker 逻辑，对 `mihomo`、`stash`、`stash-mini` 三种类型进行自动化测试，确保无引用错误，并输出 `output-{type}.yaml`。
 
 ```bash
 bun local-test.ts

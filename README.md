@@ -106,6 +106,6 @@ https://your-worker.workers.dev/?type=stash-mini&secret=xxx&Airport1=https://sub
 
 ```bash
 bun install
-bun local-test.ts        # 生成 output.yaml 并预览 proxy-groups
+bun local-test.ts        # 生成各平台 output-{type}.yaml 并验证一致性
 npx wrangler dev         # 本地启动 Worker（监听 localhost:8787）
 ```
