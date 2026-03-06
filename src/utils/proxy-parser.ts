@@ -117,20 +117,27 @@ export function parseProxyUri(uri: string): string {
 
         } else if (protocol === 'ss') {
           let method = 'aes-256-gcm';
+          let password = url.password || '';
           let userPass = url.username;
 
-          if (!userPass.includes(':')) {
+          if (!userPass.includes(':') && !password) {
             try {
               const decoded = atob(userPass);
               if (decoded.includes(':')) {
-                [method, userPass] = decoded.split(':');
+                const parts = decoded.split(':');
+                method = parts[0];
+                password = parts.slice(1).join(':');
               }
             } catch (e) {}
+          } else if (userPass.includes(':')) {
+            const parts = userPass.split(':');
+            method = parts[0];
+            password = parts.slice(1).join(':');
           } else {
-            [method, userPass] = userPass.split(':');
+            method = userPass;
           }
           node.cipher = method;
-          node.password = userPass;
+          node.password = password;
 
         } else if (protocol === 'tuic') {
           node.uuid = url.username;
@@ -178,7 +185,6 @@ export function parseProxyUri(uri: string): string {
             node.reserved = reservedParam.split(',').map(r => parseInt(r, 10) || 0);
           }
           
-          // Wireguard standard nodes often require public-key for self, but usually mobile URLs only have private and peer
           node['public-key'] = 'default-placeholder-pub';
         }
       }
