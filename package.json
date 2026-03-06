@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "test": "bun local-test.ts",
+    "test": "bun test",
+    "check": "tsc --noEmit",
     "deploy": "wrangler deploy"
   },
   "module": "index.ts",
