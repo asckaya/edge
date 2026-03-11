@@ -27,10 +27,6 @@ export const configRules = `rules:
   - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
   - RULE-SET,private,🏠 私有网络,no-resolve
 
-  # HttpDNS 拦截（CN App 绕过 + DoH 隧道）
-  - RULE-SET,category-httpdns-cn,🛡️ 隐私防护
-  - RULE-SET,category-doh,🛡️ 隐私防护
-
   # 广告拦截
   - RULE-SET,advertising,🛑 广告拦截
 

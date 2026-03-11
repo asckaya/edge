@@ -128,12 +128,12 @@ bun gen-url.ts --type stash-mini  # Stash Mini
 支持的协议：`hysteria2`（含端口跳跃）、`vless`、`trojan`、`ss`、`vmess`。
 自建节点配置需符合 `src/types.ts` 中的 Zod 架构（使用 `type` 而非 `protocol`，`skip-cert-verify` 而非 `insecure`）。
 
-### `local-test.ts`
+### `tests/local.test.ts`
 
 本地验证 Worker 逻辑，对 `mihomo`、`stash`、`stash-mini` 三种类型进行自动化测试，确保无引用错误，并输出 `output-{type}.yaml`。
 
 ```bash
-bun local-test.ts
+bun test tests/local.test.ts
 ```
 
 ---
@@ -160,7 +160,6 @@ bun local-test.ts
 | 🚀 节点选择 | 代理 | 主选择组 |
 | 🔗 节点链 / 🏮 入口 / 🛫 出口 | — | 多跳链路（Mihomo: dialer-proxy；Stash: 手动链） |
 | 🛑 广告拦截 | REJECT | 广告域名 |
-| 🛡️ 隐私防护 | REJECT | HttpDNS/DoH 拦截 |
 | 💬 AI 服务 | 代理 | OpenAI/Claude/Gemini 等 |
 | 📹 油管视频 | 代理 | YouTube |
 | 🎬 流媒体 | 代理 | Netflix/Disney+/HBO/Hulu/Prime/TikTok 等 |

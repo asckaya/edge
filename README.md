@@ -80,7 +80,8 @@ https://your-worker.workers.dev/?type=stash-mini&secret=xxx&Airport1=https://sub
 .
 ├── index.ts                          # Worker 入口（路由 & 模板组装）
 ├── gen-url.ts                        # 本地 URL 生成工具
-├── local-test.ts                     # 本地测试脚本
+├── tests/
+│   └── local.test.ts                 # 本地测试脚本
 ├── example.yaml                      # 配置文件模板
 ├── proxy.yaml                        # 你的本地配置（gitignored）
 ├── templates/
@@ -106,6 +107,6 @@ https://your-worker.workers.dev/?type=stash-mini&secret=xxx&Airport1=https://sub
 
 ```bash
 bun install
-bun local-test.ts        # 生成各平台 output-{type}.yaml 并验证一致性
+bun test tests/local.test.ts        # 生成各平台 output-{type}.yaml 并验证一致性
 npx wrangler dev         # 本地启动 Worker（监听 localhost:8787）
 ```

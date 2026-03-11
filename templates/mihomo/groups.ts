@@ -28,10 +28,6 @@ export const configMihomoGroupsMid = `  - name: 🛑 广告拦截
     type: select
     proxies: [REJECT, DIRECT, 🚀 节点选择, {{AUTO_GROUPS_LIST}}]
 
-  - name: 🛡️ 隐私防护
-    type: select
-    proxies: [REJECT, DIRECT, 🚀 节点选择]
-
   - name: 💬 AI 服务
     type: select
     proxies: [🚀 节点选择, DIRECT, REJECT, {{AUTO_GROUPS_LIST}}]

@@ -9,24 +9,6 @@
 
 export const configRuleProviders = `rule-providers:
   # -- 隐私 & 广告拦截 -----------------------------------------
-  # category-httpdns-cn: CN 应用的 HttpDNS 绕过（比 httpdns 更全）
-  category-httpdns-cn:
-    type: http
-    format: mrs
-    behavior: domain
-    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-httpdns-cn.mrs"
-    path: ./ruleset/category-httpdns-cn.mrs
-    interval: 86400
-
-  # category-doh: DoH 服务端点（防止 App 绕过本地 DNS）
-  category-doh:
-    type: http
-    format: mrs
-    behavior: domain
-    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-doh.mrs"
-    path: ./ruleset/category-doh.mrs
-    interval: 86400
-
   advertising:
     type: http
     format: mrs
