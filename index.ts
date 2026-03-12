@@ -124,8 +124,9 @@ export default {
       // 2. Dialer Provider (only for Mihomo)
       if (!isStash && !isStashMini) {
         const dialerName = `${name}_dialer`;
+        const dialerGroupName = `${name} (链)`;
         const dialerAutoGroupName = `⚡ ${name} 自动选择 (链)`;
-        dialerProviderNames.push(dialerName);
+        dialerProviderNames.push(dialerGroupName);
         dialerAutoGroupNames.push(dialerAutoGroupName);
 
         proxyProvidersSection += `  ${dialerName}:
@@ -145,7 +146,7 @@ export default {
       dialer-proxy: 🛫 出口节点
 `;
 
-        dynamicGroupsSection += `  - name: ${name} (链)
+        dynamicGroupsSection += `  - name: ${dialerGroupName}
     type: select
     use: [${dialerName}]
   - name: ${dialerAutoGroupName}

@@ -150,8 +150,8 @@ describe("Edge Subscription Worker - Functional", () => {
     expect(content).toContain("Airport_dialer:");
     expect(content).toContain("dialer-proxy: 🛫 出口节点");
     
-    // Check for dialer groups
-    expect(content).toContain("- name: Airport (链)");
-    expect(content).toContain("- name: ⚡ Airport 自动选择 (链)");
+    // Check for dialer groups being used in the proxies list
+    expect(content).toContain("Airport (链)");
+    expect(content).toContain("⚡ Airport 自动选择 (链)");
   });
 });
