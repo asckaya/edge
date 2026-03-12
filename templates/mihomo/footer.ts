@@ -19,7 +19,7 @@ dns:
     - 223.5.5.5
   nameserver-policy:
     "rule-set:openai,anthropic,google-gemini,deepseek,perplexity": "https://8.8.8.8/dns-query"
-    "rule-set:geolocation-!cn": "https://1.1.1.1/dns-query"
+    "rule-set:geolocation-!cn": "https://8.8.8.8/dns-query"
     "rule-set:geolocation-cn,cn": "https://dns.alidns.com/dns-query"
   fallback:
     - 8.8.8.8
