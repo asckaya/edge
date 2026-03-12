@@ -28,11 +28,11 @@ export const configStashMiniRules = `rules:
   - IP-CIDR,100.64.0.0/10,DIRECT,no-resolve
   - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
   - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
-  - RULE-SET,private,🏠 私有网络,no-resolve
+  - RULE-SET,private,🏠 私有网络
 
   # 国内直连
   - RULE-SET,geolocation-cn,🔒 国内服务
-  - RULE-SET,cn,🔒 国内服务,no-resolve
+  - RULE-SET,cn,🔒 国内服务
   # GeoIP 国内 IP 段兜底（解决腾讯会议等 CN App 直连 IP 被漏网之鱼匹配的问题）
   - RULE-SET,cn-ip,🔒 国内服务,no-resolve
 

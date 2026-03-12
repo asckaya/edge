@@ -72,7 +72,7 @@ export const configStashGroupsMid = `  - name: 🛑 广告拦截
 
   - name: 🍏 苹果服务
     type: select
-    proxies: [🚀 节点选择, DIRECT, REJECT, {{AUTO_GROUPS_LIST}}]
+    proxies: [DIRECT, 🚀 节点选择, REJECT, {{AUTO_GROUPS_LIST}}]
     include-all-proxies: true
     use: [{{PROVIDERS_LIST}}]
 
@@ -97,6 +97,12 @@ export const configStashGroupsMid = `  - name: 🛑 广告拦截
   - name: 🎮 游戏平台
     type: select
     proxies: [🚀 节点选择, DIRECT, REJECT, {{AUTO_GROUPS_LIST}}]
+    include-all-proxies: true
+    use: [{{PROVIDERS_LIST}}]
+
+  - name: 🎮 游戏下载
+    type: select
+    proxies: [DIRECT, 🚀 节点选择, REJECT, {{AUTO_GROUPS_LIST}}]
     include-all-proxies: true
     use: [{{PROVIDERS_LIST}}]
 
@@ -132,7 +138,7 @@ export const configStashGroupsMid = `  - name: 🛑 广告拦截
 
   - name: 🧲 BT/PT
     type: select
-    proxies: [🚀 节点选择, DIRECT, REJECT, {{AUTO_GROUPS_LIST}}]
+    proxies: [DIRECT, 🚀 节点选择, REJECT, {{AUTO_GROUPS_LIST}}]
     include-all-proxies: true
     use: [{{PROVIDERS_LIST}}]
 
