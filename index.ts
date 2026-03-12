@@ -80,19 +80,21 @@ export default {
     let dynamicGroupsSection = '';
     const providerNames: string[] = [];
     const autoGroupNames: string[] = [];
+    const dialerProviderNames: string[] = [];
+    const dialerAutoGroupNames: string[] = [];
 
     // User-Agent adapts to config type
     const userAgent = (isStash || isStashMini) ? 'Stash' : 'clash.meta';
 
     subscriptions.forEach((sub) => {
       const { name, url: subUrl } = sub;
+      const safeName = name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+      
       providerNames.push(name);
-
       const autoGroupName = `⚡ ${name} 自动选择`;
       autoGroupNames.push(autoGroupName);
 
-      const safeName = name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-
+      // 1. Regular Provder
       proxyProvidersSection += `  ${name}:
     type: http
     url: "${subUrl}"
@@ -118,10 +120,48 @@ export default {
     interval: 300
     lazy: false
 `;
+
+      // 2. Dialer Provider (only for Mihomo)
+      if (!isStash && !isStashMini) {
+        const dialerName = `${name}_dialer`;
+        const dialerAutoGroupName = `⚡ ${name} 自动选择 (链)`;
+        dialerProviderNames.push(dialerName);
+        dialerAutoGroupNames.push(dialerAutoGroupName);
+
+        proxyProvidersSection += `  ${dialerName}:
+    type: http
+    url: "${subUrl}"
+    path: ./providers/${safeName}_dialer.yaml
+    interval: 3600
+    health-check:
+      enable: true
+      url: "https://www.gstatic.com/generate_204"
+      interval: 300
+      lazy: true
+    header:
+      User-Agent:
+        - "${userAgent}"
+    override:
+      dialer-proxy: 🛫 出口节点
+`;
+
+        dynamicGroupsSection += `  - name: ${name} (链)
+    type: select
+    use: [${dialerName}]
+  - name: ${dialerAutoGroupName}
+    type: url-test
+    use: [${dialerName}]
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    lazy: false
+`;
+      }
     });
 
     const providersList = providerNames.join(', ');
     const autoGroupsList = autoGroupNames.join(', ');
+    const dialerProvidersList = dialerProviderNames.join(', ');
+    const dialerAutoGroupsList = dialerAutoGroupNames.join(', ');
 
     // Self-hosted group
     const configSelfHostedGroup = customProxyNames.length > 0
@@ -140,6 +180,8 @@ export default {
     const fillPlaceholders = (s: string) => s
       .replace(/{{PROVIDERS_LIST}}/g, providersList)
       .replace(/{{AUTO_GROUPS_LIST}}/g, autoGroupsList)
+      .replace(/{{DIALER_PROVIDERS_LIST}}/g, dialerProvidersList)
+      .replace(/{{DIALER_AUTO_GROUPS_LIST}}/g, dialerAutoGroupsList)
       .replace(/{{SELF_HOSTED_GROUP}}/g, selfHostedPlaceholder)
       // Clean up any trailing ", ]" or ",  ]" caused by empty placeholders
       .replace(/,\s*]/g, ']')
@@ -149,8 +191,7 @@ export default {
     const groupsHeader = fillPlaceholders(tplGroupsHeader);
     const groupsMid = fillPlaceholders(tplGroupsMid);
 
-    // groupsHeader already starts with "proxy-groups:\n"
-    const finalYaml = [
+    let finalYaml = [
       tplHeader,
       subscriptions.length > 0 ? proxyProvidersSection : '',
       customProxies,
@@ -162,6 +203,12 @@ export default {
       tplRuleProviders,
       tplRules,
     ].join('\n');
+
+    const ghProxy = searchParams.get('gh_proxy');
+    if (ghProxy) {
+      finalYaml = finalYaml.replace(/https:\/\/(raw\.)?githubusercontent\.com\//g, `${ghProxy}https://$1githubusercontent.com/`);
+      finalYaml = finalYaml.replace(/https:\/\/github\.com\//g, `${ghProxy}https://github.com/`);
+    }
 
     return new Response(finalYaml, {
       headers: {

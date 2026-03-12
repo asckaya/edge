@@ -136,4 +136,22 @@ describe("Edge Subscription Worker - Functional", () => {
       expect(content).toContain("RawYAML");
     });
   });
+
+  test("Mihomo Dialer Proxy Chaining", async () => {
+    const req = new Request("http://localhost/?Airport=http://sub.com");
+    const res = await worker.fetch(req, {}, {});
+    const content = await res.text();
+    
+    // Check that Entrance node group doesn't have dialer-proxy
+    expect(content).toContain("- name: 🏮 入口节点");
+    expect(content).not.toContain("dialer-proxy: 🛫 出口节点\n    include-all-proxies: true");
+    
+    // Check for dialer provider
+    expect(content).toContain("Airport_dialer:");
+    expect(content).toContain("dialer-proxy: 🛫 出口节点");
+    
+    // Check for dialer groups
+    expect(content).toContain("- name: Airport (链)");
+    expect(content).toContain("- name: ⚡ Airport 自动选择 (链)");
+  });
 });

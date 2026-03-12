@@ -6,9 +6,10 @@ interface Props {
   proxiesText: string;
   subs: Subscription[];
   configType: string;
+  ghProxy?: string;
 }
 
-export default function ActionBox({ proxiesText, subs, configType }: Props) {
+export default function ActionBox({ proxiesText, subs, configType, ghProxy }: Props) {
   const [resultUrl, setResultUrl] = useState('');
   const [copied, setCopied] = useState(false);
 
@@ -36,6 +37,10 @@ export default function ActionBox({ proxiesText, subs, configType }: Props) {
     if(rawProxies) {
       const proxiesParam = rawProxies.split('\n').map(l => l.trim()).filter(Boolean).join('\n');
       url.searchParams.set('proxies', proxiesParam);
+    }
+    
+    if (ghProxy?.trim()) {
+      url.searchParams.set('gh_proxy', ghProxy.trim());
     }
 
     setResultUrl(url.toString());

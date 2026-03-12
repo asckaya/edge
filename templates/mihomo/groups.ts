@@ -14,9 +14,7 @@ export const configMihomoGroupsHeader = `proxy-groups:
 
   - name: 🏮 入口节点
     type: select
-    dialer-proxy: 🛫 出口节点
-    include-all-proxies: true
-    proxies: [DIRECT, {{AUTO_GROUPS_LIST}}, {{PROVIDERS_LIST}}, {{SELF_HOSTED_GROUP}}]
+    proxies: [DIRECT, {{DIALER_AUTO_GROUPS_LIST}}, {{DIALER_PROVIDERS_LIST}}]
 
   - name: 🛫 出口节点
     type: select

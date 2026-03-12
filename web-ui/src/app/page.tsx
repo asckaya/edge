@@ -9,6 +9,7 @@ export default function Home() {
   const [proxiesText, setProxiesText] = useState('');
   const [subs, setSubs] = useState<Subscription[]>([]);
   const [configType, setConfigType] = useState('mihomo');
+  const [ghProxy, setGhProxy] = useState('');
 
   // Load a default sub row on mount
   useEffect(() => {
@@ -71,6 +72,21 @@ export default function Home() {
       {/* External Subscriptions Section */}
       <SubscriptionPanel subs={subs} setSubs={setSubs} />
 
+      {/* GitHub Proxy Section */}
+      <div className="mb-6 space-y-2">
+        <label htmlFor="ghProxy" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+          GitHub Proxy (gh_proxy)
+        </label>
+        <input 
+          id="ghProxy"
+          type="text"
+          value={ghProxy}
+          onChange={(e) => setGhProxy(e.target.value)}
+          placeholder="e.g. https://gh-proxy.org/"
+          className="w-full p-4 bg-gray-50 dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-xl text-gray-800 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-mono"
+        />
+      </div>
+
       {/* Target Target Configuration */}
       <div className="mb-8 space-y-2">
         <label htmlFor="configType" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
@@ -94,7 +110,7 @@ export default function Home() {
       </div>
 
       {/* Actions & Result */}
-      <ActionBox proxiesText={proxiesText} subs={subs} configType={configType} />
+      <ActionBox proxiesText={proxiesText} subs={subs} configType={configType} ghProxy={ghProxy} />
 
       {/* Modals */}
       <NodeModal 

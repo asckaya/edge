@@ -4,7 +4,6 @@
 export const configMihomoFooter = `
 mode: rule
 find-process-mode: strict
-global-client-fingerprint: chrome
 
 dns:
   enable: true
