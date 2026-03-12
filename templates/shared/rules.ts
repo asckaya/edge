@@ -25,7 +25,7 @@ export const configRules = `rules:
   - IP-CIDR,100.64.0.0/10,DIRECT,no-resolve
   - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
   - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
-  - RULE-SET,private,🏠 私有网络,no-resolve
+  - RULE-SET,private,🏠 私有网络
 
   # 广告拦截
   - RULE-SET,adblockfilters,🛑 广告拦截
@@ -33,7 +33,7 @@ export const configRules = `rules:
 
   # 国内直连
   - RULE-SET,geolocation-cn,🔒 国内服务
-  - RULE-SET,cn,🔒 国内服务,no-resolve
+  - RULE-SET,cn,🔒 国内服务
   # GeoIP 国内 IP 段兜底（解决腾讯会议等直连 IP 被漏网之鱼匹配的问题）
   - RULE-SET,cn-ip,🔒 国内服务,no-resolve
 
@@ -96,9 +96,9 @@ export const configRules = `rules:
   - RULE-SET,category-social-media-!cn,🌐 社交媒体
   - RULE-SET,twitter-ip,🌐 社交媒体,no-resolve
 
-  # 游戏平台（category-games-!cn 仅境外，避免误伤国内；category-game-platforms-download 补充 EA/Riot CDN）
+  # 游戏平台（category-games-!cn 仅境外，避免误伤国内；category-game-platforms-download 补充 EA/Riot/Steam 等 CDN）
+  - RULE-SET,category-game-platforms-download,🎮 游戏下载
   - RULE-SET,category-games-!cn,🎮 游戏平台
-  - RULE-SET,category-game-platforms-download,🎮 游戏平台
 
   # 教育资源
   - RULE-SET,category-scholar-!cn,📚 教育资源
