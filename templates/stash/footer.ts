@@ -81,6 +81,14 @@ dns:
     - "+.office.com"
     - "+.office365.com"
     - "broadcast.xboxlive.com"
+    - "+.github.com"
+    - "+.githubusercontent.com"
+    - "+.gitlab.com"
+    - "+.bitbucket.org"
+    - "+.gitea.com"
+    - "+.sourceforge.net"
+    - "+.launchpad.net"
+    - "+.codeberg.org"
 
 profile:
   store-selected: true
