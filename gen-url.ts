@@ -23,6 +23,10 @@ function generateUrl() {
         process.exit(1);
     }
 
+    // Parse --gh-proxy <value>
+    const ghProxyIdx = process.argv.indexOf('--gh-proxy');
+    const cliGhProxy = ghProxyIdx !== -1 ? process.argv[ghProxyIdx + 1] : null;
+
     const configFile = 'proxy.yaml';
 
     if (!fs.existsSync(configFile)) {
@@ -46,6 +50,8 @@ function generateUrl() {
     }
     const secret = parsedYaml?.secret || '';
     const providers = parsedYaml?.provider || [];
+    const yamlGhProxy = parsedYaml?.gh_proxy || null;
+    const ghProxy = cliGhProxy || yamlGhProxy;
     
     let proxies: ProxyNode[] = [];
     try {
@@ -60,6 +66,7 @@ function generateUrl() {
     const params = new URLSearchParams();
     if (secret) params.set('secret', secret);
     if (configType !== 'mihomo') params.set('type', configType);
+    if (ghProxy) params.set('gh_proxy', ghProxy);
 
     for (const p of providers) {
         if (p.name && p.url) params.set(p.name, p.url);
