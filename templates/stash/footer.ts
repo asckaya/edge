@@ -27,7 +27,6 @@ dns:
     "geosite:openai,geosite:anthropic,geosite:google-gemini,geosite:deepseek,geosite:perplexity": "https://8.8.8.8/dns-query"
     "geosite:geolocation-!cn": "https://1.1.1.1/dns-query"
     "geosite:geolocation-cn,geosite:cn": "https://dns.alidns.com/dns-query"
-    "github.com,raw.githubusercontent.com,gitlab.com,bitbucket.org,gitea.com,sourceforge.net,launchpad.net,codeberg.org": "https://dns.alidns.com/dns-query"
   fallback:
     - 8.8.8.8
     - https://8.8.8.8/dns-query

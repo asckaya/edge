@@ -21,7 +21,6 @@ dns:
     "rule-set:openai,anthropic,google-gemini,deepseek,perplexity": "https://8.8.8.8/dns-query"
     "rule-set:geolocation-!cn": "https://8.8.8.8/dns-query"
     "rule-set:geolocation-cn,cn": "https://dns.alidns.com/dns-query"
-    "github.com,raw.githubusercontent.com,gitlab.com,bitbucket.org,gitea.com,sourceforge.net,launchpad.net,codeberg.org": "https://dns.alidns.com/dns-query"
   fallback:
     - 8.8.8.8
     - https://8.8.8.8/dns-query
