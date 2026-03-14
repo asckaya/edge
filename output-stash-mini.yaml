@@ -1,0 +1,454 @@
+ipv6: false
+log-level: info
+mixed-port: 7897
+allow-lan: true
+unified-delay: true
+tcp-concurrent: true
+
+proxy-providers:
+  Airport:
+    type: http
+    url: "http://sub.com"
+    path: ./providers/airport.yaml
+    interval: 3600
+    health-check:
+      enable: true
+      url: "https://www.gstatic.com/generate_204"
+      interval: 300
+      lazy: true
+    header:
+      User-Agent:
+        - "Stash"
+
+
+proxy-groups:
+  - name: 🚀 节点选择
+    type: select
+    proxies: [DIRECT, REJECT, 🏮 入口节点, ⚡ Airport 自动选择, Airport]
+
+  - name: 🏮 入口节点
+    type: select
+    dialer-proxy: 🛫 出口节点
+    proxies: [DIRECT, ⚡ Airport 自动选择, Airport]
+
+  - name: 🛫 出口节点
+    type: select
+    include-all-proxies: true
+    proxies: [DIRECT, ⚡ Airport 自动选择, Airport]
+
+
+  - name: Airport
+    type: select
+    use: [Airport]
+  - name: ⚡ Airport 自动选择
+    type: url-test
+    use: [Airport]
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    lazy: false
+
+  - name: 🛑 广告拦截
+    type: select
+    proxies: [REJECT, DIRECT, 🚀 节点选择]
+
+  - name: 💬 AI 服务
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ Airport 自动选择]
+    include-all-proxies: true
+    use: [Airport]
+
+  - name: 📹 油管视频
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ Airport 自动选择]
+    include-all-proxies: true
+    use: [Airport]
+
+  - name: 🎬 流媒体
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ Airport 自动选择]
+    include-all-proxies: true
+    use: [Airport]
+
+  - name: 📲 电报消息
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ Airport 自动选择]
+    include-all-proxies: true
+    use: [Airport]
+
+  - name: 🌐 社交媒体
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ Airport 自动选择]
+    include-all-proxies: true
+    use: [Airport]
+
+  - name: 🎮 游戏平台
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ Airport 自动选择]
+    include-all-proxies: true
+    use: [Airport]
+
+  - name: 🔍 谷歌服务
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ Airport 自动选择]
+    include-all-proxies: true
+    use: [Airport]
+
+  - name: 🍏 苹果服务
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ Airport 自动选择]
+    include-all-proxies: true
+    use: [Airport]
+
+  - name: Ⓜ️ 微软服务
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ Airport 自动选择]
+    include-all-proxies: true
+    use: [Airport]
+
+  - name: 🐱 开发工具
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ Airport 自动选择]
+    include-all-proxies: true
+    use: [Airport]
+
+  - name: ☁️ 云服务
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ Airport 自动选择]
+    include-all-proxies: true
+    use: [Airport]
+
+  - name: 🔒 国内服务
+    type: select
+    proxies: [DIRECT, REJECT, 🚀 节点选择, ⚡ Airport 自动选择]
+    include-all-proxies: true
+    use: [Airport]
+
+  - name: 🏠 私有网络
+    type: select
+    proxies: [DIRECT, REJECT, 🚀 节点选择]
+
+  - name: 🌐 非中国
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ Airport 自动选择]
+    include-all-proxies: true
+    use: [Airport]
+
+  - name: 🐟 漏网之鱼
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ Airport 自动选择]
+    include-all-proxies: true
+    use: [Airport]
+
+
+mode: rule
+
+dns:
+  enable: true
+  listen: "127.0.0.1:1053"
+  use-system-hosts: false
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+  nameserver:
+    - https://dns.alidns.com/dns-query
+    - 223.5.5.5
+  nameserver-policy:
+    "geosite:openai,geosite:anthropic,geosite:google-gemini,geosite:deepseek,geosite:perplexity": "https://8.8.8.8/dns-query"
+    "geosite:geolocation-!cn": "https://1.1.1.1/dns-query"
+    "geosite:geolocation-cn,geosite:cn": "https://dns.alidns.com/dns-query"
+  fallback:
+    - 8.8.8.8
+    - https://8.8.8.8/dns-query
+  fallback-filter:
+    geoip: true
+    ipcidr: [240.0.0.0/4, 0.0.0.0/32, 127.0.0.1/32]
+    domain:
+      - +.google.com
+      - +.facebook.com
+      - +.twitter.com
+      - +.youtube.com
+  fake-ip-filter:
+    - "*.lan"
+    - "*.localdomain"
+    - "*.example"
+    - "*.invalid"
+    - "*.localhost"
+    - "*.test"
+    - "*.local"
+    - "*.home.arpa"
+    - "+.pool.ntp.org"
+    - "time.*.com"
+    - "time.*.gov"
+    - "time.*.edu.cn"
+    - "time.*.apple.com"
+    - "ntp.*.com"
+    - "*.time.edu.cn"
+    - "*.ntp.org.cn"
+    - "time1.cloud.tencent.com"
+    - "*.msftconnecttest.com"
+    - "*.msftncsi.com"
+    - "localhost.ptlogin2.qq.com"
+    - "+.srv.nintendo.net"
+    - "+.stun.playstation.net"
+    - "xbox.*.microsoft.com"
+    - "stun.*.*"
+    - "stun.*.*.*"
+    - "+.stun.*.*"
+    - "mesu.apple.com"
+    - "swscan.apple.com"
+    - "swquery.apple.com"
+    - "lens.l.google.com"
+    - "stun.l.google.com"
+    - "+.nflxvideo.net"
+    - "+.ext.skype.com"
+    - "+.skype.com"
+    - "+.teams.microsoft.com"
+    - "+.microsoft.com"
+    - "+.msn.com"
+    - "+.windows.com"
+    - "+.microsoftonline.com"
+    - "+.office.com"
+    - "+.office365.com"
+    - "broadcast.xboxlive.com"
+    - "+.github.com"
+    - "+.githubusercontent.com"
+    - "+.gitlab.com"
+    - "+.bitbucket.org"
+    - "+.gitea.com"
+    - "+.sourceforge.net"
+    - "+.launchpad.net"
+    - "+.codeberg.org"
+
+profile:
+  store-selected: true
+
+rule-providers:
+  # -- 广告拦截 ------------------------------------------------
+  advertising:
+    type: http
+    format: mrs
+    behavior: domain
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-ads-all.mrs"
+    path: ./ruleset/advertising.mrs
+    interval: 86400
+
+  # -- AI 服务 ------------------------------------------------
+  # category-ai-chat-!cn 覆盖 openai/anthropic/gemini/deepseek/perplexity/xai 等
+  category-ai-chat-!cn:
+    type: http
+    format: mrs
+    behavior: domain
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-ai-chat-!cn.mrs"
+    path: ./ruleset/category-ai-chat-!cn.mrs
+    interval: 86400
+
+  # -- 流媒体 -------------------------------------------------
+  # youtube 独立集（不在 category-entertainment@!cn 的 .mrs 中）
+  youtube:
+    type: http
+    format: mrs
+    behavior: domain
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/youtube.mrs"
+    path: ./ruleset/youtube.mrs
+    interval: 86400
+
+  # category-entertainment@!cn 主要覆盖 TikTok/WebNovel；netflix/spotify/twitch/biliintl 等
+  category-entertainment@!cn:
+    type: http
+    format: mrs
+    behavior: domain
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-entertainment@!cn.mrs"
+    path: ./ruleset/category-entertainment@!cn.mrs
+    interval: 86400
+
+  # -- 即时通讯 -----------------------------------------------
+  # category-voip 覆盖 telegram/signal/whatsapp/line/zoom 等
+  category-voip:
+    type: http
+    format: mrs
+    behavior: domain
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-voip.mrs"
+    path: ./ruleset/category-voip.mrs
+    interval: 86400
+
+  # -- 社交媒体 -----------------------------------------------
+  # category-social-media-!cn 覆盖 twitter/fb/ig/tiktok/discord/reddit 等
+  category-social-media-!cn:
+    type: http
+    format: mrs
+    behavior: domain
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-social-media-!cn.mrs"
+    path: ./ruleset/category-social-media-!cn.mrs
+    interval: 86400
+
+  # -- 苹果服务 -----------------------------------------------
+  # apple 包含 App Store / iCloud / Apple TV+ 等全部苹果域名
+  apple:
+    type: http
+    format: mrs
+    behavior: domain
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/apple.mrs"
+    path: ./ruleset/apple.mrs
+    interval: 86400
+
+  # -- 谷歌服务 -----------------------------------------------
+  google:
+    type: http
+    format: mrs
+    behavior: domain
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/google.mrs"
+    path: ./ruleset/google.mrs
+    interval: 86400
+
+  # -- 微软服务 -----------------------------------------------
+  # microsoft 含 OneDrive / Office / Azure 等
+  microsoft:
+    type: http
+    format: mrs
+    behavior: domain
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/microsoft.mrs"
+    path: ./ruleset/microsoft.mrs
+    interval: 86400
+
+  # -- 开发工具 -----------------------------------------------
+  # category-dev 含 github/npm/pypi/rubygems/crates.io 等
+  category-dev:
+    type: http
+    format: mrs
+    behavior: domain
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-dev.mrs"
+    path: ./ruleset/category-dev.mrs
+    interval: 86400
+
+  # -- 游戏平台 -----------------------------------------------
+  # category-games-!cn 仅境外游戏（避免误伤国内游戏）
+  category-games-!cn:
+    type: http
+    format: mrs
+    behavior: domain
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-games-!cn.mrs"
+    path: ./ruleset/category-games-!cn.mrs
+    interval: 86400
+
+  # -- 云服务 -------------------------------------------------
+  cloudflare:
+    type: http
+    format: mrs
+    behavior: domain
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cloudflare.mrs"
+    path: ./ruleset/cloudflare.mrs
+    interval: 86400
+
+  # -- 地理数据 -----------------------------------------------
+  private:
+    type: http
+    format: mrs
+    behavior: domain
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/private.mrs"
+    path: ./ruleset/private.mrs
+    interval: 86400
+
+  geolocation-cn:
+    type: http
+    format: mrs
+    behavior: domain
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/geolocation-cn.mrs"
+    path: ./ruleset/geolocation-cn.mrs
+    interval: 86400
+
+  geolocation-!cn:
+    type: http
+    format: mrs
+    behavior: domain
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/geolocation-!cn.mrs"
+    path: ./ruleset/geolocation-!cn.mrs
+    interval: 86400
+
+  cn:
+    type: http
+    format: mrs
+    behavior: domain
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cn.mrs"
+    path: ./ruleset/cn.mrs
+    interval: 86400
+
+  # GeoIP 国内 IP 段（ipcidr）——解决 CN App 直连 IP 绕过域名规则的问题
+  # 腾讯会议等 App 媒体流量直接连国内 IP，此规则兜底直连
+  cn-ip:
+    type: http
+    format: mrs
+    behavior: ipcidr
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/cn.mrs"
+    path: ./ruleset/cn-ip.mrs
+    interval: 86400
+
+rules:
+  # 广告拦截
+  - RULE-SET,advertising,🛑 广告拦截
+
+  # 安全拒绝（STUN/WebRTC 端口，防 IP 泄漏）
+  - DST-PORT,3478,REJECT
+  - DST-PORT,3479,REJECT
+  - DST-PORT,5349,REJECT
+  - DST-PORT,5350,REJECT
+  - DST-PORT,19302,REJECT
+  - DST-PORT,19303,REJECT
+  - DST-PORT,19304,REJECT
+  - DST-PORT,19305,REJECT
+  - DST-PORT,19306,REJECT
+  - DST-PORT,19307,REJECT
+  - DST-PORT,19308,REJECT
+  - DST-PORT,19309,REJECT
+
+  # SSH 直连
+  - DST-PORT,22,DIRECT
+
+  # 局域网 & 私有网络
+  - IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
+  - IP-CIDR,100.64.0.0/10,DIRECT,no-resolve
+  - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
+  - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
+  - RULE-SET,private,🏠 私有网络
+
+  # 国内直连
+  - RULE-SET,geolocation-cn,🔒 国内服务
+  - RULE-SET,cn,🔒 国内服务
+  # GeoIP 国内 IP 段兜底（解决腾讯会议等 CN App 直连 IP 被漏网之鱼匹配的问题）
+  - RULE-SET,cn-ip,🔒 国内服务,no-resolve
+
+  # AI 服务
+  - RULE-SET,category-ai-chat-!cn,💬 AI 服务
+
+  # 油管
+  - RULE-SET,youtube,📹 油管视频
+
+  # 流媒体（category-entertainment@!cn 主要覆盖 TikTok；netflix/spotify/twitch/biliintl 等）
+  - RULE-SET,category-entertainment@!cn,🎬 流媒体
+
+  # 即时通讯（telegram/signal/whatsapp 等）
+  - RULE-SET,category-voip,📲 电报消息
+
+  # 社交媒体（twitter/fb/ig/tiktok/discord/reddit 等）
+  - RULE-SET,category-social-media-!cn,🌐 社交媒体
+
+  # 游戏平台（仅境外）
+  - RULE-SET,category-games-!cn,🎮 游戏平台
+
+  # 开发工具（github/npm/pypi 等）
+  - RULE-SET,category-dev,🐱 开发工具
+
+  # 谷歌 / 苹果 / 微软
+  - RULE-SET,google,🔍 谷歌服务
+  - RULE-SET,apple,🍏 苹果服务
+  - RULE-SET,microsoft,Ⓜ️ 微软服务
+
+  # 云服务 / Cloudflare
+  - RULE-SET,cloudflare,☁️ 云服务
+
+  # 非中国兜底（代理）
+  - RULE-SET,geolocation-!cn,🌐 非中国
+
+  # 漏网之鱼
+  - MATCH,🐟 漏网之鱼
