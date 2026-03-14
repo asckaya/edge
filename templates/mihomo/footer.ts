@@ -18,7 +18,7 @@ dns:
     - https://dns.alidns.com/dns-query
     - 223.5.5.5
   nameserver-policy:
-    "rule-set:openai,anthropic,google-gemini,deepseek,perplexity,category-dev": ["https://8.8.8.8/dns-query", "8.8.8.8"]
+    "rule-set:category-ai-chat-!cn,category-dev": ["https://8.8.8.8/dns-query", "8.8.8.8"]
     "rule-set:geolocation-!cn": ["https://8.8.8.8/dns-query", "8.8.8.8"]
     "rule-set:geolocation-cn,cn": ["https://dns.alidns.com/dns-query", "223.5.5.5"]
   fallback:
