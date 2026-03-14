@@ -18,7 +18,7 @@ dns:
     - https://dns.alidns.com/dns-query
     - 223.5.5.5
   nameserver-policy:
-    "rule-set:openai,anthropic,google-gemini,deepseek,perplexity": "https://8.8.8.8/dns-query"
+    "rule-set:openai,anthropic,google-gemini,deepseek,perplexity,category-dev": "https://8.8.8.8/dns-query"
     "rule-set:geolocation-!cn": "https://8.8.8.8/dns-query"
     "rule-set:geolocation-cn,cn": "https://dns.alidns.com/dns-query"
   fallback:
@@ -148,8 +148,10 @@ dns:
     - "+.outlook.com"
     - "+.sharepoint.com"
     - "broadcast.xboxlive.com"
-    - "+.github.com"
-    - "+.githubusercontent.com"
+    - "github.com"
+    - "*.github.com"
+    - "githubusercontent.com"
+    - "*.githubusercontent.com"
     - "+.gitlab.com"
     - "+.bitbucket.org"
     - "+.gitea.com"

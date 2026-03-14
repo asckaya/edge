@@ -80,8 +80,6 @@ export default {
     let dynamicGroupsSection = '';
     const providerNames: string[] = [];
     const autoGroupNames: string[] = [];
-    const dialerProviderNames: string[] = [];
-    const dialerAutoGroupNames: string[] = [];
 
     // User-Agent adapts to config type
     const userAgent = (isStash || isStashMini) ? 'Stash' : 'clash.meta';
@@ -120,49 +118,10 @@ export default {
     interval: 300
     lazy: false
 `;
-
-      // 2. Dialer Provider (only for Mihomo)
-      if (!isStash && !isStashMini) {
-        const dialerName = `${name}_dialer`;
-        const dialerGroupName = `${name} (链)`;
-        const dialerAutoGroupName = `⚡ ${name} 自动选择 (链)`;
-        dialerProviderNames.push(dialerGroupName);
-        dialerAutoGroupNames.push(dialerAutoGroupName);
-
-        proxyProvidersSection += `  ${dialerName}:
-    type: http
-    url: "${subUrl}"
-    path: ./providers/${safeName}_dialer.yaml
-    interval: 3600
-    health-check:
-      enable: true
-      url: "https://www.gstatic.com/generate_204"
-      interval: 300
-      lazy: true
-    header:
-      User-Agent:
-        - "${userAgent}"
-    override:
-      dialer-proxy: 🛫 出口节点
-`;
-
-        dynamicGroupsSection += `  - name: ${dialerGroupName}
-    type: select
-    use: [${dialerName}]
-  - name: ${dialerAutoGroupName}
-    type: url-test
-    use: [${dialerName}]
-    url: https://www.gstatic.com/generate_204
-    interval: 300
-    lazy: false
-`;
-      }
     });
 
     const providersList = providerNames.join(', ');
     const autoGroupsList = autoGroupNames.join(', ');
-    const dialerProvidersList = dialerProviderNames.join(', ');
-    const dialerAutoGroupsList = dialerAutoGroupNames.join(', ');
 
     // Self-hosted group
     const configSelfHostedGroup = customProxyNames.length > 0
@@ -181,12 +140,14 @@ export default {
     const fillPlaceholders = (s: string) => s
       .replace(/{{PROVIDERS_LIST}}/g, providersList)
       .replace(/{{AUTO_GROUPS_LIST}}/g, autoGroupsList)
-      .replace(/{{DIALER_PROVIDERS_LIST}}/g, dialerProvidersList)
-      .replace(/{{DIALER_AUTO_GROUPS_LIST}}/g, dialerAutoGroupsList)
       .replace(/{{SELF_HOSTED_GROUP}}/g, selfHostedPlaceholder)
       // Clean up any trailing ", ]" or ",  ]" caused by empty placeholders
       .replace(/,\s*]/g, ']')
+      // Clean up leading "[ , " caused by empty first placeholders
+      .replace(/\[\s*,/g, '[')
       // Clean up consecutive ", ," from multiple empty expansions
+      .replace(/,\s*,/g, ',')
+      // One more pass for overlapping matches like ", , ,"
       .replace(/,\s*,/g, ',');
 
     const groupsHeader = fillPlaceholders(tplGroupsHeader);

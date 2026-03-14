@@ -6,15 +6,15 @@ export const configMihomoGroupsHeader = `proxy-groups:
     type: select
     proxies: [DIRECT, REJECT, 🔗 节点链, {{AUTO_GROUPS_LIST}}, {{PROVIDERS_LIST}}, {{SELF_HOSTED_GROUP}}]
 
-  # 节点链：使用 dialer-proxy 替代已废弃的 relay 类型
-  # 流量路径：🔗 节点链 → 🏮 入口节点 --dialer-proxy--> 🛫 出口节点
+  # 节点链：使用策略组级别的 dialer-proxy，无需复制节点
   - name: 🔗 节点链
     type: select
     proxies: [🏮 入口节点]
 
   - name: 🏮 入口节点
     type: select
-    proxies: [DIRECT, {{DIALER_AUTO_GROUPS_LIST}}, {{DIALER_PROVIDERS_LIST}}]
+    dialer-proxy: 🛫 出口节点
+    proxies: [DIRECT, {{AUTO_GROUPS_LIST}}, {{PROVIDERS_LIST}}]
 
   - name: 🛫 出口节点
     type: select
