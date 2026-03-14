@@ -18,12 +18,12 @@ dns:
     - https://dns.alidns.com/dns-query
     - 223.5.5.5
   nameserver-policy:
-    "rule-set:openai,anthropic,google-gemini,deepseek,perplexity,category-dev": "https://8.8.8.8/dns-query"
-    "rule-set:geolocation-!cn": "https://8.8.8.8/dns-query"
-    "rule-set:geolocation-cn,cn": "https://dns.alidns.com/dns-query"
+    "rule-set:openai,anthropic,google-gemini,deepseek,perplexity,category-dev": ["https://8.8.8.8/dns-query", "8.8.8.8"]
+    "rule-set:geolocation-!cn": ["https://8.8.8.8/dns-query", "8.8.8.8"]
+    "rule-set:geolocation-cn,cn": ["https://dns.alidns.com/dns-query", "223.5.5.5"]
   fallback:
     - 8.8.8.8
-    - https://8.8.8.8/dns-query
+    - 114.114.114.114
   fallback-filter:
     geoip: true
     ipcidr: [240.0.0.0/4, 0.0.0.0/32, 127.0.0.1/32]
