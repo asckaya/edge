@@ -51,46 +51,6 @@ export const configRuleProviders = `rule-providers:
     path: ./ruleset/category-ai-chat-!cn.mrs
     interval: 86400
 
-  openai:
-    type: http
-    format: mrs
-    behavior: domain
-    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/openai.mrs"
-    path: ./ruleset/openai.mrs
-    interval: 86400
-
-  anthropic:
-    type: http
-    format: mrs
-    behavior: domain
-    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/anthropic.mrs"
-    path: ./ruleset/anthropic.mrs
-    interval: 86400
-
-  google-gemini:
-    type: http
-    format: mrs
-    behavior: domain
-    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/google-gemini.mrs"
-    path: ./ruleset/google-gemini.mrs
-    interval: 86400
-
-  deepseek:
-    type: http
-    format: mrs
-    behavior: domain
-    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/deepseek.mrs"
-    path: ./ruleset/deepseek.mrs
-    interval: 86400
-
-  perplexity:
-    type: http
-    format: mrs
-    behavior: domain
-    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/perplexity.mrs"
-    path: ./ruleset/perplexity.mrs
-    interval: 86400
-
   xai:
     type: http
     format: mrs
