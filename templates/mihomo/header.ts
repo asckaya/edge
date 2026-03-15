@@ -3,10 +3,16 @@
 
 export const configMihomoHeader = `tun:
   enable: false
-  stack: system
+  stack: mixed
   auto-route: true
   auto-redirect: true
   auto-detect-interface: true
+  inet4-route-address-exclude:
+    - 10.0.0.0/8
+    - 100.64.0.0/10
+    - 100.100.100.101/32
+    - 172.16.0.0/12
+    - 192.168.0.0/16
   dns-hijack:
     - any:53
     - tcp://any:53

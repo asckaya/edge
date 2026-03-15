@@ -456,6 +456,14 @@ export const configRuleProviders = `rule-providers:
     path: ./ruleset/private.mrs
     interval: 86400
 
+  private-ip:
+    type: http
+    format: mrs
+    behavior: ipcidr
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/private.mrs"
+    path: ./ruleset/private-ip.mrs
+    interval: 86400
+
   geolocation-cn:
     type: http
     format: mrs
