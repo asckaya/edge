@@ -1,40 +1,46 @@
 'use client';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import type { Subscription } from './SubscriptionPanel';
 
-interface Props {
+interface ActionBoxProps {
   proxiesText: string;
   subs: Subscription[];
   configType: string;
   ghProxy?: string;
 }
 
-export default function ActionBox({ proxiesText, subs, configType, ghProxy }: Props) {
+export default function ActionBox({ proxiesText, subs, configType, ghProxy }: ActionBoxProps) {
   const [resultUrl, setResultUrl] = useState('');
   const [copied, setCopied] = useState(false);
 
+  // Validation Logic
+  const isSafeName = (name: string) => /^[a-zA-Z0-9_\u4e00-\u9fa5]*$/.test(name);
+  const isUrl = (url: string) => url === '' || /^https?:\/\/.+/.test(url);
+  
+  const names = subs.map(s => s.name.trim()).filter(n => n !== '');
+  const hasDuplicateNames = names.some((name, index) => names.indexOf(name) !== index);
+  
+  const allNamesSafe = subs.every(s => isSafeName(s.name.trim()));
+  const allUrlsValid = subs.every(s => isUrl(s.url.trim()));
+  
+  const isAtLeastOneProvided = proxiesText.trim() !== '' || subs.some(s => s.name.trim() !== '' && s.url.trim() !== '');
+
+  const isValid = isAtLeastOneProvided && allNamesSafe && allUrlsValid && !hasDuplicateNames;
+
   const generateUrl = () => {
-    // Generate URL based on inputs
     const url = new URL(window.location.origin);
     url.searchParams.set('type', configType);
     
-    let hasSub = false;
     subs.forEach(sub => {
       const name = sub.name.trim();
       const sUrl = sub.url.trim();
       if (name && sUrl) {
         url.searchParams.set(name, sUrl);
-        hasSub = true;
       }
     });
 
     const rawProxies = proxiesText.trim();
-    if (!rawProxies && !hasSub) {
-      alert('Please provide at least a self-hosted proxy URI or an external subscription.');
-      return;
-    }
-
-    if(rawProxies) {
+    if (rawProxies) {
       const proxiesParam = rawProxies.split('\n').map(l => l.trim()).filter(Boolean).join('\n');
       url.searchParams.set('proxies', proxiesParam);
     }
@@ -61,12 +67,17 @@ export default function ActionBox({ proxiesText, subs, configType, ghProxy }: Pr
     <>
       <button 
         onClick={generateUrl}
-        className="w-full py-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold rounded-xl transition-all transform active:scale-[0.98] shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2"
+        disabled={!isValid}
+        className={`w-full py-4 font-semibold rounded-xl transition-all transform flex items-center justify-center gap-2 shadow-lg ${
+          isValid 
+            ? 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white active:scale-[0.98] shadow-blue-500/30' 
+            : 'bg-gray-200 dark:bg-slate-700 text-gray-400 dark:text-slate-500 cursor-not-allowed'
+        }`}
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
           <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
         </svg>
-        Build Configuration API
+        {isValid ? 'Build Configuration API' : 'Please fix errors to build'}
       </button>
 
       {resultUrl && (
