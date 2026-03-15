@@ -1,4 +1,6 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Edge — Web UI (Next.js)
+
+这是 **Edge** 订阅转换器的图形化界面。支持多订阅管理、智能节点拼接以及一键生成 Final URL。
 
 ## Getting Started
 

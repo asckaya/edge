@@ -59,7 +59,7 @@ Mihomo 和 Stash **完整版**共用的规则集，不要在这里做 iOS 专属
 
 | 文件 | 说明 |
 |---|---|
-| `rule-providers.ts` | **66 个** rule-providers（domain 类 + GeoIP ipcidr 类，MRS 格式） |
+| `rule-providers.ts` | **67 个** rule-providers（含 `private-ip` 聚合 IP 库） |
 | `rules.ts` | 与 providers 对应的路由规则，**优先级**：端口拒绝/直连 > 局域网 > 国内直连 > 核心服务 > AI > 流媒体 > 社交 > 游戏 > 云/其他 > 兜底 |
 
 **规则排列原则：** REJECT/DIRECT（DST-PORT、IP-CIDR）在最顶部；`geolocation-cn` 在所有代理规则之前；`geolocation-!cn` 作为非中文流量兜底；`MATCH` 最后。
@@ -148,8 +148,9 @@ bun test tests/local.test.ts
 3. **IP 规则（`behavior: ipcidr`）不可被域名规则替代**：
    - 域名规则只匹配 hostname，IP 规则匹配目标 IP 地址，两者完全不同维度
    - `telegram-ip`、`google-ip`、`netflix-ip`、`twitter-ip`、`cloudflare-ip`、`cn-ip` 都必须保留
-   - IP 规则必须配合 `no-resolve` 以防 DNS 回退
-4. **Mini 版额外原则：** 删除所有在 iOS 上不常用或已被 category 兜底的 provider，宁可走 `geolocation-!cn` 兜底也不占内存。
+  - **私有网络优化**：硬编码的 `10.x/100.x` IP 段已合并入 `private-ip` rule-provider，统一维护
+4. **Mini 版额外原则**：删除所有在 iOS 上不常用或已被 category 兜底的 provider，宁可走 `geolocation-!cn` 兜底也不占内存。
+5. **STUN 策略**：为保证 EasyTier/Tailscale 等 VPN 的 P2P 打洞质量，默认**不拦截** 3478/3479 等 STUN 端口。
 
 ---
 
@@ -179,7 +180,7 @@ bun test tests/local.test.ts
 | 🧲 BT/PT | 漏网之鱼 | 可切换为 DIRECT（国内 PT）或 REJECT |
 | ☁️ 云服务 | 代理 | Cloudflare/Dropbox/Mega |
 | 🔒 国内服务 | DIRECT | CN 域名 + 杀毒更新 + Windows Update |
-| 🏠 私有网络 | DIRECT | 10.x / 172.16.x / 192.168.x 等 |
+| 🏠 私有网络 | DIRECT | 由 `private-ip` (IP) + `private` (Domain) 共同接管 |
 | 🌐 非中国 | 代理 | geolocation-!cn 兜底 |
 | 🐟 漏网之鱼 | 代理 | MATCH 最终兜底 |
 
