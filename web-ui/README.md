@@ -1,38 +1,35 @@
 # Edge — Web UI (Next.js)
 
-这是 **Edge** 订阅转换器的图形化界面。支持多订阅管理、智能节点拼接以及一键生成 Final URL。
+这是 **Edge** 订阅转换器的图形化界面。
 
-## Getting Started
+## 核心功能
 
-First, run the development server:
+- **多订阅管理**：支持添加多个外部订阅源，支持 URL 格式自动校验。
+- **智能校验**：
+    - **名称安全**：自动拦截非法字符，确保 Provider 名称符合规范。
+    - **重复检查**：实时高亮重复的 Provider 名称。
+- **自建节点**：支持粘贴多个节点 URI，并自动识别不支持的协议格式（Warning 提示）。
+- **GitHub Proxy 组合框**：支持从常见镜像地址中快速选择，或自定义输入加速地址。
+- **一键构建**：自动拼接所有参数及节点，一键生成适用于 Mihomo/Stash 的 Final URL。
+
+## 快速开始
+
+首先安装依赖并启动开发服务器：
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+bun install
+bun run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+在浏览器中打开 [http://localhost:3000](http://localhost:3000) 即可看到结果。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 技术栈
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **框架**: Next.js (App Router)
+- **样式**: Tailwind CSS
+- **验证**: 实时前端校验逻辑
+- **构建**: 兼容 Cloudflare Assets 部署
 
-## Learn More
+## 部署说明
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+项目构建后会将静态资源输出至 `out/ui` 目录，部署流水线会自动处理该目录下的资产。

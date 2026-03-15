@@ -10,9 +10,9 @@ async function test() {
     const secret = parsedYaml?.secret || "";
     const providers = parsedYaml?.provider || [];
     
-    let proxies = [];
+    let proxies: any[] = [];
     if (parsedYaml?.proxy && Array.isArray(parsedYaml.proxy)) {
-        proxies = parsedYaml.proxy.map((p) => AnyProxySchema.parse(p));
+        proxies = parsedYaml.proxy.map((p: any) => AnyProxySchema.parse(p));
     }
 
     const params = new URLSearchParams();
@@ -20,7 +20,7 @@ async function test() {
     for (const p of providers) {
         if (p.name && p.url) params.set(p.name, p.url);
     }
-    const proxyUris = proxies.flatMap(p => buildProxyUri(p)).filter(Boolean);
+    const proxyUris = proxies.flatMap((p: any) => buildProxyUri(p)).filter(Boolean);
     if (proxyUris.length > 0) params.set("proxies", proxyUris.join("\n"));
 
     const req = new Request("http://localhost/?" + params.toString());

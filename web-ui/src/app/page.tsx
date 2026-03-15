@@ -27,6 +27,22 @@ export default function Home() {
     }
   };
 
+  const COMMON_GH_PROXIES = [
+    'https://gh-proxy.com/',
+    'https://mirror.ghproxy.com/',
+    'https://ghproxy.net/',
+    'https://gh-proxy.org/',
+  ];
+
+  const supportedProtocols = ['vless', 'vmess', 'trojan', 'ss', 'ssr', 'hysteria2', 'tuic', 'wireguard'];
+  const invalidProtocols = proxiesText.split('\n')
+    .map(line => line.trim())
+    .filter(line => line.includes('://'))
+    .map(line => line.split('://')[0].toLowerCase())
+    .filter(proto => proto && !supportedProtocols.includes(proto));
+  
+  const hasInvalidProtocol = invalidProtocols.length > 0;
+
   return (
     <main className="w-full max-w-2xl bg-white dark:bg-slate-800 p-6 sm:p-10 rounded-2xl shadow-xl border border-gray-200 dark:border-slate-700 animate-slideup relative overflow-hidden">
         
@@ -57,7 +73,9 @@ export default function Home() {
           <label htmlFor="proxies" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
             Self-Hosted Proxies
           </label>
-          <span className="text-xs text-gray-400 dark:text-slate-500">vless, hysteria2, tuic...</span>
+          <span className={`text-xs ${hasInvalidProtocol ? 'text-amber-500 font-medium' : 'text-gray-400 dark:text-slate-500'}`}>
+            {hasInvalidProtocol ? `Warning: Unsupported protocol (${invalidProtocols[0]})` : 'vless, hysteria2, tuic...'}
+          </span>
         </div>
         <textarea 
           id="proxies-textarea"
@@ -65,7 +83,7 @@ export default function Home() {
           onChange={(e) => setProxiesText(e.target.value)}
           placeholder={`Paste your individual proxy uris here separated by newline...\nFor example:\ntuic://uuid:password@host:port...`}
           spellCheck="false"
-          className="w-full min-h-[140px] p-4 bg-gray-50 dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-xl text-gray-800 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-mono resize-y"
+          className={`w-full min-h-[140px] p-4 bg-gray-50 dark:bg-slate-900 border ${hasInvalidProtocol ? 'border-amber-400 focus:ring-amber-500/50 focus:border-amber-500' : 'border-gray-300 dark:border-slate-600 focus:ring-blue-500/50 focus:border-blue-500'} rounded-xl text-gray-800 dark:text-slate-200 text-sm focus:outline-none transition-all font-mono resize-y`}
         />
       </div>
 
@@ -77,14 +95,22 @@ export default function Home() {
         <label htmlFor="ghProxy" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
           GitHub Proxy (gh_proxy)
         </label>
-        <input 
-          id="ghProxy"
-          type="text"
-          value={ghProxy}
-          onChange={(e) => setGhProxy(e.target.value)}
-          placeholder="e.g. https://gh-proxy.org/"
-          className="w-full p-4 bg-gray-50 dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-xl text-gray-800 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-mono"
-        />
+        <div className="relative">
+          <input 
+            id="ghProxy"
+            list="gh-proxies-list"
+            type="text"
+            value={ghProxy}
+            onChange={(e) => setGhProxy(e.target.value)}
+            placeholder="e.g. https://gh-proxy.org/"
+            className="w-full p-4 bg-gray-50 dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-xl text-gray-800 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-mono"
+          />
+          <datalist id="gh-proxies-list">
+            {COMMON_GH_PROXIES.map(proxy => (
+              <option key={proxy} value={proxy} />
+            ))}
+          </datalist>
+        </div>
       </div>
 
       {/* Target Target Configuration */}
