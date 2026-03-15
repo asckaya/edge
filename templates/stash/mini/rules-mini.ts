@@ -9,6 +9,9 @@ export const configStashMiniRules = `rules:
   # SSH 直连
   - DST-PORT,22,DIRECT
 
+  # P2P 直连
+  - DST-PORT,11010,DIRECT
+
   # 局域网 & 私有网络
   - RULE-SET,private-ip,🏠 私有网络,no-resolve
   - RULE-SET,private,🏠 私有网络
