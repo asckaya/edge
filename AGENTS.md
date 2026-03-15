@@ -12,7 +12,7 @@
 - **Stash Mini**（iOS 内存优化版，目标 <50 MB Network Extension）
 - **Web UI**（基于 Next.js 的图形界面，部署在 `/ui` 路径）
 
-更多 Web UI 详情见：[web-ui/AGENTS.md](file:///Users/didi/test/web-ui/AGENTS.md)
+更多 Web UI 详情见：[web-ui/AGENTS.md](./web-ui/AGENTS.md)
 
 ---
 
