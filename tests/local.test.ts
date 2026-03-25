@@ -51,8 +51,8 @@ describe("Edge Subscription Worker - Logical", () => {
     const yaml = YAML.parse(await res.text());
     
     expect(yaml["rule-providers"]?.advertising).toBeDefined();
-    // 19 base groups + 2 for "Airport" sub = 21
-    expect(yaml["proxy-groups"].length).toBe(21);
+    // 17 base groups + 2 for "Airport" sub = 19
+    expect(yaml["proxy-groups"].length).toBe(19);
   });
 
   // 4. Secret handling
@@ -61,30 +61,6 @@ describe("Edge Subscription Worker - Logical", () => {
     const res = await worker.fetch(req, {}, {});
     const yaml = YAML.parse(await res.text());
     expect(yaml["secret"]).toBe("my-secret");
-  });
-
-  // 5. Optimized Node Chaining Logic
-  test("Mihomo Optimized Node Chaining", async () => {
-    const req = new Request("http://localhost/?Airport=http://sub.com");
-    const res = await worker.fetch(req, {}, {});
-    const yaml = YAML.parse(await res.text());
-    
-    const groups = yaml["proxy-groups"];
-    const entranceGroup = groups.find((g: any) => g.name === "🏮 入口节点");
-    const exitGroup = groups.find((g: any) => g.name === "🛫 出口节点");
-    
-    // 1. System groups exist and Entrance uses Dialer Proxy
-    expect(entranceGroup).toBeDefined();
-    expect(exitGroup).toBeDefined();
-    expect(entranceGroup["dialer-proxy"]).toBe("🛫 出口节点");
-    
-    // 2. Entrance group contains the standard airport group/auto-select
-    expect(entranceGroup.proxies).toContain("Airport");
-    expect(entranceGroup.proxies).toContain("⚡ Airport 自动选择");
-    
-    // 3. NO subscription-specific (链) groups should exist in providers or groups
-    expect(yaml["proxy-providers"]?.Airport_dialer).toBeUndefined();
-    expect(groups.some((g: any) => g.name.includes("(链)"))).toBe(false);
   });
 
   // 6. Proxy URI Parsing

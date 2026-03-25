@@ -4,17 +4,7 @@
 export const configStashGroupsHeader = `proxy-groups:
   - name: 🚀 节点选择
     type: select
-    proxies: [DIRECT, REJECT, 🏮 入口节点, {{AUTO_GROUPS_LIST}}, {{PROVIDERS_LIST}}, {{SELF_HOSTED_GROUP}}]
-
-  - name: 🏮 入口节点
-    type: select
-    dialer-proxy: 🛫 出口节点
-    proxies: [DIRECT, {{AUTO_GROUPS_LIST}}, {{PROVIDERS_LIST}}, {{SELF_HOSTED_GROUP}}]
-
-  - name: 🛫 出口节点
-    type: select
-    include-all-proxies: true
-    proxies: [DIRECT, {{AUTO_GROUPS_LIST}}, {{PROVIDERS_LIST}}, {{SELF_HOSTED_GROUP}}]
+    proxies: [DIRECT, REJECT, {{AUTO_GROUPS_LIST}}, {{PROVIDERS_LIST}}, {{SELF_HOSTED_GROUP}}]
 `;
 
 export const configStashGroupsMid = `  - name: 🛑 广告拦截

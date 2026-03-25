@@ -4,22 +4,8 @@
 export const configMihomoGroupsHeader = `proxy-groups:
   - name: 🚀 节点选择
     type: select
-    proxies: [DIRECT, REJECT, 🔗 节点链, {{AUTO_GROUPS_LIST}}, {{PROVIDERS_LIST}}, {{SELF_HOSTED_GROUP}}]
+    proxies: [DIRECT, REJECT, {{AUTO_GROUPS_LIST}}, {{PROVIDERS_LIST}}, {{SELF_HOSTED_GROUP}}]
 
-  # 节点链：使用策略组级别的 dialer-proxy，无需复制节点
-  - name: 🔗 节点链
-    type: select
-    proxies: [🏮 入口节点]
-
-  - name: 🏮 入口节点
-    type: select
-    dialer-proxy: 🛫 出口节点
-    proxies: [DIRECT, {{AUTO_GROUPS_LIST}}, {{PROVIDERS_LIST}}]
-
-  - name: 🛫 出口节点
-    type: select
-    include-all-proxies: true
-    proxies: [DIRECT, {{AUTO_GROUPS_LIST}}, {{PROVIDERS_LIST}}, {{SELF_HOSTED_GROUP}}]
 `;
 
 export const configMihomoGroupsMid = `  - name: 🛑 广告拦截
