@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-inter);
+  --font-outfit: var(--font-outfit);
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --color-bg-dark: #020617;
+  --color-surface-dark: #0f172a;
+  --animate-slideup: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-fadein: fadeIn 0.4s ease-out;
+  --animate-scalein: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); filter: blur(10px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+body {
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(210,100%,15%,0.05) 0, transparent 50%),
+    radial-gradient(at 50% 0%, hsla(220,100%,50%,0.05) 0, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(250,100%,15%,0.05) 0, transparent 50%);
+}
+
+.dark body {
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(210,100%,20%,0.15) 0, transparent 50%),
+    radial-gradient(at 50% 0%, hsla(220,100%,30%,0.1) 0, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(250,100%,20%,0.15) 0, transparent 50%);
+  background-color: #020617;
+}
+
+

@@ -44,21 +44,25 @@ export default function Home() {
   const hasInvalidProtocol = invalidProtocols.length > 0;
 
   return (
-    <main className="w-full max-w-2xl bg-white dark:bg-slate-800 p-6 sm:p-10 rounded-2xl shadow-xl border border-gray-200 dark:border-slate-700 animate-slideup relative overflow-hidden">
-        
+    <main className="w-full max-w-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-6 sm:p-10 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/20 dark:border-white/5 animate-slideup relative overflow-hidden">
+      
+      {/* Decorative blobs */}
+      <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-500/10 blur-[80px] rounded-full pointer-events-none" />
+      <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-500/10 blur-[80px] rounded-full pointer-events-none" />
+
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4 relative">
         <div>
-          <h1 className="text-3xl font-extrabold mb-2 bg-gradient-to-br from-blue-600 to-purple-500 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent tracking-tight">
+          <h1 className="text-4xl font-extrabold mb-3 bg-gradient-to-br from-blue-600 via-blue-500 to-purple-600 dark:from-blue-400 dark:via-blue-300 dark:to-purple-400 bg-clip-text text-transparent tracking-tight">
             Edge Subscription
           </h1>
-          <p className="text-gray-500 dark:text-slate-400 text-sm sm:text-base">
-            Convert your proxy endpoints & external subscriptions into Cloudflare configurations
+          <p className="text-gray-500 dark:text-slate-400 text-sm sm:text-base font-medium max-w-sm">
+            High-performance proxy subscription converter powered by Cloudflare Edge.
           </p>
         </div>
         <button 
           onClick={() => setIsModalOpen(true)} 
-          className="shrink-0 inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:hover:bg-blue-500/20 font-medium text-sm rounded-lg transition-colors"
+          className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 font-semibold text-sm rounded-xl transition-all shadow-lg shadow-blue-500/25 active:scale-95"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />

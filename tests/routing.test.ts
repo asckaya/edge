@@ -1,34 +1,36 @@
 import { describe, expect, test } from "bun:test";
-import worker from "../index";
+import { onRequest } from "../functions/[[path]]";
 
 describe("Edge Subscription Worker - Routing", () => {
-  const env = {
-    ASSETS: {
-      fetch: async (req: Request) => {
-        return new Response(`Serving asset: ${new URL(req.url).pathname}`, { status: 200 });
-      }
-    }
+  const nextResponse = new Response("Static Asset Content", { status: 200 });
+  
+  const callWorker = async (url: string) => {
+    const req = new Request(url);
+    return onRequest({
+      request: req,
+      next: async () => nextResponse,
+      env: {},
+      params: {},
+    } as any);
   };
 
-  test("Redirects /ui to /ui/", async () => {
-    const req = new Request("http://localhost/ui");
-    const res = await worker.fetch(req, env, {});
-    expect(res.status).toBe(301);
-    expect(res.headers.get("Location")).toBe("http://localhost/ui/");
+  test("Root without params falls back to assets", async () => {
+    const res = await callWorker("http://localhost/");
+    expect(res.status).toBe(200);
+    const text = await res.text();
+    expect(text).toBe("Static Asset Content");
   });
 
-  test("API handles / with parameters", async () => {
-    const req = new Request("http://localhost/?proxies=test");
-    const res = await worker.fetch(req, env, {});
+  test("Root with params handled by API", async () => {
+    const res = await callWorker("http://localhost/?Airport=http://sub.com");
     expect(res.headers.get("content-type")).toContain("text/yaml");
     const text = await res.text();
-    expect(text).toContain("proxies:");
+    expect(text).toContain("proxy-providers:");
   });
 
-  test("API returns error on / without parameters", async () => {
-    const req = new Request("http://localhost/");
-    const res = await worker.fetch(req, env, {});
+  test("Sub-path without params falls back to assets", async () => {
+    const res = await callWorker("http://localhost/some-page");
     const text = await res.text();
-    expect(text).toContain("Missing parameters");
+    expect(text).toBe("Static Asset Content");
   });
 });

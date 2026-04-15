@@ -10,22 +10,19 @@
 - **Mihomo / Clash Meta**（桌面端，完整功能）
 - **Stash**（iOS 完整版）
 - **Stash Mini**（iOS 内存优化版，目标 <50 MB Network Extension）
-- **Web UI**（基于 Next.js 的图形界面，部署在 `/ui` 路径）
-
-更多 Web UI 详情见：[web-ui/AGENTS.md](./web-ui/AGENTS.md)
+- **Web UI**（基于 Next.js 的图形界面，部署在根路径）
 
 ---
 
 ## 核心入口
 
-### `index.ts`
+### `functions/[[path]].ts`
 
-Worker 主文件，处理所有 HTTP 请求。
-- **根路径 (`/`)**：订阅转换 API，通过 URL 参数生成配置。
-- **UI 路径 (`/ui`)**：
-    - `/ui`（无斜杠）会 301 重定向至 `/ui/`。
-    - `/ui/` 及其子路径由 Cloudflare Assets 自动服务。
-- **注意**：Worker 已移除手动 `env.ASSETS.fetch` 逻辑，依靠部署流水线将静态资源移至 `out/ui/` 子目录。
+Cloudflare Pages Function 主文件，处理所有 HTTP 请求。
+- **根路径 (`/`)**：
+    - 如果带有参数：Subscription API，通过 URL 参数生成配置。
+    - 如果无参数：通过 `context.next()` 回退到 Web UI 静态资源。
+- **注意**：不再使用独立的 Worker，静态资源由 Cloudflare Pages 自动服务。
 
 **关键参数：**
 - `type`：`mihomo`（默认）/ `stash` / `stash-mini`
@@ -126,7 +123,7 @@ bun gen-url.ts --type stash-mini  # Stash Mini
 ```
 
 支持的协议：`hysteria2`（含端口跳跃）、`vless`、`trojan`、`ss`、`vmess`。
-自建节点配置需符合 `src/types.ts` 中的 Zod 架构（使用 `type` 而非 `protocol`，`skip-cert-verify` 而非 `insecure`）。
+自建节点配置需符合 `functions/_src/types.ts` 中的 Zod 架构（使用 `type` 而非 `protocol`，`skip-cert-verify` 而非 `insecure`）。
 
 ### Tests
 
@@ -202,12 +199,12 @@ bun test
 
 ### 修改 DNS 配置
 
-- Mihomo：`templates/mihomo/footer.ts`（支持 `rule-set:` 语法）
-- Stash：`templates/stash/footer.ts`（使用 `geosite:` 语法，不支持 `rule-set:`）
+- Mihomo：`functions/_templates/mihomo/footer.ts`（支持 `rule-set:` 语法）
+- Stash：`functions/_templates/stash/footer.ts`（使用 `geosite:` 语法，不支持 `rule-set:`）
 
 ### 添加新配置类型
 
-1. 在 `templates/` 下创建新目录和文件
-2. 在 `index.ts` 顶部添加 import
-3. 在 `index.ts` 的 `configType` 判断逻辑中加入新类型
+1. 在 `functions/_templates/` 下创建新目录和文件
+2. 在 `functions/[[path]].ts` 顶部添加 import
+3. 在 `functions/[[path]].ts` 的逻辑中加入新类型
 4. 在 `gen-url.ts` 的 `validTypes` 数组和 `modeLabels` 中注册

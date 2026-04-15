@@ -1,7 +1,7 @@
 import fs from 'fs';
 import YAML from 'yaml';
-import { buildProxyUri } from './src/utils/proxy-builder';
-import { ProxyNode, AnyProxySchema } from './src/types';
+import { buildProxyUri } from './functions/_src/utils/proxy-builder';
+import { ProxyNode, AnyProxySchema } from './functions/_src/types';
 
 /**
  * URL Generation Utility

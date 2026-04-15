@@ -4,22 +4,43 @@
   "type": "module",
   "scripts": {
     "test": "bun test",
-    "check": "tsc --noEmit",
-    "check:all": "tsc --noEmit && cd web-ui && bun run build",
-    "deploy": "wrangler deploy"
+    "check": "bun x tsc --noEmit",
+    "dev": "bun x wrangler pages dev out",
+    "build": "next build",
+    "lint": "next lint",
+    "deploy": "bun x wrangler pages deploy out"
   },
-  "module": "index.ts",
   "private": true,
+  "dependencies": {
+    "next": "16.1.6",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "wrangler": "^4",
+    "yaml": "^2.8.2",
+    "zod": "^4.3.6"
+  },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4",
     "@types/bun": "latest",
-    "@types/yaml": "^1.9.7"
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/yaml": "^1.9.7",
+    "babel-plugin-react-compiler": "1.0.0",
+    "eslint": "^10.0.3",
+    "eslint-config-next": "16.1.6",
+    "tailwindcss": "^4",
+    "typescript": "^5"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
-  "dependencies": {
-    "wrangler": "^4",
-    "yaml": "^2.8.2",
-    "zod": "^4.3.6"
-  }
+  "ignoreScripts": [
+    "sharp",
+    "unrs-resolver"
+  ],
+  "trustedDependencies": [
+    "sharp",
+    "unrs-resolver"
+  ]
 }

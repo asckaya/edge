@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { buildProxyUri } from "../src/utils/proxy-builder";
-import { ProxyNode } from "../src/types";
+import { buildProxyUri } from "../functions/_src/utils/proxy-builder";
+import { ProxyNode } from "../functions/_src/types";
 
 describe("buildProxyUri", () => {
   test("builds vless protocol", () => {
