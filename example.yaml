@@ -4,6 +4,7 @@
 #   bun gen-url.ts                       # Mihomo / Clash Meta（默认）
 #   bun gen-url.ts --type stash          # Stash iOS 完整版
 #   bun gen-url.ts --type stash-mini     # Stash iOS 内存优化版（<50 MB）
+#   bun gen-url.ts --type sing-box       # sing-box 1.13+ JSON 配置
 # ============================================================
 
 # Worker 部署地址（必填，改为你自己的域名）
@@ -118,4 +119,6 @@ proxy:
 #   https://your-worker.workers.dev/?secret=xxx&type=stash&Airport1=https://...
 # Stash Mini:
 #   https://your-worker.workers.dev/?secret=xxx&type=stash-mini&Airport1=https://...
+# sing-box:
+#   https://your-worker.workers.dev/?secret=xxx&type=sing-box&Airport1=https://...
 # ============================================================

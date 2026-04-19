@@ -62,6 +62,32 @@ describe("Edge Subscription Worker - Logical", () => {
     expect(yaml["proxy-groups"].length).toBe(19);
   });
 
+  test("sing-box", async () => {
+    const originalFetch = globalThis.fetch;
+    const mockFetch = (async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url === "http://sub.com") {
+        const encoded = btoa("trojan://pw@example.com:443?sni=example.com#SubNode");
+        return new Response(encoded, { status: 200 });
+      }
+      return originalFetch(input);
+    }) as typeof fetch;
+    globalThis.fetch = mockFetch;
+
+    try {
+      const res = await callWorker("http://localhost/?type=sing-box&Airport=http://sub.com");
+      const json = JSON.parse(await res.text());
+
+      expect(Array.isArray(json.outbounds)).toBe(true);
+      expect(json.route.rule_set.length).toBeGreaterThan(10);
+      expect(json.route.rule_set[0].url).toContain("MetaCubeX/meta-rules-dat/sing/geo/");
+      expect(json.experimental.clash_api.external_controller).toBe("127.0.0.1:9090");
+      expect(json.outbounds.some((item: any) => item.type === "trojan")).toBe(true);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
   // 4. Secret handling
   test("Custom Secret", async () => {
     const res = await callWorker("http://localhost/?secret=my-secret&Airport=http://sub.com");

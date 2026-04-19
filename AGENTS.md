@@ -4,12 +4,13 @@
 
 ## 项目概述
 
-**Edge** 是一个部署在 Cloudflare Workers 上的代理订阅转换器。用户通过 URL 参数传入机场订阅和自建节点，Worker 返回一份完整的 Clash YAML 配置。
+**Edge** 是一个部署在 Cloudflare Workers 上的代理订阅转换器。用户通过 URL 参数传入机场订阅和自建节点，Worker 返回一份完整的 Mihomo / Stash YAML 或 sing-box JSON 配置。
 
-支持三种输出类型：
+支持四种配置输出类型：
 - **Mihomo / Clash Meta**（桌面端，完整功能）
 - **Stash**（iOS 完整版）
 - **Stash Mini**（iOS 内存优化版，目标 <50 MB Network Extension）
+- **sing-box**（1.13+ JSON 配置，服务端展开订阅）
 - **Web UI**（基于 Next.js 的图形界面，部署在根路径）
 
 ---
@@ -25,15 +26,17 @@ Cloudflare Pages Function 主文件，处理所有 HTTP 请求。
 - **注意**：不再使用独立的 Worker，静态资源由 Cloudflare Pages 自动服务。
 
 **关键参数：**
-- `type`：`mihomo`（默认）/ `stash` / `stash-mini`
+- `type`：`mihomo`（默认）/ `stash` / `stash-mini` / `sing-box`
 - `secret`：Mihomo external-controller 密码
 - `[ProviderName]=URL`：机场订阅
 - `proxies`：自建节点 URI 字符串
+- `gh_proxy`：GitHub 规则源加速前缀
 
 **模板选择逻辑：**
 ```typescript
 const isStash     = configType === 'stash';
 const isStashMini = configType === 'stash-mini';
+const isSingBox   = configType === 'sing-box';
 
 const tplGroupsHeader  = isStashMini ? configStashMiniGroupsHeader  : isStash ? configStashGroupsHeader  : configMihomoGroupsHeader;
 const tplGroupsMid     = isStashMini ? configStashMiniGroupsMid     : isStash ? configStashGroupsMid     : configMihomoGroupsMid;
@@ -46,7 +49,42 @@ const tplRules         = isStashMini ? configStashMiniRules         : configRule
 tplHeader → proxy-providers → proxies → groupsHeader → Self-Hosted → 动态分组 → groupsMid → tplFooter → tplRuleProviders → tplRules
 ```
 
+**sing-box 分支注意事项：**
+- `type=sing-box` 时不走 YAML 模板拼接，直接返回 JSON。
+- Worker 会在服务端拉取机场订阅并展开节点，不能复用 Mihomo 的 `proxy-providers` 机制。
+- 自建节点和订阅节点都会先走统一解析，再转换为 sing-box outbounds / selectors / urltests。
+
 ---
+
+## sing-box 现状
+
+### `functions/_src/utils/sing-box.ts`
+
+sing-box 配置生成器，负责输出完整 JSON 配置：
+- `outbounds`：`selector` / `urltest` / `direct` / `block` / 各协议节点
+- `route.rules`：沿用现有策略组语义映射到 sing-box 路由动作
+- `route.rule_set`：使用 `MetaCubeX/meta-rules-dat@sing` 的 remote `geosite/geoip` `.srs`
+- `experimental.clash_api`：供图形客户端切组
+
+### `functions/_src/utils/subscription-parser.ts`
+
+订阅解析入口，支持：
+- 机场常见 base64 订阅文本
+- `proxies:` YAML / JSON 数组
+- 多行 URI 文本
+
+### `functions/_src/utils/proxy-node.ts`
+
+对松散节点做归一化和 Zod 校验，补齐常见别名字段，例如：
+- `shadowsocks` → `ss`
+- `wg` → `wireguard`
+- `server_port` → `port`
+
+### 当前 sing-box 支持范围
+
+- 当前输出类型：`hysteria2`、`vless`、`trojan`、`ss`、`vmess`、`tuic`
+- `wireguard` 目前**不生成** sing-box 节点；sing-box 1.13+ 推荐迁移到 endpoint 写法，暂未接入本仓库
+- 规则源默认走 `.srs`，不是 Mihomo 的 YAML `rule-provider`
 
 ## 模板系统
 
@@ -120,6 +158,7 @@ Mihomo 和 Stash **完整版**共用的规则集，不要在这里做 iOS 专属
 bun gen-url.ts                    # 默认 mihomo
 bun gen-url.ts --type stash       # Stash 完整版
 bun gen-url.ts --type stash-mini  # Stash Mini
+bun gen-url.ts --type sing-box    # sing-box 1.13+ JSON
 ```
 
 支持的协议：`hysteria2`（含端口跳跃）、`vless`、`trojan`、`ss`、`vmess`。
@@ -127,7 +166,7 @@ bun gen-url.ts --type stash-mini  # Stash Mini
 
 ### Tests
 
-本地验证 Worker 逻辑，对 `mihomo`、`stash`、`stash-mini` 三种类型进行自动化测试，确保无引用错误，并输出 `output-{type}.yaml`。
+本地验证 Worker 逻辑，对 `mihomo`、`stash`、`stash-mini`、`sing-box` 四种类型进行自动化测试。
 
 ```bash
 bun test
@@ -208,3 +247,5 @@ bun test
 2. 在 `functions/[[path]].ts` 顶部添加 import
 3. 在 `functions/[[path]].ts` 的逻辑中加入新类型
 4. 在 `gen-url.ts` 的 `validTypes` 数组和 `modeLabels` 中注册
+
+> ℹ️ `sing-box` 是特例：它不依赖 `functions/_templates/`，而是走 `functions/_src/utils/sing-box.ts` 的 JSON 生成路径。
