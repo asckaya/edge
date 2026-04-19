@@ -77,11 +77,19 @@ describe("Edge Subscription Worker - Logical", () => {
     try {
       const res = await callWorker("http://localhost/?type=sing-box&Airport=http://sub.com");
       const json = JSON.parse(await res.text());
+      const ruleSetTags = json.route.rule_set.map((item: any) => item.tag);
 
       expect(Array.isArray(json.outbounds)).toBe(true);
-      expect(json.route.rule_set.length).toBeGreaterThan(10);
+      expect(json.route.rule_set.length).toBeGreaterThan(20);
       expect(json.route.rule_set[0].url).toContain("MetaCubeX/meta-rules-dat/sing/geo/");
-      expect(json.experimental.clash_api.external_controller).toBe("127.0.0.1:9090");
+      expect(ruleSetTags).toContain("category-speedtest");
+      expect(ruleSetTags).toContain("category-ntp");
+      expect(ruleSetTags).toContain("category-container");
+      expect(json.route.rule_set.find((item: any) => item.tag === "adblockfilters")?.url).toContain("217heidai/adblockfilters");
+      expect(json.outbounds.some((item: any) => item.tag === "🧪 测速专线")).toBe(true);
+      expect(json.outbounds.some((item: any) => item.tag === "🕓 NTP 服务")).toBe(true);
+      expect(json.inbounds.some((item: any) => item.type === "mixed" && item.listen === "0.0.0.0" && item.listen_port === 7897)).toBe(true);
+      expect(json.experimental.clash_api.external_controller).toBe("0.0.0.0:9090");
       expect(json.outbounds.some((item: any) => item.type === "trojan")).toBe(true);
     } finally {
       globalThis.fetch = originalFetch;

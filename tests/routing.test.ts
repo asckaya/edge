@@ -40,8 +40,9 @@ describe("Edge Subscription Worker - Routing", () => {
     try {
       const res = await callWorker("http://localhost/?type=sing-box&Airport=http://sub.com");
       expect(res.headers.get("content-type")).toContain("application/json");
-      const text = await res.text();
-      expect(text).toContain("\"outbounds\"");
+      const json = JSON.parse(await res.text());
+      expect(Array.isArray(json.outbounds)).toBe(true);
+      expect(json.experimental.clash_api.external_controller).toBe("0.0.0.0:9090");
     } finally {
       globalThis.fetch = originalFetch;
     }

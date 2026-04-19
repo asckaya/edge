@@ -17,6 +17,8 @@ interface RuleSetDefinition {
   kind: RuleSetKind;
   tag: string;
   remoteName?: string;
+  url?: string;
+  format?: 'binary' | 'source';
 }
 
 interface RouteRuleDefinition {
@@ -34,7 +36,7 @@ interface RouteRuleDefinition {
 
 interface GroupDefinition {
   tag: string;
-  layout: 'default' | 'direct-first' | 'block-first' | 'direct-only';
+  layout: 'default' | 'direct-first' | 'block-first' | 'direct-only' | 'main-direct' | 'direct-main';
 }
 
 interface BuildSingBoxOptions {
@@ -52,7 +54,11 @@ interface TaggedNode {
 
 const RULE_SET_DEFINITIONS: RuleSetDefinition[] = [
   { kind: 'geosite', tag: 'advertising', remoteName: 'category-ads-all' },
-  { kind: 'geosite', tag: 'adblockfilters', remoteName: 'category-ads-all' },
+  {
+    kind: 'geosite',
+    tag: 'adblockfilters',
+    url: 'https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/adblocksingbox.srs',
+  },
   { kind: 'geosite', tag: 'geolocation-cn' },
   { kind: 'geosite', tag: 'geolocation-!cn' },
   { kind: 'geosite', tag: 'cn' },
@@ -61,6 +67,8 @@ const RULE_SET_DEFINITIONS: RuleSetDefinition[] = [
   { kind: 'geoip', tag: 'private-ip', remoteName: 'private' },
   { kind: 'geosite', tag: 'category-antivirus' },
   { kind: 'geosite', tag: 'win-update' },
+  { kind: 'geosite', tag: 'category-speedtest' },
+  { kind: 'geosite', tag: 'category-ntp' },
   { kind: 'geosite', tag: 'category-ai-chat-!cn' },
   { kind: 'geosite', tag: 'xai' },
   { kind: 'geosite', tag: 'cursor' },
@@ -82,6 +90,10 @@ const RULE_SET_DEFINITIONS: RuleSetDefinition[] = [
   { kind: 'geoip', tag: 'google-ip', remoteName: 'google' },
   { kind: 'geosite', tag: 'microsoft' },
   { kind: 'geosite', tag: 'category-dev' },
+  { kind: 'geosite', tag: 'category-container' },
+  { kind: 'geosite', tag: 'microsoft-dev' },
+  { kind: 'geosite', tag: 'jetbrains' },
+  { kind: 'geosite', tag: 'gitlab' },
   { kind: 'geosite', tag: 'category-communication' },
   { kind: 'geosite', tag: 'category-voip' },
   { kind: 'geoip', tag: 'telegram-ip', remoteName: 'telegram' },
@@ -128,7 +140,13 @@ const ROUTE_RULES: RouteRuleDefinition[] = [
   { rule_set: 'cn-ip', action: 'route', outbound: '🔒 国内服务' },
   { rule_set: 'category-antivirus', action: 'route', outbound: '🔒 国内服务' },
   { rule_set: 'win-update', action: 'route', outbound: '🔒 国内服务' },
+  { rule_set: 'category-speedtest', action: 'route', outbound: '🧪 测速专线' },
+  { rule_set: 'category-ntp', action: 'route', outbound: '🕓 NTP 服务' },
   { rule_set: 'category-dev', action: 'route', outbound: '🐱 开发工具' },
+  { rule_set: 'category-container', action: 'route', outbound: '🐱 开发工具' },
+  { rule_set: 'microsoft-dev', action: 'route', outbound: '🐱 开发工具' },
+  { rule_set: 'jetbrains', action: 'route', outbound: '🐱 开发工具' },
+  { rule_set: 'gitlab', action: 'route', outbound: '🐱 开发工具' },
   { rule_set: 'google', action: 'route', outbound: '🔍 谷歌服务' },
   { rule_set: 'google-ip', action: 'route', outbound: '🔍 谷歌服务' },
   { rule_set: 'appletv', action: 'route', outbound: '🎬 苹果视频' },
@@ -201,6 +219,8 @@ const GROUP_DEFINITIONS: GroupDefinition[] = [
   { tag: '☁️ 云服务', layout: 'default' },
   { tag: '🌐 非中国', layout: 'default' },
   { tag: '🐟 漏网之鱼', layout: 'default' },
+  { tag: '🧪 测速专线', layout: 'main-direct' },
+  { tag: '🕓 NTP 服务', layout: 'direct-main' },
 ];
 
 function applyGithubProxy(url: string, ghProxy?: string | null): string {
@@ -211,6 +231,7 @@ function applyGithubProxy(url: string, ghProxy?: string | null): string {
 }
 
 function buildRuleSetUrl(definition: RuleSetDefinition, ghProxy?: string | null): string {
+  if (definition.url) return applyGithubProxy(definition.url, ghProxy);
   const remoteName = definition.remoteName || definition.tag;
   return applyGithubProxy(
     `https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/${definition.kind}/${remoteName}.srs`,
@@ -501,6 +522,8 @@ function buildUrlTest(tag: string, outbounds: string[]): Record<string, any> {
 
 function buildGroupOutbounds(layout: GroupDefinition['layout'], proxyChoices: string[]): string[] {
   if (layout === 'direct-only') return [DIRECT_TAG, MAIN_SELECTOR_TAG];
+  if (layout === 'direct-main') return [DIRECT_TAG, MAIN_SELECTOR_TAG];
+  if (layout === 'main-direct') return [MAIN_SELECTOR_TAG, DIRECT_TAG, ...proxyChoices.filter((tag) => ![MAIN_SELECTOR_TAG, DIRECT_TAG, BLOCK_TAG].includes(tag))];
   if (layout === 'direct-first') return [DIRECT_TAG, BLOCK_TAG, ...proxyChoices];
   if (layout === 'block-first') return [BLOCK_TAG, DIRECT_TAG, ...proxyChoices];
   return proxyChoices;
@@ -545,7 +568,7 @@ function buildOutbounds(
     const defaultTag =
       group.layout === 'block-first'
         ? BLOCK_TAG
-        : group.layout === 'direct-first' || group.layout === 'direct-only'
+        : group.layout === 'direct-first' || group.layout === 'direct-only' || group.layout === 'direct-main'
           ? DIRECT_TAG
           : MAIN_SELECTOR_TAG;
     outbounds.push(buildSelector(group.tag, groupOutbounds, defaultTag));
@@ -575,7 +598,15 @@ function buildDns(): Record<string, any> {
         server: LOCAL_DNS_TAG,
       },
       {
-        rule_set: ['category-ai-chat-!cn', 'geolocation-!cn', 'category-dev'],
+        rule_set: [
+          'category-ai-chat-!cn',
+          'geolocation-!cn',
+          'category-dev',
+          'category-container',
+          'microsoft-dev',
+          'jetbrains',
+          'gitlab',
+        ],
         action: 'route',
         server: REMOTE_DNS_TAG,
       },
@@ -608,7 +639,7 @@ export function buildSingBoxConfig(options: BuildSingBoxOptions): string {
   const ruleSets = RULE_SET_DEFINITIONS.map((definition) => ({
     type: 'remote',
     tag: definition.tag,
-    format: 'binary',
+    format: definition.format || 'binary',
     url: buildRuleSetUrl(definition, ghProxy),
     download_detour: DOWNLOAD_SELECTOR_TAG,
     update_interval: '1d',
@@ -620,6 +651,13 @@ export function buildSingBoxConfig(options: BuildSingBoxOptions): string {
     },
     dns: buildDns(),
     inbounds: [
+      {
+        type: 'mixed',
+        tag: 'mixed-in',
+        listen: '0.0.0.0',
+        listen_port: 7897,
+        set_system_proxy: false,
+      },
       {
         type: 'tun',
         tag: 'tun-in',
@@ -637,7 +675,7 @@ export function buildSingBoxConfig(options: BuildSingBoxOptions): string {
         store_rdrc: true,
       },
       clash_api: {
-        external_controller: '127.0.0.1:9090',
+        external_controller: '0.0.0.0:9090',
         external_ui_download_url: applyGithubProxy(
           'https://github.com/MetaCubeX/Yacd-meta/archive/gh-pages.zip',
           ghProxy,
