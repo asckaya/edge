@@ -11,9 +11,16 @@ import { configRuleProviders } from './_templates/shared/rule-providers';
 import { configRules } from './_templates/shared/rules';
 
 import { parseProxyUri } from './_src/utils/proxy-parser';
+import { buildSingBoxConfig } from './_src/utils/sing-box';
+import { fetchSubscriptionNodes, parseSubscriptionContent } from './_src/utils/subscription-parser';
 import { Subscription } from './_src/types';
 
-export const onRequest: PagesFunction<any> = async (context) => {
+interface PagesFunctionContext {
+  request: Request;
+  next: () => Response | Promise<Response>;
+}
+
+export const onRequest = async (context: PagesFunctionContext) => {
   const { request, next } = context;
   const url = new URL(request.url);
   const searchParams = url.searchParams;
@@ -25,17 +32,19 @@ export const onRequest: PagesFunction<any> = async (context) => {
     return next();
   }
 
-  // Config type: 'stash' for iOS Stash app, 'stash-mini' for low-memory iOS (<50MB), default is mihomo/clash-meta
+  // Config type: 'stash' for iOS Stash app, 'stash-mini' for low-memory iOS (<50MB),
+  // 'sing-box' for sing-box JSON profile, default is mihomo/clash-meta.
   const configType = searchParams.get('type')?.toLowerCase() || 'mihomo';
   const isStash = configType === 'stash';
   const isStashMini = configType === 'stash-mini';
+  const isSingBox = configType === 'sing-box';
 
   const providedSecret = searchParams.get('secret') || 'edge-default';
 
   const subscriptions: Subscription[] = [];
 
   for (const [key, value] of searchParams.entries()) {
-    if (!key || !value || key === 'secret' || key === 'proxies' || key === 'type') continue;
+    if (!key || !value || key === 'secret' || key === 'proxies' || key === 'type' || key === 'gh_proxy') continue;
     if (value.startsWith('http://') || value.startsWith('https://')) {
       subscriptions.push({ name: key, url: value });
     }
@@ -52,6 +61,28 @@ export const onRequest: PagesFunction<any> = async (context) => {
   // Parse custom proxies
   let customProxies = searchParams.get('proxies') || '';
   let customProxyNames: string[] = [];
+  const customProxyNodes = customProxies ? parseSubscriptionContent(customProxies) : [];
+
+  if (isSingBox) {
+    const singBoxUserAgent = 'sing-box';
+    const resolvedSubscriptions = subscriptions.length > 0
+      ? await fetchSubscriptionNodes(subscriptions, singBoxUserAgent)
+      : [];
+
+    const finalConfig = buildSingBoxConfig({
+      secret: providedSecret,
+      subscriptions: resolvedSubscriptions,
+      customNodes: customProxyNodes,
+      ghProxy: searchParams.get('gh_proxy'),
+    });
+
+    return new Response(finalConfig, {
+      headers: {
+        'content-type': 'application/json; charset=utf-8',
+        'Cache-Control': 'no-cache',
+      },
+    });
+  }
 
   if (customProxies) {
     const lines = customProxies.split(/[|\n]/).filter(l => l.trim());

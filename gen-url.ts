@@ -1,7 +1,8 @@
 import fs from 'fs';
 import YAML from 'yaml';
 import { buildProxyUri } from './functions/_src/utils/proxy-builder';
-import { ProxyNode, AnyProxySchema } from './functions/_src/types';
+import { ProxyNode } from './functions/_src/types';
+import { coerceProxyNode } from './functions/_src/utils/proxy-node';
 
 /**
  * URL Generation Utility
@@ -11,13 +12,14 @@ import { ProxyNode, AnyProxySchema } from './functions/_src/types';
  *   --type mihomo      Mihomo / Clash Meta (default)
  *   --type stash       Stash iOS — full rule set
  *   --type stash-mini  Stash iOS — low-memory (<50 MB), 15 rule-providers
+ *   --type sing-box    sing-box 1.13+ JSON profile
  */
 
 function generateUrl() {
     // Parse --type <value>
     const typeIdx = process.argv.indexOf('--type');
     const configType = typeIdx !== -1 ? (process.argv[typeIdx + 1] ?? 'mihomo') : 'mihomo';
-    const validTypes = ['mihomo', 'stash', 'stash-mini'];
+    const validTypes = ['mihomo', 'stash', 'stash-mini', 'sing-box'];
     if (!validTypes.includes(configType)) {
         console.error(`\x1b[31m✘ Unknown --type "${configType}". Valid values: ${validTypes.join(', ')}\x1b[0m`);
         process.exit(1);
@@ -56,7 +58,9 @@ function generateUrl() {
     let proxies: ProxyNode[] = [];
     try {
         if (parsedYaml?.proxy && Array.isArray(parsedYaml.proxy)) {
-            proxies = parsedYaml.proxy.map((p: any) => AnyProxySchema.parse(p));
+            proxies = parsedYaml.proxy
+              .map((p: any) => coerceProxyNode(p))
+              .filter((p: any) => Boolean(p)) as ProxyNode[];
         }
     } catch (e: any) {
          console.error(`\x1b[31m✘ Error validating proxies in ${configFile}: ${e.message}\x1b[0m`);
@@ -83,6 +87,7 @@ function generateUrl() {
         mihomo: 'Mihomo / Clash Meta',
         stash: 'Stash iOS (full)',
         'stash-mini': 'Stash iOS Mini — low-memory (<50 MB)',
+        'sing-box': 'sing-box JSON profile',
     };
     
     console.log('\n\x1b[32m✔ Worker URL Generated Successfully!\x1b[0m');
@@ -91,4 +96,3 @@ function generateUrl() {
 }
 
 generateUrl();
-

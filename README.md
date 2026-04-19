@@ -1,12 +1,12 @@
 # Edge — Clash 订阅转换器
 
-基于 Cloudflare Workers 的代理订阅转换器，支持 Mihomo（Clash Meta）与 Stash iOS。
+基于 Cloudflare Workers 的代理订阅转换器，支持 Mihomo（Clash Meta）、Stash iOS 与 sing-box。
 
 ## 功能
 
 - **多订阅合并**：将多个机场订阅合并为一份配置，每个订阅独立 `proxy-provider`
 - **自建节点**：支持在 `proxy.yaml` 中直接写 URI，自动解析为 Clash 格式
-- **三种配置模式**：Mihomo / Stash iOS / Stash iOS Mini（<50 MB）
+- **四种配置模式**：Mihomo / Stash iOS / Stash iOS Mini（<50 MB）/ sing-box JSON
 - **节点链（Relay）**：通过 `🏮 入口节点 → 🛫 出口节点` 实现多跳中转
 - **精细分流**：67 条 rule-set，按 AI / 流媒体 / 社交 / 开发工具 / 游戏 / 金融等分组路由
 - **VPN 友好**：针对 EasyTier / Tailscale 优化，支持 P2P 打洞、Magic DNS 及私网地址自动排除
@@ -26,6 +26,7 @@ cp example.yaml proxy.yaml
 bun gen-url.ts                    # Mihomo / Clash Meta（默认）
 bun gen-url.ts --type stash       # Stash iOS 完整版
 bun gen-url.ts --type stash-mini  # Stash iOS 内存优化版（<50 MB）
+bun gen-url.ts --type sing-box    # sing-box 1.13+ JSON 配置
 ```
 
 ### 3. 部署 Worker
@@ -38,7 +39,7 @@ npx wrangler deploy
 
 | 参数 | 必填 | 说明 |
 |---|---|---|
-| `type` | 否 | `mihomo`（默认）/ `stash` / `stash-mini` |
+| `type` | 否 | `mihomo`（默认）/ `stash` / `stash-mini` / `sing-box` |
 | `secret` | 否 | Mihomo external-controller 密码 |
 | `[ProviderName]` | 至少一个 | 订阅 URL，例如 `Airport1=https://...` |
 | `proxies` | 否 | 自建节点 URI (yaml 格式或 URI)，更多详情请查看 `example.yaml` |
@@ -62,6 +63,9 @@ https://your-worker.workers.dev/?type=stash-mini&secret=xxx&Airport1=https://sub
 | `mihomo` | 67 | 26 | 桌面端 Mihomo / Clash Meta |
 | `stash` | 67 | 26 | iOS Stash（内存充足） |
 | `stash-mini` | **17** | **17** | iOS Stash（Network Extension <50 MB） |
+| `sing-box` | Remote rule-set | Selector / URLTest | sing-box 1.13+ 图形客户端 |
+
+`sing-box` 模式使用 `MetaCubeX/meta-rules-dat@sing` 的 remote `geosite/geoip` `.srs` 规则集，而不是 Mihomo 的 `rule-provider` YAML。
 
 ### stash-mini 精简内容
 
