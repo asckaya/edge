@@ -73,6 +73,16 @@ export const TuicSchema = BaseProxySchema.extend({
   ip: z.union([z.string(), z.array(z.string())]).optional(),
 });
 
+export const AnyTlsSchema = BaseProxySchema.extend({
+  type: z.literal("anytls"),
+  password: z.string(),
+  "skip-cert-verify": z.boolean().optional(),
+  sni: z.string().optional(),
+  idle_session_check_interval: z.string().optional(),
+  idle_session_timeout: z.string().optional(),
+  min_idle_session: z.union([z.number(), z.string()]).optional(),
+});
+
 export const WireguardSchema = BaseProxySchema.extend({
   type: z.literal("wireguard"),
   ip: z.union([z.string(), z.array(z.string())]),
@@ -91,6 +101,7 @@ export const AnyProxySchema = z.discriminatedUnion("type", [
   SsSchema,
   VmessSchema,
   TuicSchema,
+  AnyTlsSchema,
   WireguardSchema,
 ]);
 

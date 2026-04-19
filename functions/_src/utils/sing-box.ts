@@ -9,7 +9,7 @@ const BLOCK_TAG = 'block';
 const LOCAL_DNS_TAG = 'local-dns';
 const REMOTE_DNS_TAG = 'remote-dns';
 
-const SINGBOX_SUPPORTED_TYPES = new Set(['hysteria2', 'vless', 'trojan', 'ss', 'vmess', 'tuic']);
+const SINGBOX_SUPPORTED_TYPES = new Set(['hysteria2', 'vless', 'trojan', 'ss', 'vmess', 'tuic', 'anytls']);
 
 type RuleSetKind = 'geosite' | 'geoip';
 
@@ -416,6 +416,22 @@ function toSingBoxOutbound(node: LooseProxyNode, tag: string): Record<string, an
       udp_relay_mode: node['udp-relay-mode'] || 'native',
       tls: buildTls(node) || { enabled: true },
     };
+  }
+
+  if (node.type === 'anytls') {
+    const outbound: Record<string, any> = {
+      type: 'anytls',
+      tag,
+      server,
+      server_port: serverPort,
+      password: node.password,
+      tls: buildTls(node) || { enabled: true },
+    };
+
+    if (node.idle_session_check_interval) outbound.idle_session_check_interval = node.idle_session_check_interval;
+    if (node.idle_session_timeout) outbound.idle_session_timeout = node.idle_session_timeout;
+    if (node.min_idle_session != null) outbound.min_idle_session = node.min_idle_session;
+    return outbound;
   }
 
   return null;

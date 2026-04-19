@@ -96,6 +96,90 @@ describe("Edge Subscription Worker - Logical", () => {
     }
   });
 
+  test("sing-box parses sing-box subscription outbounds", async () => {
+    const originalFetch = globalThis.fetch;
+    const mockFetch = (async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url === "http://sub.com") {
+        return new Response(JSON.stringify({
+          outbounds: [
+            { type: "selector", tag: "auto", outbounds: ["jp-1", "hk-1"] },
+            {
+              type: "trojan",
+              tag: "jp-1",
+              server: "jp.example.com",
+              server_port: 443,
+              password: "pw1",
+              tls: { enabled: true, server_name: "jp.example.com" }
+            },
+            {
+              type: "shadowsocks",
+              tag: "hk-1",
+              server: "hk.example.com",
+              server_port: 8388,
+              method: "aes-256-gcm",
+              password: "pw2"
+            },
+            { type: "direct", tag: "direct" }
+          ]
+        }), { status: 200 });
+      }
+      return originalFetch(input);
+    }) as typeof fetch;
+    globalThis.fetch = mockFetch;
+
+    try {
+      const res = await callWorker("http://localhost/?type=sing-box&Airport=http://sub.com");
+      const json = JSON.parse(await res.text());
+      const tags = json.outbounds.map((item: any) => item.tag);
+
+      expect(tags).toContain("[Airport] jp-1");
+      expect(tags).toContain("[Airport] hk-1");
+      expect(json.outbounds.some((item: any) => item.type === "trojan" && item.server === "jp.example.com")).toBe(true);
+      expect(json.outbounds.some((item: any) => item.type === "shadowsocks" && item.server === "hk.example.com")).toBe(true);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  test("sing-box parses anytls outbounds and commented mihomo yaml subscriptions", async () => {
+    const originalFetch = globalThis.fetch;
+    const mockFetch = (async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url === "http://json-sub.com") {
+        return new Response(JSON.stringify({
+          outbounds: [
+            {
+              type: "anytls",
+              tag: "sg-anytls",
+              server: "sg.example.com",
+              server_port: 443,
+              password: "pw-anytls",
+              tls: { enabled: true, server_name: "sg.example.com" }
+            }
+          ]
+        }), { status: 200 });
+      }
+
+      if (url === "http://yaml-sub.com") {
+        return new Response(`# comment\nport: 7890\nproxies:\n  - name: "YAML-SS"\n    type: ss\n    server: yaml.example.com\n    port: 8388\n    cipher: aes-256-gcm\n    password: yaml-pw\n`, { status: 200 });
+      }
+
+      return originalFetch(input);
+    }) as typeof fetch;
+    globalThis.fetch = mockFetch;
+
+    try {
+      const res = await callWorker("http://localhost/?type=sing-box&Json=http://json-sub.com&Yaml=http://yaml-sub.com");
+      const json = JSON.parse(await res.text());
+
+      expect(json.outbounds.some((item: any) => item.type === "anytls" && item.tag === "[Json] sg-anytls")).toBe(true);
+      expect(json.outbounds.some((item: any) => item.type === "shadowsocks" && item.tag === "[Yaml] YAML-SS")).toBe(true);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
   // 4. Secret handling
   test("Custom Secret", async () => {
     const res = await callWorker("http://localhost/?secret=my-secret&Airport=http://sub.com");
