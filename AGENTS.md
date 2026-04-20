@@ -66,7 +66,7 @@ sing-box 配置生成器，负责输出完整 JSON 配置：
 - `route.rules`：沿用现有策略组语义映射到 sing-box 路由动作
 - `route.rule_set`：使用 `MetaCubeX/meta-rules-dat@sing` 的 remote `geosite/geoip` `.srs`，并单独接入 `217heidai/adblockfilters` 的 sing-box 广告规则
 - `experimental.clash_api`：默认监听 `0.0.0.0:9090`，供图形客户端切组
-- 订阅节点会优先按服务器 IP 做 GeoIP，并重命名为 `国家 icon + 机场名 + 数字`，例如 `🇯🇵 Kitty 12`
+- 订阅节点会优先按服务器 IP 做 GeoIP，并重命名为 `国家 icon + 机场名 + 数字 + (原节点名)`，例如 `🇯🇵 Kitty 12 (HK-Node)`
 - GeoIP 命名存在兜底链路：节点 IP → 节点 SNI/Host → 订阅源域名
 - 若整份订阅只返回 `127.0.0.1:1` 这类告警占位节点，会自动收敛成单个 `⚠️ 机场名 订阅失效`
 - 生成结果需要兼容 `sing-box check`：`shadowsocks` 插件参数会转换为 sing-box 期望的字符串格式，`reality` 会补齐 `uTLS`，不输出 Android 专属 `override_android_vpn`

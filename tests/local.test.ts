@@ -143,8 +143,8 @@ describe("Edge Subscription Worker - Logical", () => {
       const json = JSON.parse(await res.text());
       const tags = json.outbounds.map((item: any) => item.tag);
 
-      expect(tags).toContain("🇯🇵 Airport 01");
-      expect(tags).toContain("🇭🇰 Airport 02");
+      expect(tags).toContain("🇯🇵 Airport 01 (jp-1)");
+      expect(tags).toContain("🇭🇰 Airport 02 (hk-1)");
       expect(json.outbounds.some((item: any) => item.type === "trojan" && item.server === "jp.example.com")).toBe(true);
       expect(json.outbounds.some((item: any) => item.type === "shadowsocks" && item.server === "hk.example.com")).toBe(true);
     } finally {
@@ -191,9 +191,9 @@ describe("Edge Subscription Worker - Logical", () => {
       const res = await callWorker("http://localhost/?type=sing-box&Json=http://json-sub.com&Yaml=http://yaml-sub.com");
       const json = JSON.parse(await res.text());
 
-      expect(json.outbounds.some((item: any) => item.type === "anytls" && item.tag === "🇸🇬 Json 01")).toBe(true);
-      expect(json.outbounds.some((item: any) => item.type === "shadowsocks" && item.tag === "🏳️ Yaml 01")).toBe(true);
-      expect(json.outbounds.some((item: any) => item.type === "shadowsocks" && item.tag === "🏳️ Yaml 01" && item.plugin === "obfs-local" && item.plugin_opts === "obfs=tls;obfs-host=plugin.example.com")).toBe(true);
+      expect(json.outbounds.some((item: any) => item.type === "anytls" && item.tag === "🇸🇬 Json 01 (sg-anytls)")).toBe(true);
+      expect(json.outbounds.some((item: any) => item.type === "shadowsocks" && item.tag === "🏳️ Yaml 01 (YAML-SS)")).toBe(true);
+      expect(json.outbounds.some((item: any) => item.type === "shadowsocks" && item.tag === "🏳️ Yaml 01 (YAML-SS)" && item.plugin === "obfs-local" && item.plugin_opts === "obfs=tls;obfs-host=plugin.example.com")).toBe(true);
     } finally {
       globalThis.fetch = originalFetch;
     }
@@ -261,8 +261,8 @@ describe("Edge Subscription Worker - Logical", () => {
       const json = JSON.parse(await res.text());
       const tags = json.outbounds.filter((item: any) => item.type === "trojan").map((item: any) => item.tag);
 
-      expect(tags).toContain("🇯🇵 Airport 01");
-      expect(tags).toContain("🇺🇸 Airport 02");
+      expect(tags).toContain("🇯🇵 Airport 01 (node-1)");
+      expect(tags).toContain("🇺🇸 Airport 02 (node-2)");
     } finally {
       globalThis.fetch = originalFetch;
     }
@@ -304,8 +304,8 @@ describe("Edge Subscription Worker - Logical", () => {
       const json = JSON.parse(await res.text());
       const tags = json.outbounds.filter((item: any) => item.type === "trojan").map((item: any) => item.tag);
 
-      expect(tags).toContain("🇯🇵 Airport 01");
-      expect(tags).toContain("🇹🇼 Airport 02");
+      expect(tags).toContain("🇯🇵 Airport 01 (🇯🇵Japan 01)");
+      expect(tags).toContain("🇹🇼 Airport 02 (TW-X1-1)");
     } finally {
       globalThis.fetch = originalFetch;
     }
@@ -352,7 +352,7 @@ describe("Edge Subscription Worker - Logical", () => {
       const json = JSON.parse(await res.text());
       const tags = json.outbounds.filter((item: any) => item.type === "vless").map((item: any) => item.tag);
 
-      expect(tags).toEqual(["🇯🇵 Airport 01"]);
+      expect(tags).toEqual(["🇯🇵 Airport 01 (🇯🇵Japan 01)"]);
     } finally {
       globalThis.fetch = originalFetch;
     }
