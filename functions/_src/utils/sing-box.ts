@@ -514,7 +514,8 @@ async function buildGeoNodeLabel(
   fallbackCountryCode: string | null,
   context: GeoLabelContext,
 ): Promise<string> {
-  let countryCode: string | null = extractCountryCodeFromName(String(node.name || ''));
+  const originalName = String(node.name || '').trim();
+  let countryCode: string | null = extractCountryCodeFromName(originalName);
 
   if (!countryCode) {
     for (const host of extractHostCandidates(node)) {
@@ -528,7 +529,8 @@ async function buildGeoNodeLabel(
 
   if (!countryCode) countryCode = fallbackCountryCode;
   const flag = toFlagEmoji(countryCode);
-  return `${flag} ${providerName} ${String(sequence).padStart(2, '0')}`;
+  const sequenceStr = String(sequence).padStart(2, '0');
+  return `${flag} ${providerName} ${sequenceStr} (${originalName})`;
 }
 
 function isInformationalNode(node: LooseProxyNode): boolean {
