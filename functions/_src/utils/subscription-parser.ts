@@ -7,6 +7,21 @@ export interface ResolvedSubscription extends Subscription {
   nodes: LooseProxyNode[];
 }
 
+const ALERT_KEYWORDS = [
+  '订阅',
+  '泄露',
+  '账号安全',
+  '重新',
+  '导入',
+  '失效',
+  '过期',
+  'warning',
+  'alert',
+  'expired',
+  'invalid',
+  'banned',
+];
+
 const BASE64_PATTERN = /^[A-Za-z0-9+/=_-\s]+$/;
 
 function stripBom(input: string): string {
@@ -55,6 +70,13 @@ function applySingBoxTls(node: Record<string, any>, outbound: Record<string, any
     } else {
       node.servername = tls.server_name;
     }
+  }
+
+  if (tls.utls && typeof tls.utls === 'object' && tls.utls.enabled === true) {
+    node.utls = {
+      enabled: true,
+      ...(tls.utls.fingerprint ? { fingerprint: tls.utls.fingerprint } : {}),
+    };
   }
 
   if (tls.reality && typeof tls.reality === 'object' && tls.reality.enabled === true) {
@@ -218,6 +240,34 @@ export function parseSubscriptionContent(input: string): LooseProxyNode[] {
   return parseProxyTextToNodes(raw).nodes;
 }
 
+function isLoopbackPlaceholderNode(node: LooseProxyNode): boolean {
+  const server = String(node.server || '').trim().toLowerCase();
+  const port = Number(node.port);
+  return (server === '127.0.0.1' || server === 'localhost' || server === '::1') && port === 1;
+}
+
+function isAlertPlaceholderNode(node: LooseProxyNode): boolean {
+  if (!isLoopbackPlaceholderNode(node)) return false;
+  const name = String(node.name || '').trim().toLowerCase();
+  return ALERT_KEYWORDS.some((keyword) => name.includes(keyword));
+}
+
+function collapseAlertSubscription(sub: Subscription, nodes: LooseProxyNode[]): LooseProxyNode[] {
+  if (nodes.length === 0) return nodes;
+  if (!nodes.every((node) => isAlertPlaceholderNode(node))) return nodes;
+
+  return [{
+    name: `⚠️ ${sub.name} 订阅失效`,
+    type: 'ss',
+    server: '127.0.0.1',
+    port: 1,
+    cipher: 'aes-128-gcm',
+    password: '00000000-0000-0000-0000-000000000000',
+    udp: false,
+    __subscriptionAlert: true,
+  } as LooseProxyNode];
+}
+
 export async function fetchSubscriptionNodes(
   subscriptions: Subscription[],
   userAgent: string,
@@ -236,7 +286,7 @@ export async function fetchSubscriptionNodes(
       }
 
       const body = await response.text();
-      const nodes = parseSubscriptionContent(body);
+      const nodes = collapseAlertSubscription(sub, parseSubscriptionContent(body));
 
       return {
         ...sub,

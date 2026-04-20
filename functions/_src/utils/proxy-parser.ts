@@ -106,6 +106,8 @@ export function parseProxyLine(line: string): { node?: LooseProxyNode; rawLine?:
             'short-id': url.searchParams.get('sid') || '',
           };
         }
+        const fingerprint = url.searchParams.get('fp') || url.searchParams.get('client-fingerprint');
+        if (fingerprint) node['client-fingerprint'] = fingerprint;
         const sni = url.searchParams.get('sni');
         if (sni) node.servername = sni;
       } else if (protocol === 'trojan') {

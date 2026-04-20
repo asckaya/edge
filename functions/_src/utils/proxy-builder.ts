@@ -34,6 +34,9 @@ export function buildProxyUri(node: ProxyNode): string[] {
     if (p['short-id'] || p['reality-opts']?.['short-id']) {
       q.set('sid', p['short-id'] || p['reality-opts']['short-id']);
     }
+    if (p['client-fingerprint'] || p.client_fingerprint || p.fp) {
+      q.set('fp', p['client-fingerprint'] || p.client_fingerprint || p.fp);
+    }
     if (p['ws-opts']?.path) q.set('path', p['ws-opts'].path);
     if (p['grpc-opts']?.serviceName) q.set('serviceName', p['grpc-opts'].serviceName);
     return [`vless://${uuid}@${server}:${port}?${q.toString()}#${name}`];

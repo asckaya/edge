@@ -66,6 +66,10 @@ sing-box 配置生成器，负责输出完整 JSON 配置：
 - `route.rules`：沿用现有策略组语义映射到 sing-box 路由动作
 - `route.rule_set`：使用 `MetaCubeX/meta-rules-dat@sing` 的 remote `geosite/geoip` `.srs`，并单独接入 `217heidai/adblockfilters` 的 sing-box 广告规则
 - `experimental.clash_api`：默认监听 `0.0.0.0:9090`，供图形客户端切组
+- 订阅节点会优先按服务器 IP 做 GeoIP，并重命名为 `国家 icon + 机场名 + 数字`，例如 `🇯🇵 Kitty 12`
+- GeoIP 命名存在兜底链路：节点 IP → 节点 SNI/Host → 订阅源域名
+- 若整份订阅只返回 `127.0.0.1:1` 这类告警占位节点，会自动收敛成单个 `⚠️ 机场名 订阅失效`
+- 生成结果需要兼容 `sing-box check`：`shadowsocks` 插件参数会转换为 sing-box 期望的字符串格式，`reality` 会补齐 `uTLS`，不输出 Android 专属 `override_android_vpn`
 
 ### `functions/_src/utils/subscription-parser.ts`
 
@@ -73,6 +77,9 @@ sing-box 配置生成器，负责输出完整 JSON 配置：
 - 机场常见 base64 订阅文本
 - `proxies:` YAML / JSON 数组
 - 多行 URI 文本
+- sing-box `outbounds` JSON / YAML
+- 注释开头的 Mihomo YAML
+- 告警订阅识别：当订阅只剩回环地址占位告警节点时，折叠为单个告警节点
 
 ### `functions/_src/utils/proxy-node.ts`
 
@@ -83,11 +90,12 @@ sing-box 配置生成器，负责输出完整 JSON 配置：
 
 ### 当前 sing-box 支持范围
 
-- 当前输出类型：`hysteria2`、`vless`、`trojan`、`ss`、`vmess`、`tuic`
+- 当前输出类型：`hysteria2`、`vless`、`trojan`、`ss`、`vmess`、`tuic`、`anytls`
 - `wireguard` 目前**不生成** sing-box 节点；sing-box 1.13+ 推荐迁移到 endpoint 写法，暂未接入本仓库
 - 规则源默认走 `.srs`，不是 Mihomo 的 YAML `rule-provider`
 - shared 分流规则已补齐到与 Clash 完整版同级覆盖，包含 `🧪 测速专线` 与 `🕓 NTP 服务`
 - 默认开启局域网访问：`mixed-in` 监听 `0.0.0.0:7897`
+- 已确认可通过本机 `sing-box 1.13.8` 命令行 `check`
 
 ## 模板系统
 
