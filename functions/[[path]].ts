@@ -69,7 +69,7 @@ export const onRequest = async (context: PagesFunctionContext) => {
       ? await fetchSubscriptionNodes(subscriptions, singBoxUserAgent)
       : [];
 
-    const finalConfig = buildSingBoxConfig({
+    const finalConfig = await buildSingBoxConfig({
       secret: providedSecret,
       subscriptions: resolvedSubscriptions,
       customNodes: customProxyNodes,

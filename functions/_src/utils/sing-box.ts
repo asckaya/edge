@@ -52,6 +52,11 @@ interface TaggedNode {
   node: LooseProxyNode;
 }
 
+interface GeoLabelContext {
+  ipCache: Map<string, Promise<string | null>>;
+  countryCache: Map<string, Promise<string | null>>;
+}
+
 const RULE_SET_DEFINITIONS: RuleSetDefinition[] = [
   { kind: 'geosite', tag: 'advertising', remoteName: 'category-ads-all' },
   {
@@ -250,6 +255,191 @@ function createUniqueTag(base: string, used: Set<string>): string {
   return tag;
 }
 
+function isReservedHostname(hostname: string): boolean {
+  const value = hostname.toLowerCase();
+  return (
+    value === 'localhost' ||
+    value.endsWith('.localhost') ||
+    value.endsWith('.local') ||
+    value.endsWith('.lan') ||
+    value.endsWith('.example') ||
+    value.endsWith('.example.com') ||
+    value.endsWith('.example.net') ||
+    value.endsWith('.example.org') ||
+    value.endsWith('.invalid') ||
+    value.endsWith('.test')
+  );
+}
+
+function isIpAddress(host: string): boolean {
+  if (/^\d{1,3}(?:\.\d{1,3}){3}$/.test(host)) return true;
+  return /^[0-9a-f:]+$/i.test(host) && host.includes(':');
+}
+
+function isReservedIpAddress(ip: string): boolean {
+  const value = String(ip || '').trim().toLowerCase();
+  if (!value) return false;
+  if (value === '::1') return true;
+  if (value.startsWith('fe80:') || value.startsWith('fc') || value.startsWith('fd')) return true;
+
+  const ipv4Match = value.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (!ipv4Match) return false;
+
+  const [a, b] = [Number(ipv4Match[1]), Number(ipv4Match[2])];
+  if (a === 0 || a === 10 || a === 127) return true;
+  if (a === 169 && b === 254) return true;
+  if (a === 192 && b === 168) return true;
+  if (a === 172 && b >= 16 && b <= 31) return true;
+  if (a === 100 && b >= 64 && b <= 127) return true;
+  return false;
+}
+
+function toFlagEmoji(countryCode?: string | null): string {
+  const code = String(countryCode || '').trim().toUpperCase();
+  if (!/^[A-Z]{2}$/.test(code)) return '🏳️';
+  return String.fromCodePoint(
+    0x1f1e6 + code.charCodeAt(0) - 65,
+    0x1f1e6 + code.charCodeAt(1) - 65,
+  );
+}
+
+async function fetchJson(url: string, headers?: Record<string, string>): Promise<any> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 2500);
+
+  try {
+    const response = await fetch(url, {
+      headers,
+      signal: controller.signal,
+    });
+    if (!response.ok) return null;
+    return await response.json();
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function getServerIp(server: string, context: GeoLabelContext): Promise<string | null> {
+  const hostname = String(server || '').trim();
+  if (!hostname) return Promise.resolve(null);
+  if (isIpAddress(hostname)) return Promise.resolve(hostname);
+  if (isReservedHostname(hostname)) return Promise.resolve(null);
+
+  const cacheKey = hostname.toLowerCase();
+  const cached = context.ipCache.get(cacheKey);
+  if (cached) return cached;
+
+  const promise = (async () => {
+    const recordTypes = ['A', 'AAAA'];
+    for (const type of recordTypes) {
+      const query = new URL('https://cloudflare-dns.com/dns-query');
+      query.searchParams.set('name', hostname);
+      query.searchParams.set('type', type);
+      const payload = await fetchJson(query.toString(), {
+        Accept: 'application/dns-json',
+      });
+      const answers = Array.isArray(payload?.Answer) ? payload.Answer : [];
+      const ip = answers
+        .map((answer: any) => String(answer?.data || '').trim())
+        .find((value: string) => Boolean(value) && isIpAddress(value));
+      if (ip) return ip;
+    }
+    return null;
+  })();
+
+  context.ipCache.set(cacheKey, promise);
+  return promise;
+}
+
+function getCountryCode(ip: string, context: GeoLabelContext): Promise<string | null> {
+  const cacheKey = String(ip || '').trim();
+  if (!cacheKey) return Promise.resolve(null);
+
+  const cached = context.countryCache.get(cacheKey);
+  if (cached) return cached;
+
+  const promise = (async () => {
+    const providers = [
+      async () => {
+        const payload = await fetchJson(`https://api.country.is/${encodeURIComponent(cacheKey)}`);
+        const countryCode = String(payload?.country || '').trim().toUpperCase();
+        return /^[A-Z]{2}$/.test(countryCode) ? countryCode : null;
+      },
+      async () => {
+        const payload = await fetchJson(`https://ipwho.is/${encodeURIComponent(cacheKey)}`);
+        if (!payload || payload.success === false) return null;
+        const countryCode = String(payload.country_code || '').trim().toUpperCase();
+        return /^[A-Z]{2}$/.test(countryCode) ? countryCode : null;
+      },
+    ];
+
+    for (const provider of providers) {
+      const countryCode = await provider();
+      if (countryCode) return countryCode;
+    }
+
+    return null;
+  })();
+
+  context.countryCache.set(cacheKey, promise);
+  return promise;
+}
+
+async function getCountryCodeFromHost(host: string, context: GeoLabelContext): Promise<string | null> {
+  const ip = await getServerIp(host, context);
+  if (!ip || isReservedIpAddress(ip)) return null;
+  return getCountryCode(ip, context);
+}
+
+function extractHostCandidates(node: LooseProxyNode): string[] {
+  const candidates = [
+    node.server,
+    node.sni,
+    node.servername,
+    node['ws-opts']?.headers?.Host,
+    ...(Array.isArray(node['http-opts']?.host) ? node['http-opts'].host : []),
+  ];
+
+  const pluginHost = node['plugin-opts']?.host || node.plugin_opts?.host;
+  if (pluginHost) candidates.push(pluginHost);
+
+  return Array.from(new Set(candidates.map((value) => String(value || '').trim()).filter(Boolean)));
+}
+
+async function getProviderFallbackCountryCode(subscriptionUrl: string, context: GeoLabelContext): Promise<string | null> {
+  try {
+    const hostname = new URL(subscriptionUrl).hostname;
+    if (!hostname || isReservedHostname(hostname)) return null;
+    return await getCountryCodeFromHost(hostname, context);
+  } catch {
+    return null;
+  }
+}
+
+async function buildGeoNodeLabel(
+  providerName: string,
+  sequence: number,
+  node: LooseProxyNode,
+  fallbackCountryCode: string | null,
+  context: GeoLabelContext,
+): Promise<string> {
+  let countryCode: string | null = null;
+
+  for (const host of extractHostCandidates(node)) {
+    const ip = await getServerIp(host, context);
+    if (ip && !isReservedIpAddress(ip)) {
+      countryCode = await getCountryCode(ip, context);
+      if (countryCode) break;
+    }
+  }
+
+  if (!countryCode) countryCode = fallbackCountryCode;
+  const flag = toFlagEmoji(countryCode);
+  return `${flag} ${providerName} ${String(sequence).padStart(2, '0')}`;
+}
+
 function normalizeProxyList(nodes: LooseProxyNode[]): LooseProxyNode[] {
   return coerceProxyNodes(nodes)
     .filter((node) => SINGBOX_SUPPORTED_TYPES.has(node.type))
@@ -278,12 +468,31 @@ function buildTls(node: LooseProxyNode): Record<string, any> | undefined {
 
   const publicKey = node['public-key'] || node['reality-opts']?.['public-key'];
   const shortId = node['short-id'] || node['reality-opts']?.['short-id'];
+  const fingerprint =
+    node.utls?.fingerprint ||
+    node['client-fingerprint'] ||
+    node.client_fingerprint ||
+    node.fingerprint ||
+    node.fp;
+
+  if (node.utls?.enabled === true || fingerprint) {
+    tls.utls = {
+      enabled: true,
+      ...(fingerprint ? { fingerprint: String(fingerprint) } : {}),
+    };
+  }
+
   if (publicKey || shortId) {
     tls.reality = {
       enabled: true,
       public_key: publicKey || '',
       short_id: shortId || '',
     };
+    if (!tls.utls) {
+      tls.utls = {
+        enabled: true,
+      };
+    }
   }
 
   return tls;
@@ -315,6 +524,61 @@ function buildTransport(node: LooseProxyNode): Record<string, any> | undefined {
   }
 
   return undefined;
+}
+
+function normalizeShadowsocksPluginName(plugin: unknown): string | undefined {
+  const value = String(plugin || '').trim();
+  if (!value) return undefined;
+  if (value === 'obfs' || value === 'simple-obfs') return 'obfs-local';
+  if (value === 'v2ray') return 'v2ray-plugin';
+  return value;
+}
+
+function serializePluginOptionValue(value: unknown): string | null {
+  if (value == null) return null;
+  if (Array.isArray(value)) {
+    const items = value.map((item) => serializePluginOptionValue(item)).filter((item): item is string => Boolean(item));
+    return items.length > 0 ? items.join(',') : null;
+  }
+  if (typeof value === 'object') return null;
+  return String(value);
+}
+
+function buildShadowsocksPluginOpts(plugin: string | undefined, rawPluginOpts: unknown): string | undefined {
+  if (typeof rawPluginOpts === 'string') {
+    const value = rawPluginOpts.trim();
+    return value || undefined;
+  }
+
+  if (!rawPluginOpts || typeof rawPluginOpts !== 'object' || Array.isArray(rawPluginOpts)) {
+    const value = serializePluginOptionValue(rawPluginOpts);
+    return value || undefined;
+  }
+
+  const pluginOpts = rawPluginOpts as Record<string, unknown>;
+
+  if (plugin === 'obfs-local') {
+    const parts: string[] = [];
+    const obfsMode = serializePluginOptionValue(pluginOpts.mode ?? pluginOpts.obfs);
+    const obfsHost = serializePluginOptionValue(pluginOpts.host ?? pluginOpts['obfs-host']);
+    const obfsUri = serializePluginOptionValue(pluginOpts.uri ?? pluginOpts['obfs-uri']);
+
+    if (obfsMode) parts.push(`obfs=${obfsMode}`);
+    if (obfsHost) parts.push(`obfs-host=${obfsHost}`);
+    if (obfsUri) parts.push(`obfs-uri=${obfsUri}`);
+
+    if (parts.length > 0) return parts.join(';');
+  }
+
+  const parts = Object.entries(pluginOpts)
+    .map(([key, value]) => {
+      const serialized = serializePluginOptionValue(value);
+      if (!serialized) return null;
+      return `${key}=${serialized}`;
+    })
+    .filter((item): item is string => Boolean(item));
+
+  return parts.length > 0 ? parts.join(';') : undefined;
 }
 
 function toSingBoxOutbound(node: LooseProxyNode, tag: string): Record<string, any> | null {
@@ -398,9 +662,10 @@ function toSingBoxOutbound(node: LooseProxyNode, tag: string): Record<string, an
       password: node.password,
     };
 
-    if (node.plugin) outbound.plugin = node.plugin;
-    if (node['plugin-opts']) outbound.plugin_opts = node['plugin-opts'];
-    if (node.plugin_opts) outbound.plugin_opts = node.plugin_opts;
+    const plugin = normalizeShadowsocksPluginName(node.plugin);
+    const pluginOpts = buildShadowsocksPluginOpts(plugin, node['plugin-opts'] ?? node.plugin_opts);
+    if (plugin) outbound.plugin = plugin;
+    if (pluginOpts) outbound.plugin_opts = pluginOpts;
     return outbound;
   }
 
@@ -437,14 +702,14 @@ function toSingBoxOutbound(node: LooseProxyNode, tag: string): Record<string, an
   return null;
 }
 
-function buildTaggedNodes(
+async function buildTaggedNodes(
   subscriptions: ResolvedSubscription[],
   customNodes: LooseProxyNode[],
-): {
+): Promise<{
   taggedNodes: TaggedNode[];
   providerSelectors: { providerName: string; selectTag: string; autoTag: string; nodeTags: string[] }[];
   selfHostedNodeTags: string[];
-} {
+}> {
   const usedTags = new Set<string>([
     MAIN_SELECTOR_TAG,
     DOWNLOAD_SELECTOR_TAG,
@@ -458,6 +723,10 @@ function buildTaggedNodes(
 
   const taggedNodes: TaggedNode[] = [];
   const providerSelectors: { providerName: string; selectTag: string; autoTag: string; nodeTags: string[] }[] = [];
+  const geoLabelContext: GeoLabelContext = {
+    ipCache: new Map(),
+    countryCache: new Map(),
+  };
 
   for (const sub of subscriptions) {
     const nodes = normalizeProxyList(sub.nodes);
@@ -465,8 +734,15 @@ function buildTaggedNodes(
 
     const selectTag = createUniqueTag(`📡 ${sub.name}`, usedTags);
     const autoTag = createUniqueTag(`⚡ ${sub.name} 自动选择`, usedTags);
-    const nodeTags = nodes.map((node) => {
-      const tag = createUniqueTag(`[${sub.name}] ${node.name}`, usedTags);
+    const fallbackCountryCode = await getProviderFallbackCountryCode(sub.url, geoLabelContext);
+    const baseLabels = await Promise.all(
+      nodes.map((node, index) => {
+        if (node.__subscriptionAlert) return Promise.resolve(String(node.name));
+        return buildGeoNodeLabel(sub.name, index + 1, node, fallbackCountryCode, geoLabelContext);
+      }),
+    );
+    const nodeTags = nodes.map((node, index) => {
+      const tag = createUniqueTag(baseLabels[index], usedTags);
       taggedNodes.push({ tag, providerName: sub.name, node });
       return tag;
     });
@@ -640,13 +916,12 @@ function buildRoute(ruleSets: Record<string, any>[]): Record<string, any> {
     final: '🐟 漏网之鱼',
     default_domain_resolver: LOCAL_DNS_TAG,
     auto_detect_interface: true,
-    override_android_vpn: true,
   };
 }
 
-export function buildSingBoxConfig(options: BuildSingBoxOptions): string {
+export async function buildSingBoxConfig(options: BuildSingBoxOptions): Promise<string> {
   const { secret, subscriptions, customNodes, ghProxy } = options;
-  const { taggedNodes, providerSelectors, selfHostedNodeTags } = buildTaggedNodes(subscriptions, customNodes);
+  const { taggedNodes, providerSelectors, selfHostedNodeTags } = await buildTaggedNodes(subscriptions, customNodes);
 
   if (taggedNodes.length === 0) {
     throw new Error('No supported sing-box nodes were produced from the provided subscriptions or proxies.');

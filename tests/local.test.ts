@@ -90,6 +90,7 @@ describe("Edge Subscription Worker - Logical", () => {
       expect(json.outbounds.some((item: any) => item.tag === "🕓 NTP 服务")).toBe(true);
       expect(json.inbounds.some((item: any) => item.type === "mixed" && item.listen === "0.0.0.0" && item.listen_port === 7897)).toBe(true);
       expect(json.experimental.clash_api.external_controller).toBe("0.0.0.0:9090");
+      expect(json.route.override_android_vpn).toBeUndefined();
       expect(json.outbounds.some((item: any) => item.type === "trojan")).toBe(true);
     } finally {
       globalThis.fetch = originalFetch;
@@ -124,6 +125,15 @@ describe("Edge Subscription Worker - Logical", () => {
           ]
         }), { status: 200 });
       }
+
+      if (url.startsWith("https://cloudflare-dns.com/dns-query")) {
+        return new Response(JSON.stringify({ Status: 3, Answer: [] }), { status: 200 });
+      }
+
+      if (url.startsWith("https://ipwho.is/")) {
+        return new Response(JSON.stringify({ success: false }), { status: 200 });
+      }
+
       return originalFetch(input);
     }) as typeof fetch;
     globalThis.fetch = mockFetch;
@@ -133,8 +143,8 @@ describe("Edge Subscription Worker - Logical", () => {
       const json = JSON.parse(await res.text());
       const tags = json.outbounds.map((item: any) => item.tag);
 
-      expect(tags).toContain("[Airport] jp-1");
-      expect(tags).toContain("[Airport] hk-1");
+      expect(tags).toContain("🏳️ Airport 01");
+      expect(tags).toContain("🏳️ Airport 02");
       expect(json.outbounds.some((item: any) => item.type === "trojan" && item.server === "jp.example.com")).toBe(true);
       expect(json.outbounds.some((item: any) => item.type === "shadowsocks" && item.server === "hk.example.com")).toBe(true);
     } finally {
@@ -162,7 +172,15 @@ describe("Edge Subscription Worker - Logical", () => {
       }
 
       if (url === "http://yaml-sub.com") {
-        return new Response(`# comment\nport: 7890\nproxies:\n  - name: "YAML-SS"\n    type: ss\n    server: yaml.example.com\n    port: 8388\n    cipher: aes-256-gcm\n    password: yaml-pw\n`, { status: 200 });
+        return new Response(`# comment\nport: 7890\nproxies:\n  - name: "YAML-SS"\n    type: ss\n    server: yaml.example.com\n    port: 8388\n    cipher: aes-256-gcm\n    password: yaml-pw\n    plugin: obfs\n    plugin-opts:\n      mode: tls\n      host: plugin.example.com\n`, { status: 200 });
+      }
+
+      if (url.startsWith("https://cloudflare-dns.com/dns-query")) {
+        return new Response(JSON.stringify({ Status: 3, Answer: [] }), { status: 200 });
+      }
+
+      if (url.startsWith("https://ipwho.is/")) {
+        return new Response(JSON.stringify({ success: false }), { status: 200 });
       }
 
       return originalFetch(input);
@@ -173,11 +191,138 @@ describe("Edge Subscription Worker - Logical", () => {
       const res = await callWorker("http://localhost/?type=sing-box&Json=http://json-sub.com&Yaml=http://yaml-sub.com");
       const json = JSON.parse(await res.text());
 
-      expect(json.outbounds.some((item: any) => item.type === "anytls" && item.tag === "[Json] sg-anytls")).toBe(true);
-      expect(json.outbounds.some((item: any) => item.type === "shadowsocks" && item.tag === "[Yaml] YAML-SS")).toBe(true);
+      expect(json.outbounds.some((item: any) => item.type === "anytls" && item.tag === "🏳️ Json 01")).toBe(true);
+      expect(json.outbounds.some((item: any) => item.type === "shadowsocks" && item.tag === "🏳️ Yaml 01")).toBe(true);
+      expect(json.outbounds.some((item: any) => item.type === "shadowsocks" && item.tag === "🏳️ Yaml 01" && item.plugin === "obfs-local" && item.plugin_opts === "obfs=tls;obfs-host=plugin.example.com")).toBe(true);
     } finally {
       globalThis.fetch = originalFetch;
     }
+  });
+
+  test("sing-box renames subscription nodes with geoip flag and provider sequence", async () => {
+    const originalFetch = globalThis.fetch;
+    const mockFetch = (async (input: RequestInfo | URL) => {
+      const url = String(input);
+      const parsedUrl = new URL(url);
+
+      if (url === "http://sub.com") {
+        return new Response(JSON.stringify({
+          outbounds: [
+            {
+              type: "trojan",
+              tag: "node-1",
+              server: "jp.real.site",
+              server_port: 443,
+              password: "pw1",
+              tls: { enabled: true, server_name: "jp.real.site" }
+            },
+            {
+              type: "trojan",
+              tag: "node-2",
+              server: "us.real.site",
+              server_port: 443,
+              password: "pw2",
+              tls: { enabled: true, server_name: "us.real.site" }
+            }
+          ]
+        }), { status: 200 });
+      }
+
+      if (parsedUrl.hostname === "cloudflare-dns.com" && parsedUrl.pathname === "/dns-query" && parsedUrl.searchParams.get("name") === "jp.real.site") {
+        return new Response(JSON.stringify({ Answer: [{ data: "1.1.1.1" }] }), { status: 200 });
+      }
+
+      if (parsedUrl.hostname === "cloudflare-dns.com" && parsedUrl.pathname === "/dns-query" && parsedUrl.searchParams.get("name") === "us.real.site") {
+        return new Response(JSON.stringify({ Answer: [{ data: "8.8.8.8" }] }), { status: 200 });
+      }
+
+      if (url === "https://ipwho.is/1.1.1.1") {
+        return new Response(JSON.stringify({ success: true, country_code: "JP" }), { status: 200 });
+      }
+
+      if (url === "https://ipwho.is/8.8.8.8") {
+        return new Response(JSON.stringify({ success: true, country_code: "US" }), { status: 200 });
+      }
+
+      if (url === "https://api.country.is/1.1.1.1") {
+        return new Response(JSON.stringify({ country: "JP" }), { status: 200 });
+      }
+
+      if (url === "https://api.country.is/8.8.8.8") {
+        return new Response(JSON.stringify({ country: "US" }), { status: 200 });
+      }
+
+      return originalFetch(input);
+    }) as typeof fetch;
+    globalThis.fetch = mockFetch;
+
+    try {
+      const res = await callWorker("http://localhost/?type=sing-box&Airport=http://sub.com");
+      const json = JSON.parse(await res.text());
+      const tags = json.outbounds.filter((item: any) => item.type === "trojan").map((item: any) => item.tag);
+
+      expect(tags).toContain("🇯🇵 Airport 01");
+      expect(tags).toContain("🇺🇸 Airport 02");
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  test("sing-box collapses alert subscriptions into one warning node", async () => {
+    const originalFetch = globalThis.fetch;
+    const mockFetch = (async (input: RequestInfo | URL) => {
+      const url = String(input);
+
+      if (url === "http://sub.com/fallback") {
+        return new Response(JSON.stringify({
+          outbounds: [
+            {
+              type: "shadowsocks",
+              tag: "您的订阅可能被泄露",
+              server: "127.0.0.1",
+              server_port: 1,
+              method: "aes-128-gcm",
+              password: "pw"
+            },
+            {
+              type: "shadowsocks",
+              tag: "为了您的账号安全",
+              server: "127.0.0.1",
+              server_port: 1,
+              method: "aes-128-gcm",
+              password: "pw"
+            }
+          ]
+        }), { status: 200 });
+      }
+
+      return originalFetch(input);
+    }) as typeof fetch;
+    globalThis.fetch = mockFetch;
+
+    try {
+      const res = await callWorker("http://localhost/?type=sing-box&BYG=http://sub.com/fallback");
+      const json = JSON.parse(await res.text());
+      const outbounds = json.outbounds.filter((item: any) => item.type === "shadowsocks");
+
+      expect(outbounds.length).toBe(1);
+      expect(outbounds[0].tag).toBe("⚠️ BYG 订阅失效");
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  test("sing-box enables utls for reality outbounds", async () => {
+    const realityUri = "vless://u@reality.example.com:443?security=reality&pbk=pk123&sid=abcd1234&sni=cdn.example.com&fp=chrome#Reality";
+    const res = await callWorker(`http://localhost/?type=sing-box&proxies=${encodeURIComponent(realityUri)}`);
+    const json = JSON.parse(await res.text());
+    const outbound = json.outbounds.find((item: any) => item.type === "vless" && item.tag === "Reality");
+
+    expect(outbound).toBeDefined();
+    expect(outbound.tls.reality.public_key).toBe("pk123");
+    expect(outbound.tls.reality.short_id).toBe("abcd1234");
+    expect(outbound.tls.utls.enabled).toBe(true);
+    expect(outbound.tls.utls.fingerprint).toBe("chrome");
   });
 
   // 4. Secret handling
