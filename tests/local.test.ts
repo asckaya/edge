@@ -143,8 +143,8 @@ describe("Edge Subscription Worker - Logical", () => {
       const json = JSON.parse(await res.text());
       const tags = json.outbounds.map((item: any) => item.tag);
 
-      expect(tags).toContain("🏳️ Airport 01");
-      expect(tags).toContain("🏳️ Airport 02");
+      expect(tags).toContain("🇯🇵 Airport 01");
+      expect(tags).toContain("🇭🇰 Airport 02");
       expect(json.outbounds.some((item: any) => item.type === "trojan" && item.server === "jp.example.com")).toBe(true);
       expect(json.outbounds.some((item: any) => item.type === "shadowsocks" && item.server === "hk.example.com")).toBe(true);
     } finally {
@@ -191,7 +191,7 @@ describe("Edge Subscription Worker - Logical", () => {
       const res = await callWorker("http://localhost/?type=sing-box&Json=http://json-sub.com&Yaml=http://yaml-sub.com");
       const json = JSON.parse(await res.text());
 
-      expect(json.outbounds.some((item: any) => item.type === "anytls" && item.tag === "🏳️ Json 01")).toBe(true);
+      expect(json.outbounds.some((item: any) => item.type === "anytls" && item.tag === "🇸🇬 Json 01")).toBe(true);
       expect(json.outbounds.some((item: any) => item.type === "shadowsocks" && item.tag === "🏳️ Yaml 01")).toBe(true);
       expect(json.outbounds.some((item: any) => item.type === "shadowsocks" && item.tag === "🏳️ Yaml 01" && item.plugin === "obfs-local" && item.plugin_opts === "obfs=tls;obfs-host=plugin.example.com")).toBe(true);
     } finally {
@@ -263,6 +263,96 @@ describe("Edge Subscription Worker - Logical", () => {
 
       expect(tags).toContain("🇯🇵 Airport 01");
       expect(tags).toContain("🇺🇸 Airport 02");
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  test("sing-box prefers country hints from original node names", async () => {
+    const originalFetch = globalThis.fetch;
+    const mockFetch = (async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url === "http://sub.com") {
+        return new Response(JSON.stringify({
+          outbounds: [
+            {
+              type: "trojan",
+              tag: "🇯🇵Japan 01",
+              server: "us-origin.example.net",
+              server_port: 443,
+              password: "pw1",
+              tls: { enabled: true, server_name: "us-origin.example.net" }
+            },
+            {
+              type: "trojan",
+              tag: "TW-X1-1",
+              server: "unknown.example.net",
+              server_port: 443,
+              password: "pw2",
+              tls: { enabled: true, server_name: "unknown.example.net" }
+            }
+          ]
+        }), { status: 200 });
+      }
+
+      return originalFetch(input);
+    }) as typeof fetch;
+    globalThis.fetch = mockFetch;
+
+    try {
+      const res = await callWorker("http://localhost/?type=sing-box&Airport=http://sub.com");
+      const json = JSON.parse(await res.text());
+      const tags = json.outbounds.filter((item: any) => item.type === "trojan").map((item: any) => item.tag);
+
+      expect(tags).toContain("🇯🇵 Airport 01");
+      expect(tags).toContain("🇹🇼 Airport 02");
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  test("sing-box filters informational subscription nodes", async () => {
+    const originalFetch = globalThis.fetch;
+    const mockFetch = (async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url === "http://sub.com") {
+        return new Response(JSON.stringify({
+          outbounds: [
+            {
+              type: "vless",
+              tag: "剩余流量：463.56 GB",
+              server: "info.example.net",
+              server_port: 443,
+              uuid: "11111111-1111-1111-1111-111111111111"
+            },
+            {
+              type: "vless",
+              tag: "套餐到期：2027-04-25",
+              server: "expire.example.net",
+              server_port: 443,
+              uuid: "22222222-2222-2222-2222-222222222222"
+            },
+            {
+              type: "vless",
+              tag: "🇯🇵Japan 01",
+              server: "jp.example.net",
+              server_port: 443,
+              uuid: "33333333-3333-3333-3333-333333333333"
+            }
+          ]
+        }), { status: 200 });
+      }
+
+      return originalFetch(input);
+    }) as typeof fetch;
+    globalThis.fetch = mockFetch;
+
+    try {
+      const res = await callWorker("http://localhost/?type=sing-box&Airport=http://sub.com");
+      const json = JSON.parse(await res.text());
+      const tags = json.outbounds.filter((item: any) => item.type === "vless").map((item: any) => item.tag);
+
+      expect(tags).toEqual(["🇯🇵 Airport 01"]);
     } finally {
       globalThis.fetch = originalFetch;
     }

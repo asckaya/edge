@@ -57,6 +57,59 @@ interface GeoLabelContext {
   countryCache: Map<string, Promise<string | null>>;
 }
 
+const INFORMATIONAL_NAME_PATTERNS = [
+  /剩余流量/i,
+  /距离下次重置/i,
+  /套餐到期/i,
+  /流量重置/i,
+  /到期时间/i,
+  /expire/i,
+  /traffic/i,
+];
+
+const COUNTRY_NAME_HINTS: Array<[string, string]> = [
+  ['united states', 'US'],
+  ['usa', 'US'],
+  ['hong kong', 'HK'],
+  ['taiwan', 'TW'],
+  ['japan', 'JP'],
+  ['singapore', 'SG'],
+  ['korea', 'KR'],
+  ['netherlands', 'NL'],
+  ['deutschland', 'DE'],
+  ['germany', 'DE'],
+  ['france', 'FR'],
+  ['italy', 'IT'],
+  ['united kingdom', 'GB'],
+  ['britain', 'GB'],
+  ['england', 'GB'],
+  ['canada', 'CA'],
+  ['australia', 'AU'],
+  ['russia', 'RU'],
+  ['india', 'IN'],
+  ['turkey', 'TR'],
+  ['malaysia', 'MY'],
+  ['thailand', 'TH'],
+  ['vietnam', 'VN'],
+  ['philippines', 'PH'],
+  ['indonesia', 'ID'],
+];
+
+const COUNTRY_CODE_HINTS: Array<[RegExp, string]> = [
+  [/(^|[^A-Z])(US)(?:$|[^A-Z])/, 'US'],
+  [/(^|[^A-Z])(JP)(?:$|[^A-Z])/, 'JP'],
+  [/(^|[^A-Z])(TW)(?:$|[^A-Z])/, 'TW'],
+  [/(^|[^A-Z])(SG)(?:$|[^A-Z])/, 'SG'],
+  [/(^|[^A-Z])(HK)(?:$|[^A-Z])/, 'HK'],
+  [/(^|[^A-Z])(KR)(?:$|[^A-Z])/, 'KR'],
+  [/(^|[^A-Z])(UK)(?:$|[^A-Z])/, 'GB'],
+  [/(^|[^A-Z])(GB)(?:$|[^A-Z])/, 'GB'],
+  [/(^|[^A-Z])(DE)(?:$|[^A-Z])/, 'DE'],
+  [/(^|[^A-Z])(FR)(?:$|[^A-Z])/, 'FR'],
+  [/(^|[^A-Z])(IT)(?:$|[^A-Z])/, 'IT'],
+  [/(^|[^A-Z])(NL)(?:$|[^A-Z])/, 'NL'],
+];
+
 const RULE_SET_DEFINITIONS: RuleSetDefinition[] = [
   { kind: 'geosite', tag: 'advertising', remoteName: 'category-ads-all' },
   {
@@ -303,6 +356,42 @@ function toFlagEmoji(countryCode?: string | null): string {
   );
 }
 
+function extractCountryCodeFromFlag(name: string): string | null {
+  const chars = Array.from(String(name || '').trim());
+  for (let index = 0; index < chars.length - 1; index += 1) {
+    const first = chars[index].codePointAt(0) || 0;
+    const second = chars[index + 1].codePointAt(0) || 0;
+    const isRegionalIndicator = (value: number) => value >= 0x1f1e6 && value <= 0x1f1ff;
+    if (isRegionalIndicator(first) && isRegionalIndicator(second)) {
+      return String.fromCharCode(
+        65 + first - 0x1f1e6,
+        65 + second - 0x1f1e6,
+      );
+    }
+  }
+  return null;
+}
+
+function extractCountryCodeFromName(name: string): string | null {
+  const rawName = String(name || '').trim();
+  if (!rawName) return null;
+
+  const fromFlag = extractCountryCodeFromFlag(rawName);
+  if (fromFlag) return fromFlag;
+
+  const normalized = rawName.toLowerCase();
+  for (const [needle, countryCode] of COUNTRY_NAME_HINTS) {
+    if (normalized.includes(needle)) return countryCode;
+  }
+
+  const upper = rawName.toUpperCase();
+  for (const [pattern, countryCode] of COUNTRY_CODE_HINTS) {
+    if (pattern.test(upper)) return countryCode;
+  }
+
+  return null;
+}
+
 async function fetchJson(url: string, headers?: Record<string, string>): Promise<any> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 2500);
@@ -425,13 +514,15 @@ async function buildGeoNodeLabel(
   fallbackCountryCode: string | null,
   context: GeoLabelContext,
 ): Promise<string> {
-  let countryCode: string | null = null;
+  let countryCode: string | null = extractCountryCodeFromName(String(node.name || ''));
 
-  for (const host of extractHostCandidates(node)) {
-    const ip = await getServerIp(host, context);
-    if (ip && !isReservedIpAddress(ip)) {
-      countryCode = await getCountryCode(ip, context);
-      if (countryCode) break;
+  if (!countryCode) {
+    for (const host of extractHostCandidates(node)) {
+      const ip = await getServerIp(host, context);
+      if (ip && !isReservedIpAddress(ip)) {
+        countryCode = await getCountryCode(ip, context);
+        if (countryCode) break;
+      }
     }
   }
 
@@ -440,9 +531,16 @@ async function buildGeoNodeLabel(
   return `${flag} ${providerName} ${String(sequence).padStart(2, '0')}`;
 }
 
+function isInformationalNode(node: LooseProxyNode): boolean {
+  const name = String(node.name || '').trim();
+  if (!name) return false;
+  return INFORMATIONAL_NAME_PATTERNS.some((pattern) => pattern.test(name));
+}
+
 function normalizeProxyList(nodes: LooseProxyNode[]): LooseProxyNode[] {
   return coerceProxyNodes(nodes)
     .filter((node) => SINGBOX_SUPPORTED_TYPES.has(node.type))
+    .filter((node) => !isInformationalNode(node))
     .filter((node) => node.type !== 'wireguard');
 }
 
