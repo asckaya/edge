@@ -4,9 +4,10 @@ import { configMihomoFooter } from './_templates/mihomo/footer';
 import { configStashHeader } from './_templates/stash/header';
 import { configStashGroupsHeader, configStashGroupsMid } from './_templates/stash/groups';
 import { configStashFooter } from './_templates/stash/footer';
-import { configStashMiniGroupsHeader, configStashMiniGroupsMid } from './_templates/stash/mini/groups-mini';
-import { configStashMiniRuleProviders } from './_templates/stash/mini/rule-providers-mini';
-import { configStashMiniRules } from './_templates/stash/mini/rules-mini';
+import { configMihomoMiniGroupsHeader, configMihomoMiniGroupsMid } from './_templates/mihomo/groups-mini';
+import { configMihomoMiniRuleProviders } from './_templates/mihomo/rule-providers-mini';
+import { configMihomoMiniRules } from './_templates/mihomo/rules-mini';
+import { configMihomoMicroRules } from './_templates/mihomo/rules-micro';
 import { configMihomoRuleProviders } from './_templates/mihomo/rule-providers';
 import { configMihomoRules } from './_templates/mihomo/rules';
 
@@ -55,9 +56,10 @@ export const onRequest = async (context: PagesFunctionContext) => {
 
   const { type: configType, secret: providedSecret, proxies: customProxiesRaw, gh_proxy: ghProxy, subscriptions } = parseResult.data;
   
-  const isStash = configType === 'stash';
-  const isStashMini = configType === 'stash-mini';
-  const isSingBox = configType === 'sing-box';
+  const isStash = configType === 'stash' || configType === 'stash-mini' || configType === 'stash-micro';
+  const isSingBox = configType === 'sing-box' || configType === 'sing-box-mini' || configType === 'sing-box-micro';
+  const isMini = configType === 'stash-mini' || configType === 'mihomo-mini' || configType === 'sing-box-mini';
+  const isMicro = configType === 'stash-micro' || configType === 'mihomo-micro' || configType === 'sing-box-micro';
 
   if (subscriptions.length === 0 && !customProxiesRaw) {
     return new Response('Edge Subscription API - Missing parameters. Visit / for the interface. Add ?proxies=... or ?SubName=SubUrl', {
@@ -82,7 +84,9 @@ export const onRequest = async (context: PagesFunctionContext) => {
       secret: providedSecret,
       subscriptions: resolvedSubscriptions,
       customNodes: customProxyNodes,
-      ghProxy: ghProxy,
+      ghProxy,
+      isMini,
+      isMicro,
     });
 
     return new Response(finalConfig, {
@@ -123,7 +127,7 @@ export const onRequest = async (context: PagesFunctionContext) => {
   const autoGroupNames: string[] = [];
 
   // User-Agent adapts to config type
-  const userAgent = (isStash || isStashMini) ? 'Stash' : 'clash.meta';
+  const userAgent = isStash ? 'Stash' : 'clash.meta';
 
   subscriptions.forEach((sub) => {
     const { name, url: subUrl } = sub;
@@ -173,12 +177,13 @@ export const onRequest = async (context: PagesFunctionContext) => {
   const selfHostedPlaceholder = customProxyNames.length > 0 ? 'Self-Hosted' : '';
 
   // Select the right templates based on config type
-  const tplGroupsHeader = isStashMini ? configStashMiniGroupsHeader : isStash ? configStashGroupsHeader : configMihomoGroupsHeader;
-  const tplGroupsMid = isStashMini ? configStashMiniGroupsMid : isStash ? configStashGroupsMid : configMihomoGroupsMid;
-  const tplHeader = (isStash || isStashMini) ? configStashHeader : configMihomoHeader.replace(/{{SECRET}}/g, providedSecret);
-  const tplFooter = (isStash || isStashMini) ? configStashFooter : configMihomoFooter;
-  const tplRuleProviders = isStashMini ? configStashMiniRuleProviders : configMihomoRuleProviders;
-  const tplRules = isStashMini ? configStashMiniRules : configMihomoRules;
+  const useMiniTemplates = isMini || isMicro;
+  const tplGroupsHeader = useMiniTemplates ? configMihomoMiniGroupsHeader : isStash ? configStashGroupsHeader : configMihomoGroupsHeader;
+  const tplGroupsMid = useMiniTemplates ? configMihomoMiniGroupsMid : isStash ? configStashGroupsMid : configMihomoGroupsMid;
+  const tplHeader = isStash ? configStashHeader : configMihomoHeader.replace(/{{SECRET}}/g, providedSecret);
+  const tplFooter = isStash ? configStashFooter : configMihomoFooter;
+  const tplRuleProviders = useMiniTemplates ? configMihomoMiniRuleProviders : configMihomoRuleProviders;
+  const tplRules = isMicro ? configMihomoMicroRules : isMini ? configMihomoMiniRules : configMihomoRules;
 
   const fillPlaceholders = (s: string) => s
     .replace(/{{PROVIDERS_LIST}}/g, providersList)

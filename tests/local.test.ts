@@ -60,8 +60,84 @@ describe("Edge Subscription Worker - Logical", () => {
     expect(yaml["rule-providers"]).toBeUndefined();
     // Check that we are using GEOSITE
     expect(yaml.rules.some((r: string) => r.includes("GEOSITE,category-ads-all"))).toBe(true);
-    // 4 base groups + 2 for "Airport" sub = 6
-    expect(yaml["proxy-groups"].length).toBe(6);
+    // 4 base groups + 7 regional/auto groups + 2 for "Airport" sub = 13
+    expect(yaml["proxy-groups"].length).toBe(13);
+  });
+  test("Mihomo Mini", async () => {
+    const res = await callWorker("http://localhost/?type=mihomo-mini&Airport=http://sub.com");
+    const yaml = YAML.parse(await res.text());
+    
+    expect(yaml["rule-providers"]).toBeUndefined();
+    // Check that we are using GEOSITE
+    expect(yaml.rules.some((r: string) => r.includes("GEOSITE,category-ads-all"))).toBe(true);
+    // 4 base groups + 7 regional/auto groups + 2 for "Airport" sub = 13
+    expect(yaml["proxy-groups"].length).toBe(13);
+  });
+
+  test("sing-box-mini", async () => {
+    const originalFetch = globalThis.fetch;
+    const mockFetch = (async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url === "http://sub.com") {
+        const encoded = btoa("trojan://pw@example.com:443?sni=example.com#SubNode");
+        return new Response(encoded, { status: 200 });
+      }
+      return originalFetch(input);
+    }) as unknown as typeof fetch;
+    globalThis.fetch = mockFetch;
+
+    try {
+      const res = await callWorker("http://localhost/?type=sing-box-mini&Sub=http://sub.com");
+      const json = await res.json() as any;
+      
+      expect(json.outbounds).toBeDefined();
+      expect(json.route).toBeDefined();
+      // Should only contain mini rule sets
+      expect(json.route.rule_set.length).toBe(8);
+      // Ensure "adblockfilters" is in rule_set
+      expect(json.route.rule_set.some((r: any) => r.tag === "adblockfilters")).toBe(true);
+      // Ensure large groups are removed
+      expect(json.outbounds.some((item: any) => item.tag === "🎬 流媒体")).toBe(false);
+      // Basic mini group exists
+      expect(json.outbounds.some((item: any) => item.tag === "🔒 国内服务")).toBe(true);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  test("Mihomo Micro", async () => {
+    const res = await callWorker("http://localhost/?type=mihomo-micro&Airport=http://sub.com");
+    const yaml = YAML.parse(await res.text());
+    
+    // Check for black-list rules
+    expect(yaml.rules.some((r: string) => r.includes("MATCH,DIRECT"))).toBe(true);
+    expect(yaml.rules.some((r: string) => r.includes("GEOSITE,google,🔍 谷歌服务"))).toBe(true);
+    // 4 base + 7 regional/auto + 2 sub = 13
+    expect(yaml["proxy-groups"].length).toBe(13);
+  });
+
+  test("sing-box-micro", async () => {
+    const originalFetch = globalThis.fetch;
+    const mockFetch = (async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url === "http://sub.com") {
+        const encoded = btoa("trojan://pw@example.com:443?sni=example.com#SubNode");
+        return new Response(encoded, { status: 200 });
+      }
+      return originalFetch(input);
+    }) as unknown as typeof fetch;
+    globalThis.fetch = mockFetch;
+
+    try {
+      const res = await callWorker("http://localhost/?type=sing-box-micro&Sub=http://sub.com");
+      const json = await res.json() as any;
+      
+      expect(json.route.final).toBe("direct");
+      // Should contain blocked rules
+      expect(json.route.rule_set.some((r: any) => r.tag === "google")).toBe(true);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
   });
 
   test("sing-box", async () => {

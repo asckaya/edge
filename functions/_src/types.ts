@@ -107,7 +107,7 @@ export const AnyProxySchema = z.discriminatedUnion("type", [
 
 export type ProxyNode = z.infer<typeof AnyProxySchema>;
 
-export const ConfigTypeSchema = z.enum(['mihomo', 'stash', 'stash-mini', 'sing-box']);
+export const ConfigTypeSchema = z.enum(['mihomo', 'mihomo-mini', 'mihomo-micro', 'stash', 'stash-mini', 'stash-micro', 'sing-box', 'sing-box-mini', 'sing-box-micro']);
 export type ConfigType = z.infer<typeof ConfigTypeSchema>;
 
 export interface Subscription {

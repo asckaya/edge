@@ -1,7 +1,7 @@
-// Stash iOS Mini routing rules.
+// Mihomo/Stash Mini routing rules.
 // White-list mode: Domestic Direct, Everything else Proxy.
 
-export const configStashMiniRules = `rules:
+export const configMihomoMiniRules = `rules:
   # 广告拦截
   - GEOSITE,category-ads-all,🛑 广告拦截
 

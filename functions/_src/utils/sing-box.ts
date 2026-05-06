@@ -44,6 +44,8 @@ interface BuildSingBoxOptions {
   subscriptions: ResolvedSubscription[];
   customNodes: LooseProxyNode[];
   ghProxy?: string | null;
+  isMini?: boolean;
+  isMicro?: boolean;
 }
 
 interface TaggedNode {
@@ -925,6 +927,8 @@ function buildOutbounds(
   taggedNodes: TaggedNode[],
   providerSelectors: { selectTag: string; autoTag: string; nodeTags: string[] }[],
   selfHostedNodeTags: string[],
+  isMini: boolean = false,
+  isMicro: boolean = false,
 ): Record<string, any>[] {
   const outbounds: Record<string, any>[] = [
     { type: 'direct', tag: DIRECT_TAG },
@@ -955,7 +959,12 @@ function buildOutbounds(
 
   outbounds.push(buildSelector(MAIN_SELECTOR_TAG, mainChoices, DOWNLOAD_SELECTOR_TAG));
 
-  for (const group of GROUP_DEFINITIONS) {
+  const useMiniGroups = isMini || isMicro;
+  const activeGroups = useMiniGroups
+    ? GROUP_DEFINITIONS.filter(g => ['🛑 广告拦截', '🔒 国内服务', '🐟 漏网之鱼'].includes(g.tag))
+    : GROUP_DEFINITIONS;
+
+  for (const group of activeGroups) {
     const groupOutbounds = buildGroupOutbounds(group.layout, proxyChoices);
     const defaultTag =
       group.layout === 'block-first'
@@ -1009,32 +1018,70 @@ function buildDns(): Record<string, any> {
   };
 }
 
-function buildRoute(ruleSets: Record<string, any>[]): Record<string, any> {
+function buildRoute(ruleSets: Record<string, any>[], isMini: boolean = false, isMicro: boolean = false): Record<string, any> {
+  const allowedMiniRuleSets = new Set(['advertising', 'adblockfilters', 'private-ip', 'private', 'geolocation-cn', 'cn', 'cn-ip', 'geolocation-!cn']);
+  const allowedMicroRuleSets = new Set([
+    'advertising', 'adblockfilters', 'private-ip', 'private',
+    'google', 'google-ip', 'telegram-ip', 'youtube', 'netflix', 'netflix-ip', 'category-ai-chat-!cn', 'geolocation-!cn'
+  ]);
+  
+  const rules = isMini ? ROUTE_RULES.filter(r => {
+    if (r.action === 'sniff' || r.action === 'hijack-dns') return true;
+    if (r.port === 22 || r.port === 11010) return true;
+    if (r.domain_suffix) return true;
+    if (r.rule_set) {
+      const rs = Array.isArray(r.rule_set) ? r.rule_set[0] : r.rule_set;
+      return allowedMiniRuleSets.has(rs);
+    }
+    return false;
+  }) : isMicro ? ROUTE_RULES.filter(r => {
+    if (r.action === 'sniff' || r.action === 'hijack-dns') return true;
+    if (r.port === 22 || r.port === 11010) return true;
+    if (r.domain_suffix) return true;
+    if (r.rule_set) {
+      const rs = Array.isArray(r.rule_set) ? r.rule_set[0] : r.rule_set;
+      return allowedMicroRuleSets.has(rs);
+    }
+    return false;
+  }) : ROUTE_RULES;
+
   return {
-    rules: ROUTE_RULES,
+    rules,
     rule_set: ruleSets,
-    final: '🐟 漏网之鱼',
+    final: isMicro ? DIRECT_TAG : '🐟 漏网之鱼',
     default_domain_resolver: LOCAL_DNS_TAG,
     auto_detect_interface: true,
   };
 }
 
 export async function buildSingBoxConfig(options: BuildSingBoxOptions): Promise<string> {
-  const { secret, subscriptions, customNodes, ghProxy } = options;
+  const { secret, subscriptions, customNodes, ghProxy, isMini = false, isMicro = false } = options;
   const { taggedNodes, providerSelectors, selfHostedNodeTags } = await buildTaggedNodes(subscriptions, customNodes);
 
   if (taggedNodes.length === 0) {
     throw new Error('No supported sing-box nodes were produced from the provided subscriptions or proxies.');
   }
 
-  const ruleSets = RULE_SET_DEFINITIONS.map((definition) => ({
-    type: 'remote',
-    tag: definition.tag,
-    format: definition.format || 'binary',
-    url: buildRuleSetUrl(definition, ghProxy),
-    download_detour: DOWNLOAD_SELECTOR_TAG,
-    update_interval: '1d',
-  }));
+  const allowedMiniRuleSets = new Set(['advertising', 'adblockfilters', 'private-ip', 'private', 'geolocation-cn', 'cn', 'cn-ip', 'geolocation-!cn']);
+  const allowedMicroRuleSets = new Set([
+    'advertising', 'adblockfilters', 'private-ip', 'private',
+    'google', 'google-ip', 'telegram-ip', 'youtube', 'netflix', 'netflix-ip', 'category-ai-chat-!cn', 'geolocation-!cn'
+  ]);
+  
+  const ruleSets = RULE_SET_DEFINITIONS
+    .filter(def => {
+      if (isMini) return allowedMiniRuleSets.has(def.tag);
+      if (isMicro) return allowedMicroRuleSets.has(def.tag);
+      return true;
+    })
+    .map((definition) => ({
+      type: 'remote',
+      tag: definition.tag,
+      format: definition.format || 'binary',
+      url: buildRuleSetUrl(definition, ghProxy),
+      download_detour: DOWNLOAD_SELECTOR_TAG,
+      update_interval: '1d',
+    }));
 
   const config = {
     log: {
@@ -1058,8 +1105,8 @@ export async function buildSingBoxConfig(options: BuildSingBoxOptions): Promise<
         stack: 'mixed',
       },
     ],
-    outbounds: buildOutbounds(taggedNodes, providerSelectors, selfHostedNodeTags),
-    route: buildRoute(ruleSets),
+    outbounds: buildOutbounds(taggedNodes, providerSelectors, selfHostedNodeTags, isMini, isMicro),
+    route: buildRoute(ruleSets, isMini, isMicro),
     experimental: {
       cache_file: {
         enabled: true,
