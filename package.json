@@ -3,36 +3,40 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "test": "bun test",
-    "check": "bun x tsc --noEmit",
-    "dev": "bun x wrangler pages dev out",
+    "test": "pnpm vitest",
+    "check": "tsc --noEmit",
+    "dev": "wrangler pages dev out",
+    "dev:local": "next dev",
     "build": "next build",
     "lint": "next lint",
-    "deploy": "bun x wrangler pages deploy out"
+    "deploy": "wrangler pages deploy out",
+    "gen": "tsx gen-url.ts"
   },
   "private": true,
   "dependencies": {
-    "next": "16.1.6",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
+    "next": "16.2.4",
+    "react": "19.2.5",
+    "react-dom": "19.2.5",
     "wrangler": "^4",
-    "yaml": "^2.8.2",
+    "yaml": "^2.8.3",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@types/bun": "latest",
-    "@types/node": "^20",
+    "@types/node": "^25",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/coverage-v8": "^4.1.4",
     "babel-plugin-react-compiler": "1.0.0",
-    "eslint": "^10.0.3",
-    "eslint-config-next": "16.1.6",
+    "eslint": "^10.2.1",
+    "eslint-config-next": "16.2.4",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "tsx": "^4.21.0",
+    "typescript": "^6",
+    "vitest": "^4.1.4"
   },
   "peerDependencies": {
-    "typescript": "^5"
+    "typescript": "^6"
   },
   "ignoreScripts": [
     "sharp",

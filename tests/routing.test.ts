@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { onRequest } from "../functions/[[path]]";
 
 describe("Edge Subscription Worker - Routing", () => {

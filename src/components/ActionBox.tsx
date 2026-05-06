@@ -64,61 +64,70 @@ export default function ActionBox({ proxiesText, subs, configType, ghProxy }: Ac
   };
 
   return (
-    <>
+    <div className="space-y-6">
       <button 
         onClick={generateUrl}
         disabled={!isValid}
-        className={`w-full py-4.5 font-bold rounded-2xl transition-all transform flex items-center justify-center gap-2 shadow-xl ${
+        className={`w-full apple-btn py-4 text-[15px] flex items-center justify-center gap-2 ${
           isValid 
-            ? 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white active:scale-[0.98] shadow-blue-500/25' 
-            : 'bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-slate-600 cursor-not-allowed border border-gray-200 dark:border-slate-700'
+            ? 'apple-btn-primary shadow-md shadow-blue-500/20' 
+            : 'bg-[rgba(0,0,0,0.04)] dark:bg-[rgba(255,255,255,0.08)] text-gray-400 dark:text-gray-500 cursor-not-allowed'
         }`}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
-        </svg>
-        {isValid ? 'Build Configuration API' : 'Please fix errors to build'}
+        {isValid ? (
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        ) : (
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        )}
+        {isValid ? 'Generate Configuration' : 'Complete Setup to Generate'}
       </button>
 
       {resultUrl && (
-        <div className="mt-10 p-7 bg-blue-50/50 dark:bg-blue-500/5 rounded-[1.5rem] border border-blue-100 dark:border-blue-500/20 animate-fadein relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-3xl pointer-events-none" />
+        <div className="p-5 bg-[rgba(0,113,227,0.04)] dark:bg-[rgba(10,132,255,0.08)] rounded-[20px] border border-[rgba(0,113,227,0.1)] dark:border-[rgba(10,132,255,0.15)] flex flex-col gap-4 animate-scale-in">
+          <div className="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-[#0071e3] dark:text-[#0a84ff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+            </svg>
+            <div className="text-[15px] font-semibold text-[#0071e3] dark:text-[#0a84ff]">Subscription URL Ready</div>
+          </div>
           
-          <label className="block text-sm font-bold text-blue-600 dark:text-blue-400 mb-3 flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-            Generated API Subscription URL
-          </label>
-          
-          <div className="break-all font-mono text-sm text-gray-700 dark:text-blue-100 mb-6 p-5 bg-white/60 dark:bg-black/40 rounded-xl select-all border border-blue-100/50 dark:border-blue-400/10 backdrop-blur-sm shadow-inner group-hover:border-blue-300 dark:group-hover:border-blue-400/30 transition-colors">
+          <div className="break-all font-mono text-[13px] text-gray-700 dark:text-gray-300 p-4 bg-white/50 dark:bg-black/20 rounded-xl border border-[rgba(0,0,0,0.05)] dark:border-[rgba(255,255,255,0.05)]">
             {resultUrl}
           </div>
           
           <button 
             onClick={copyUrl}
-            className={`w-full py-4 px-6 font-bold rounded-xl transition-all flex items-center justify-center gap-2 active:scale-95 shadow-md ${
+            className={`apple-btn w-full py-3 ${
               copied 
-                ? 'bg-green-500 text-white shadow-green-500/20' 
-                : 'bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-700 shadow-sm'
+                ? 'bg-[#34c759] text-white shadow-md shadow-green-500/20' 
+                : 'apple-btn-secondary border border-[rgba(0,0,0,0.05)] dark:border-[rgba(255,255,255,0.05)] shadow-sm'
             }`}
           >
             {copied ? (
               <>
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
-                <span>Copied Successfully</span>
+                Copied to Clipboard
               </>
             ) : (
               <>
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                 </svg>
-                <span>Copy to Clipboard</span>
+                Copy URL
               </>
             )}
           </button>
         </div>
       )}
-    </>
+    </div>
   );
 }

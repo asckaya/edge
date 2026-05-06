@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { buildProxyUri } from "../functions/_src/utils/proxy-builder";
 import { ProxyNode } from "../functions/_src/types";
 
@@ -26,7 +26,7 @@ describe("buildProxyUri", () => {
     expect(uris).toHaveLength(1);
     const uri = uris[0];
 
-    expect(uri).toStartWith("vless://uuid-1234@server.com:443");
+    expect(uri).toMatch(new RegExp("^" + "vless://uuid-1234@server.com:443".replace(/[\-\/\\^$*+?.()|[\]{}]/g, "\\$&"))) ;
     expect(uri).toContain("type=grpc");
     expect(uri).toContain("sni=sni.com");
     expect(uri).toContain("pbk=public_key");
@@ -52,7 +52,7 @@ describe("buildProxyUri", () => {
     expect(uris).toHaveLength(1);
     const uri = uris[0];
 
-    expect(uri).toStartWith("hysteria2://password@hy2.server.com:20000");
+    expect(uri).toMatch(new RegExp("^" + "hysteria2://password@hy2.server.com:20000".replace(/[\-\/\\^$*+?.()|[\]{}]/g, "\\$&"))) ;
     expect(uri).toContain("mport=20000-40000");
     expect(uri).toContain("sni=sni.com");
     expect(uri).toContain("insecure=1");
@@ -79,7 +79,7 @@ describe("buildProxyUri", () => {
     expect(uris).toHaveLength(1);
     const uri = uris[0];
 
-    expect(uri).toStartWith("tuic://uuid:password@tuic.server.com:443");
+    expect(uri).toMatch(new RegExp("^" + "tuic://uuid:password@tuic.server.com:443".replace(/[\-\/\\^$*+?.()|[\]{}]/g, "\\$&"))) ;
     expect(uri).toContain("sni=sni.com");
     expect(uri).toContain("congestion_control=bbr");
     expect(uri).toContain("udp_relay_mode=native");
@@ -105,7 +105,7 @@ describe("buildProxyUri", () => {
     expect(uris).toHaveLength(1);
     const uri = uris[0];
 
-    expect(uri).toStartWith("wireguard://priv_key@wg.server.com:443");
+    expect(uri).toMatch(new RegExp("^" + "wireguard://priv_key@wg.server.com:443".replace(/[\-\/\\^$*+?.()|[\]{}]/g, "\\$&"))) ;
     expect(uri).toContain("peer_public_key=peer_pub");
     expect(uri).toContain("ip=10.0.0.2%2F24%2Cfd00%3A%3A2");
     expect(uri).toContain("mtu=1420");

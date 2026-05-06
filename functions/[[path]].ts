@@ -13,7 +13,7 @@ import { configRules } from './_templates/shared/rules';
 import { parseProxyUri } from './_src/utils/proxy-parser';
 import { buildSingBoxConfig } from './_src/utils/sing-box';
 import { fetchSubscriptionNodes, parseSubscriptionContent } from './_src/utils/subscription-parser';
-import { Subscription } from './_src/types';
+import { Subscription, RequestParamsSchema } from './_src/types';
 
 interface PagesFunctionContext {
   request: Request;
@@ -32,25 +32,34 @@ export const onRequest = async (context: PagesFunctionContext) => {
     return next();
   }
 
-  // Config type: 'stash' for iOS Stash app, 'stash-mini' for low-memory iOS (<50MB),
-  // 'sing-box' for sing-box JSON profile, default is mihomo/clash-meta.
-  const configType = searchParams.get('type')?.toLowerCase() || 'mihomo';
+  // Parse search params into a plain object for Zod
+  const paramsObj: Record<string, any> = {};
+  for (const [key, value] of searchParams.entries()) {
+    paramsObj[key] = value;
+  }
+
+  // Collect dynamic subscriptions: [ProviderName]=URL
+  const dynamicSubscriptions: Subscription[] = [];
+  for (const [key, value] of searchParams.entries()) {
+    if (!key || !value || ['secret', 'proxies', 'type', 'gh_proxy'].includes(key)) continue;
+    if (value.startsWith('http://') || value.startsWith('https://')) {
+      dynamicSubscriptions.push({ name: key, url: value });
+    }
+  }
+  paramsObj.subscriptions = dynamicSubscriptions;
+
+  const parseResult = RequestParamsSchema.safeParse(paramsObj);
+  if (!parseResult.success) {
+    return new Response(`Invalid parameters: ${parseResult.error.message}`, { status: 400 });
+  }
+
+  const { type: configType, secret: providedSecret, proxies: customProxiesRaw, gh_proxy: ghProxy, subscriptions } = parseResult.data;
+  
   const isStash = configType === 'stash';
   const isStashMini = configType === 'stash-mini';
   const isSingBox = configType === 'sing-box';
 
-  const providedSecret = searchParams.get('secret') || 'edge-default';
-
-  const subscriptions: Subscription[] = [];
-
-  for (const [key, value] of searchParams.entries()) {
-    if (!key || !value || key === 'secret' || key === 'proxies' || key === 'type' || key === 'gh_proxy') continue;
-    if (value.startsWith('http://') || value.startsWith('https://')) {
-      subscriptions.push({ name: key, url: value });
-    }
-  }
-
-  if (subscriptions.length === 0 && !searchParams.get('proxies')) {
+  if (subscriptions.length === 0 && !customProxiesRaw) {
     return new Response('Edge Subscription API - Missing parameters. Visit / for the interface. Add ?proxies=... or ?SubName=SubUrl', {
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
@@ -59,7 +68,7 @@ export const onRequest = async (context: PagesFunctionContext) => {
   }
 
   // Parse custom proxies
-  let customProxies = searchParams.get('proxies') || '';
+  let customProxies = customProxiesRaw;
   let customProxyNames: string[] = [];
   const customProxyNodes = customProxies ? parseSubscriptionContent(customProxies) : [];
 
@@ -73,7 +82,7 @@ export const onRequest = async (context: PagesFunctionContext) => {
       secret: providedSecret,
       subscriptions: resolvedSubscriptions,
       customNodes: customProxyNodes,
-      ghProxy: searchParams.get('gh_proxy'),
+      ghProxy: ghProxy,
     });
 
     return new Response(finalConfig, {
@@ -198,7 +207,6 @@ export const onRequest = async (context: PagesFunctionContext) => {
     tplRules,
   ].join('\n');
 
-  const ghProxy = searchParams.get('gh_proxy');
   if (ghProxy) {
     finalYaml = finalYaml.replace(/https:\/\/(raw\.)?githubusercontent\.com\//g, `${ghProxy}https://$1githubusercontent.com/`);
     finalYaml = finalYaml.replace(/https:\/\/github\.com\//g, `${ghProxy}https://github.com/`);

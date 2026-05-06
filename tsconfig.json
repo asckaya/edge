@@ -6,7 +6,6 @@
     "moduleResolution": "Bundler",
     "strict": true,
     "skipLibCheck": true,
-    "types": ["@types/bun"],
     "allowJs": true,
     "noEmit": true,
     "esModuleInterop": true,

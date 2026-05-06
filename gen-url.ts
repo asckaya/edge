@@ -8,7 +8,7 @@ import { coerceProxyNode } from './functions/_src/utils/proxy-node';
  * URL Generation Utility
  * Reads proxy.yaml and generates a Cloudflare Worker subscription URL.
  *
- * Usage: bun gen-url.ts [--type <config-type>]
+ * Usage: pnpm gen [--type <config-type>]
  *   --type mihomo      Mihomo / Clash Meta (default)
  *   --type stash       Stash iOS — full rule set
  *   --type stash-mini  Stash iOS — low-memory (<50 MB), 15 rule-providers

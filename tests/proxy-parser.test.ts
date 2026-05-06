@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { parseProxyUri } from "../functions/_src/utils/proxy-parser";
 import YAML from "yaml";
 

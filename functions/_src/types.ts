@@ -107,7 +107,23 @@ export const AnyProxySchema = z.discriminatedUnion("type", [
 
 export type ProxyNode = z.infer<typeof AnyProxySchema>;
 
+export const ConfigTypeSchema = z.enum(['mihomo', 'stash', 'stash-mini', 'sing-box']);
+export type ConfigType = z.infer<typeof ConfigTypeSchema>;
+
 export interface Subscription {
   name: string;
   url: string;
 }
+
+export const RequestParamsSchema = z.object({
+  type: ConfigTypeSchema.default('mihomo'),
+  secret: z.string().default('edge-default'),
+  proxies: z.string().default(''),
+  gh_proxy: z.string().optional(),
+  subscriptions: z.array(z.object({
+    name: z.string(),
+    url: z.string().url(),
+  })).default([]),
+});
+
+export type RequestParams = z.infer<typeof RequestParamsSchema>;
