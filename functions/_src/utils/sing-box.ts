@@ -910,7 +910,8 @@ function buildRegionGroups(taggedNodes: TaggedNode[]): { tag: string; nodeTags: 
 function buildGroupChoices(
   providerSelectors: { selectTag: string; autoTag: string }[],
   regionGroups: { tag: string }[],
-  selfHostedEnabled: boolean,
+  selfHostedNodeTags: string[],
+  allNodeTags: string[],
 ): {
   mainChoices: string[];
   proxyChoices: string[];
@@ -919,9 +920,10 @@ function buildGroupChoices(
   const autoTags = providerSelectors.map((provider) => provider.autoTag);
   const selectTags = providerSelectors.map((provider) => provider.selectTag);
   const regionTags = regionGroups.map((g) => g.tag);
+  const selfHostedEnabled = selfHostedNodeTags.length > 0;
   const selfHostedTags = selfHostedEnabled ? [SELF_HOSTED_GROUP_TAG] : [];
 
-  const baseChoices = [AUTO_SELECT_TAG, ...regionTags, ...autoTags, ...selectTags, ...selfHostedTags];
+  const baseChoices = [AUTO_SELECT_TAG, ...regionTags, ...autoTags, ...selectTags, ...selfHostedTags, ...allNodeTags];
 
   return {
     mainChoices: [DOWNLOAD_SELECTOR_TAG, DIRECT_TAG, BLOCK_TAG, ...baseChoices],
@@ -970,48 +972,40 @@ function buildOutbounds(
   isMini: boolean = false,
   isMicro: boolean = false,
 ): Record<string, any>[] {
-  const outbounds: Record<string, any>[] = [
-    { type: 'direct', tag: DIRECT_TAG },
-    { type: 'block', tag: BLOCK_TAG },
-  ];
-
+  const nodeOutbounds: Record<string, any>[] = [];
   for (const taggedNode of taggedNodes) {
     const outbound = toSingBoxOutbound(taggedNode.node, taggedNode.tag);
-    if (outbound) outbounds.push(outbound);
+    if (outbound) nodeOutbounds.push(outbound);
   }
 
   const regionGroups = buildRegionGroups(taggedNodes);
+  const allNodeTags = taggedNodes.map((tn) => tn.tag);
 
   const { mainChoices, proxyChoices, downloadChoices } = buildGroupChoices(
     providerSelectors,
     regionGroups,
-    selfHostedNodeTags.length > 0,
+    selfHostedNodeTags,
+    allNodeTags,
   );
   const downloadDefault = downloadChoices.find((tag) => tag !== DIRECT_TAG) || DIRECT_TAG;
 
-  outbounds.push(buildSelector(DOWNLOAD_SELECTOR_TAG, downloadChoices, downloadDefault));
+  const selectorOutbounds: Record<string, any>[] = [];
 
-  if (selfHostedNodeTags.length > 0) {
-    outbounds.push(buildSelector(SELF_HOSTED_GROUP_TAG, selfHostedNodeTags, selfHostedNodeTags[0]));
-  }
+  // 1. Main Selector
+  selectorOutbounds.push(buildSelector(MAIN_SELECTOR_TAG, mainChoices, DOWNLOAD_SELECTOR_TAG));
 
-  for (const provider of providerSelectors) {
-    outbounds.push(buildSelector(provider.selectTag, provider.nodeTags, provider.nodeTags[0]));
-    outbounds.push(buildUrlTest(provider.autoTag, provider.nodeTags));
-  }
+  // 2. Auto Select
+  selectorOutbounds.push(buildUrlTest(AUTO_SELECT_TAG, allNodeTags));
 
-  const allNodeTags = taggedNodes.map((tn) => tn.tag);
-  outbounds.push(buildUrlTest(AUTO_SELECT_TAG, allNodeTags));
-
+  // 3. Region groups
   for (const region of regionGroups) {
-    outbounds.push(buildUrlTest(region.tag, region.nodeTags));
+    selectorOutbounds.push(buildUrlTest(region.tag, region.nodeTags));
   }
 
-  outbounds.push(buildSelector(MAIN_SELECTOR_TAG, mainChoices, DOWNLOAD_SELECTOR_TAG));
-
+  // 4. Service groups
   const useMiniGroups = isMini || isMicro;
   const activeGroups = useMiniGroups
-    ? GROUP_DEFINITIONS.filter(g => ['🛑 广告拦截', '🔒 国内服务', '🐟 漏网之鱼'].includes(g.tag))
+    ? GROUP_DEFINITIONS.filter((g) => ['🛑 广告拦截', '🔒 国内服务', '🐟 漏网之鱼'].includes(g.tag))
     : GROUP_DEFINITIONS;
 
   for (const group of activeGroups) {
@@ -1022,10 +1016,27 @@ function buildOutbounds(
         : group.layout === 'direct-first' || group.layout === 'direct-only' || group.layout === 'direct-main'
           ? DIRECT_TAG
           : MAIN_SELECTOR_TAG;
-    outbounds.push(buildSelector(group.tag, groupOutbounds, defaultTag));
+    selectorOutbounds.push(buildSelector(group.tag, groupOutbounds, defaultTag));
   }
 
-  return outbounds;
+  // 5. Provider groups
+  for (const provider of providerSelectors) {
+    selectorOutbounds.push(buildSelector(provider.selectTag, provider.nodeTags, provider.nodeTags[0]));
+    selectorOutbounds.push(buildUrlTest(provider.autoTag, provider.nodeTags));
+  }
+
+  // 6. Special groups
+  selectorOutbounds.push(buildSelector(DOWNLOAD_SELECTOR_TAG, downloadChoices, downloadDefault));
+  if (selfHostedNodeTags.length > 0) {
+    selectorOutbounds.push(buildSelector(SELF_HOSTED_GROUP_TAG, selfHostedNodeTags, selfHostedNodeTags[0]));
+  }
+
+  return [
+    { type: 'direct', tag: DIRECT_TAG },
+    { type: 'block', tag: BLOCK_TAG },
+    ...selectorOutbounds,
+    ...nodeOutbounds,
+  ];
 }
 
 function buildDns(): Record<string, any> {
