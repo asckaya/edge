@@ -6,24 +6,28 @@ import { coerceProxyNode } from './functions/_src/utils/proxy-node';
 
 /**
  * URL Generation Utility
- * Reads proxy.yaml and generates a Cloudflare Worker subscription URL.
+ * Reads proxy.yaml and generates a Cloudflare Pages subscription URL.
  *
  * Usage: pnpm gen [--type <config-type>]
- *   --type mihomo      Mihomo / Clash Meta (default)
- *   --type stash       Stash iOS — full rule set
- *   --type stash-mini  Stash iOS — low-memory (<50 MB), 15 rule-providers
- *   --type sing-box    sing-box 1.13+ JSON profile
+ *   Mihomo:   mihomo, mihomo-mini, mihomo-micro
+ *   Stash:    stash, stash-mini, stash-micro
+ *   sing-box: sing-box, sing-box-mini, sing-box-micro
  */
 
 function generateUrl() {
     // Parse --type <value>
     const typeIdx = process.argv.indexOf('--type');
     const configType = typeIdx !== -1 ? (process.argv[typeIdx + 1] ?? 'mihomo') : 'mihomo';
-    const validTypes = ['mihomo', 'stash', 'stash-mini', 'sing-box'];
+    const validTypes = [
+        'mihomo', 'mihomo-mini', 'mihomo-micro',
+        'stash', 'stash-mini', 'stash-micro',
+        'sing-box', 'sing-box-mini', 'sing-box-micro'
+    ];
     if (!validTypes.includes(configType)) {
         console.error(`\x1b[31m✘ Unknown --type "${configType}". Valid values: ${validTypes.join(', ')}\x1b[0m`);
         process.exit(1);
     }
+
 
     // Parse --gh-proxy <value>
     const ghProxyIdx = process.argv.indexOf('--gh-proxy');
@@ -84,10 +88,15 @@ function generateUrl() {
     const finalUrl = `${base}/?${params.toString()}`;
 
     const modeLabels: Record<string, string> = {
-        mihomo: 'Mihomo / Clash Meta',
-        stash: 'Stash iOS (full)',
-        'stash-mini': 'Stash iOS Mini — low-memory (<50 MB)',
-        'sing-box': 'sing-box JSON profile',
+        'mihomo': 'Mihomo Full',
+        'mihomo-mini': 'Mihomo Mini (Whitelist)',
+        'mihomo-micro': 'Mihomo Micro (Blacklist)',
+        'stash': 'Stash Full',
+        'stash-mini': 'Stash Mini (Whitelist)',
+        'stash-micro': 'Stash Micro (Blacklist)',
+        'sing-box': 'sing-box Full',
+        'sing-box-mini': 'sing-box Mini (Whitelist)',
+        'sing-box-micro': 'sing-box Micro (Blacklist)',
     };
     
     console.log('\n\x1b[32m✔ Worker URL Generated Successfully!\x1b[0m');

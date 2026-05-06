@@ -34,8 +34,8 @@ export default function SubscriptionPanel({ subs, setSubs }: Props) {
   const duplicates = getDuplicateNames();
 
   return (
-    <div className="space-y-3">
-      <div className="flex flex-col gap-2">
+    <div className="space-y-4">
+      <div className="flex flex-col gap-3">
         {subs.map(sub => {
           const nameSafe = isSafeName(sub.name);
           const urlValid = isUrl(sub.url);
@@ -43,16 +43,16 @@ export default function SubscriptionPanel({ subs, setSubs }: Props) {
           const hasError = !nameSafe || !urlValid || isDuplicate;
 
           return (
-            <div key={sub.id} className="group flex flex-col gap-1 transition-all">
+            <div key={sub.id} className="group flex flex-col gap-1.5 transition-all">
               <div className="flex items-center gap-2 relative">
-                <div className="flex-1 grid grid-cols-1 sm:grid-cols-12 gap-2">
+                <div className="flex-1 grid grid-cols-1 sm:grid-cols-12 gap-3">
                   <div className="sm:col-span-4">
                     <input 
                       type="text" 
                       placeholder="Provider Name" 
                       value={sub.name}
                       onChange={(e) => updateSub(sub.id, 'name', e.target.value)}
-                      className={`w-full apple-input !py-2.5 font-medium ${!nameSafe || isDuplicate ? '!border-red-500/50 !bg-red-500/5 !text-red-600 dark:!text-red-400' : ''}`}
+                      className={`w-full modern-input !py-2.5 font-semibold placeholder:text-white/10 ${!nameSafe || isDuplicate ? '!border-red-500/30 !bg-red-500/5 !text-red-400' : ''}`}
                     />
                   </div>
                   <div className="sm:col-span-8">
@@ -61,13 +61,13 @@ export default function SubscriptionPanel({ subs, setSubs }: Props) {
                       placeholder="Subscription URL" 
                       value={sub.url}
                       onChange={(e) => updateSub(sub.id, 'url', e.target.value)}
-                      className={`w-full apple-input !py-2.5 font-mono text-xs ${!urlValid ? '!border-red-500/50 !bg-red-500/5 !text-red-600 dark:!text-red-400' : ''}`}
+                      className={`w-full modern-input !py-2.5 font-mono text-[11px] placeholder:text-white/10 ${!urlValid ? '!border-red-500/30 !bg-red-500/5 !text-red-400' : ''}`}
                     />
                   </div>
                 </div>
                 <button 
                   onClick={() => removeSubRow(sub.id)}
-                  className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-full opacity-0 group-hover:opacity-100 transition-all absolute -right-10 shrink-0" 
+                  className="p-2.5 text-white/20 hover:text-red-400 hover:bg-red-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-all absolute -right-12 shrink-0 border border-white/5 bg-white/[0.02]" 
                   title="Remove"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -76,9 +76,10 @@ export default function SubscriptionPanel({ subs, setSubs }: Props) {
                 </button>
               </div>
               {hasError && (
-                <div className="flex items-center gap-1.5 pl-3 mt-0.5">
-                  <span className="text-[11px] text-red-500 font-medium">
-                    {!nameSafe ? 'Invalid name' : isDuplicate ? 'Duplicate provider' : 'Invalid URL'}
+                <div className="flex items-center gap-1.5 pl-4">
+                  <div className="w-1 h-1 rounded-full bg-red-500" />
+                  <span className="text-[10px] text-red-400 font-bold uppercase tracking-wider">
+                    {!nameSafe ? 'Invalid Syntax' : isDuplicate ? 'Conflict: Name Exists' : 'Invalid Connection Protocol'}
                   </span>
                 </div>
               )}
@@ -88,12 +89,14 @@ export default function SubscriptionPanel({ subs, setSubs }: Props) {
       </div>
       <button 
         onClick={addSubRow}
-        className="text-[13px] font-medium text-[#0071e3] hover:text-[#0077ED] transition-colors py-2 flex items-center gap-1"
+        className="group text-[12px] font-bold text-blue-400 hover:text-blue-300 transition-all py-3 flex items-center gap-2 uppercase tracking-widest px-1"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-        </svg>
-        Add Subscription Source
+        <div className="w-6 h-6 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/20 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+          </svg>
+        </div>
+        Append Remote Provider
       </button>
     </div>
   );

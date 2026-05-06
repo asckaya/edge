@@ -6,8 +6,8 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 
 export const metadata: Metadata = {
-  title: "Edge Subscription Generator",
-  description: "Convert your proxy endpoints & external subscriptions into Cloudflare configurations",
+  title: "Edge Engine | Advanced Subscription Orchestrator",
+  description: "High-performance proxy subscription converter for Mihomo, Stash, and sing-box.",
 };
 
 export default function RootLayout({
@@ -16,10 +16,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${outfit.variable} dark:bg-slate-900 scroll-smooth`}>
-      <body className="font-outfit bg-gray-50 text-gray-900 dark:bg-slate-950 dark:text-gray-100 min-h-screen flex items-center justify-center p-4 sm:p-6 antialiased selection:bg-blue-500/30">
+    <html lang="en" className={`${inter.variable} ${outfit.variable} scroll-smooth`}>
+      <body className="antialiased selection:bg-blue-500/30">
         {children}
       </body>
     </html>
   );
 }
+

@@ -9,9 +9,9 @@ export default function Home() {
   const [proxiesText, setProxiesText] = useState('');
   const [subs, setSubs] = useState<Subscription[]>([]);
   const [configType, setConfigType] = useState('mihomo');
+  const [secret, setSecret] = useState('edge-default');
   const [ghProxy, setGhProxy] = useState('');
 
-  // Load a default sub row on mount
   useEffect(() => {
     setSubs([{ id: Date.now(), name: '', url: '' }]);
   }, []);
@@ -27,114 +27,164 @@ export default function Home() {
     'https://gh-proxy.org/',
   ];
 
+  const CONFIG_GROUPS = [
+    {
+      label: 'Mihomo / Clash Meta',
+      options: [
+        { value: 'mihomo', label: 'Mihomo Full' },
+        { value: 'mihomo-mini', label: 'Mihomo Mini (Whitelist)' },
+        { value: 'mihomo-micro', label: 'Mihomo Micro (Blacklist)' },
+      ]
+    },
+    {
+      label: 'Stash iOS',
+      options: [
+        { value: 'stash', label: 'Stash Full' },
+        { value: 'stash-mini', label: 'Stash Mini (Whitelist)' },
+        { value: 'stash-micro', label: 'Stash Micro (Blacklist)' },
+      ]
+    },
+    {
+      label: 'sing-box',
+      options: [
+        { value: 'sing-box', label: 'sing-box Full' },
+        { value: 'sing-box-mini', label: 'sing-box Mini (Whitelist)' },
+        { value: 'sing-box-micro', label: 'sing-box Micro (Blacklist)' },
+      ]
+    }
+  ];
+
   return (
-    <div className="min-h-screen py-12 px-4 flex items-center justify-center animate-fade-in">
-      <main className="w-full max-w-2xl apple-card p-8 sm:p-10 relative z-10 mx-auto">
+    <div className="relative min-h-screen py-12 px-4 flex items-center justify-center overflow-hidden">
+      
+      {/* Decorative Blobs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/10 rounded-full blur-[120px] animate-pulse-slow" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/10 rounded-full blur-[120px] animate-pulse-slow" style={{ animationDelay: '2s' }} />
+
+      <main className="w-full max-w-2xl glass-panel p-8 sm:p-12 relative z-10 mx-auto animate-reveal">
         
         {/* Header */}
-        <header className="mb-10 text-center space-y-3">
-          <div className="w-16 h-16 mx-auto bg-gradient-to-tr from-[#0071e3] to-[#409cff] rounded-[22px] shadow-lg flex items-center justify-center mb-6 shadow-blue-500/20">
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-              <polyline points="2 17 12 22 22 17"></polyline>
-              <polyline points="2 12 12 17 22 12"></polyline>
-            </svg>
+        <header className="mb-12 text-center space-y-4">
+          <div className="relative w-20 h-20 mx-auto mb-8 group">
+            <div className="absolute inset-0 bg-gradient-to-tr from-blue-500 to-purple-500 rounded-3xl blur-xl opacity-40 group-hover:opacity-60 transition-opacity" />
+            <div className="relative w-full h-full bg-[#111] rounded-3xl border border-white/10 flex items-center justify-center shadow-2xl">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+              </svg>
+            </div>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900 dark:text-white">Edge Subscription</h1>
-          <p className="text-[15px] font-medium text-gray-500 dark:text-gray-400">
-            Convert Mihomo, Stash, and sing-box profiles instantly.
+          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-gradient">
+            Edge Engine
+          </h1>
+          <p className="text-[16px] text-white/40 font-medium max-w-md mx-auto leading-relaxed">
+            Universal subscription orchestrator for Mihomo, Stash, and sing-box environments.
           </p>
         </header>
 
-        <div className="space-y-8">
+        <div className="space-y-10">
           
-          {/* Settings Group */}
-          <div className="space-y-6">
-            
-            {/* Proxies */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between px-1">
-                <label className="text-[13px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Self-Hosted Proxies
-                </label>
-                <button 
-                  onClick={() => setIsModalOpen(true)}
-                  className="text-[13px] font-medium text-[#0071e3] hover:text-[#0077ED] transition-colors"
-                >
-                  Add Node
-                </button>
-              </div>
-              <textarea 
-                id="proxies-textarea"
-                value={proxiesText}
-                onChange={(e) => setProxiesText(e.target.value)}
-                placeholder="vless://...&#10;vmess://..."
-                spellCheck="false"
-                className="w-full min-h-[120px] apple-input font-mono text-[13px] resize-y"
-              />
+          {/* Proxies Section */}
+          <section className="space-y-4">
+            <div className="flex items-center justify-between px-1">
+              <label className="label-caps">
+                Raw Proxies
+              </label>
+              <button 
+                onClick={() => setIsModalOpen(true)}
+                className="text-[12px] font-bold text-blue-400 hover:text-blue-300 transition-colors uppercase tracking-widest"
+              >
+                + Inject Node
+              </button>
             </div>
+            <textarea 
+              id="proxies-textarea"
+              value={proxiesText}
+              onChange={(e) => setProxiesText(e.target.value)}
+              placeholder="vless://...&#10;vmess://..."
+              spellCheck="false"
+              className="w-full min-h-[140px] modern-input font-mono text-[13px] resize-y"
+            />
+          </section>
 
-            {/* Subscriptions */}
-            <div className="space-y-3">
-              <div className="px-1">
-                <label className="text-[13px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Subscriptions
-                </label>
-              </div>
-              <SubscriptionPanel subs={subs} setSubs={setSubs} />
+          {/* Subscriptions Section */}
+          <section className="space-y-4">
+            <div className="px-1">
+              <label className="label-caps">
+                Remote Providers
+              </label>
             </div>
+            <SubscriptionPanel subs={subs} setSubs={setSubs} />
+          </section>
 
-            {/* Advanced Settings */}
-            <div className="space-y-3">
-              <div className="px-1">
-                <label className="text-[13px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Configuration Options
-                </label>
-              </div>
-              <div className="bg-[rgba(0,0,0,0.02)] dark:bg-[rgba(255,255,255,0.04)] rounded-[14px] border border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.1)] overflow-hidden">
-                <div className="flex flex-col sm:flex-row sm:items-center border-b border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.1)] p-4 gap-4">
-                  <span className="text-[15px] font-medium w-32 shrink-0">Template</span>
+          {/* Configuration Section */}
+          <section className="space-y-4">
+            <div className="px-1">
+              <label className="label-caps">
+                Orchestration Settings
+              </label>
+            </div>
+            <div className="bg-white/[0.02] rounded-2xl border border-white/[0.05] overflow-hidden divide-y divide-white/[0.05]">
+              <div className="flex flex-col sm:flex-row sm:items-center p-5 gap-4 hover:bg-white/[0.01] transition-colors">
+                <span className="text-[14px] font-semibold text-white/70 w-32 shrink-0">Kernel Type</span>
+                <div className="relative w-full">
                   <select 
                     value={configType}
                     onChange={(e) => setConfigType(e.target.value)}
-                    className="w-full bg-transparent text-[15px] font-medium focus:outline-none appearance-none cursor-pointer"
+                    className="w-full bg-transparent text-[15px] font-medium focus:outline-none appearance-none cursor-pointer text-white"
                   >
-                    <option value="mihomo">Mihomo / Clash Meta</option>
-                    <option value="stash">Stash iOS (Full)</option>
-                    <option value="stash-mini">Stash iOS (Mini)</option>
-                    <option value="sing-box">sing-box 1.13+ (JSON)</option>
-                  </select>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center p-4 gap-4">
-                  <span className="text-[15px] font-medium w-32 shrink-0">GitHub Proxy</span>
-                  <input 
-                    list="gh-proxies-list"
-                    type="text"
-                    value={ghProxy}
-                    onChange={(e) => setGhProxy(e.target.value)}
-                    placeholder="None (Default)"
-                    className="w-full bg-transparent text-[15px] focus:outline-none font-mono"
-                  />
-                  <datalist id="gh-proxies-list">
-                    {COMMON_GH_PROXIES.map(proxy => (
-                      <option key={proxy} value={proxy} />
+                    {CONFIG_GROUPS.map(group => (
+                      <optgroup key={group.label} label={group.label} className="bg-[#111] text-white/50">
+                        {group.options.map(opt => (
+                          <option key={opt.value} value={opt.value} className="bg-[#111] text-white">
+                            {opt.label}
+                          </option>
+                        ))}
+                      </optgroup>
                     ))}
-                  </datalist>
+                  </select>
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-white/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                  </div>
                 </div>
               </div>
+              <div className="flex flex-col sm:flex-row sm:items-center p-5 gap-4 hover:bg-white/[0.01] transition-colors">
+                <span className="text-[14px] font-semibold text-white/70 w-32 shrink-0">Controller Secret</span>
+                <input 
+                  type="text"
+                  value={secret}
+                  onChange={(e) => setSecret(e.target.value)}
+                  placeholder="Mihomo / sing-box password"
+                  className="w-full bg-transparent text-[15px] focus:outline-none font-mono text-white placeholder:text-white/20"
+                />
+              </div>
+              <div className="flex flex-col sm:flex-row sm:items-center p-5 gap-4 hover:bg-white/[0.01] transition-colors">
+                <span className="text-[14px] font-semibold text-white/70 w-32 shrink-0">Mirror Path</span>
+                <input 
+                  list="gh-proxies-list"
+                  type="text"
+                  value={ghProxy}
+                  onChange={(e) => setGhProxy(e.target.value)}
+                  placeholder="Direct (Default)"
+                  className="w-full bg-transparent text-[15px] focus:outline-none font-mono text-white placeholder:text-white/20"
+                />
+                <datalist id="gh-proxies-list">
+                  {COMMON_GH_PROXIES.map(proxy => (
+                    <option key={proxy} value={proxy} />
+                  ))}
+                </datalist>
+              </div>
             </div>
+          </section>
 
-          </div>
-
-          <div className="pt-4">
-            <ActionBox proxiesText={proxiesText} subs={subs} configType={configType} ghProxy={ghProxy} />
+          <div className="pt-6">
+            <ActionBox proxiesText={proxiesText} subs={subs} configType={configType} ghProxy={ghProxy} secret={secret} />
           </div>
 
         </div>
 
-        <footer className="mt-10 text-center">
-          <p className="text-xs text-gray-400 dark:text-gray-500 font-medium">
-            Cloudflare Pages &bull; Edge Workers
+        <footer className="mt-16 text-center border-t border-white/[0.05] pt-8">
+          <p className="text-[10px] text-white/20 font-bold uppercase tracking-[0.2em]">
+            Distributed Edge Deployment &bull; Cloudflare Core
           </p>
         </footer>
 
