@@ -8,6 +8,15 @@ const DIRECT_TAG = 'direct';
 const BLOCK_TAG = 'block';
 const LOCAL_DNS_TAG = 'local-dns';
 const REMOTE_DNS_TAG = 'remote-dns';
+const AUTO_SELECT_TAG = '♻️ 自动选择';
+
+const REGION_DEFINITIONS: Array<{ code: string; tag: string }> = [
+  { code: 'HK', tag: '🇭🇰 香港节点' },
+  { code: 'US', tag: '🇺🇸 美国节点' },
+  { code: 'JP', tag: '🇯🇵 日本节点' },
+  { code: 'SG', tag: '🇸🇬 新加坡节点' },
+  { code: 'TW', tag: '🇼🇸 台湾节点' },
+];
 
 const SINGBOX_SUPPORTED_TYPES = new Set(['hysteria2', 'vless', 'trojan', 'ss', 'vmess', 'tuic', 'anytls']);
 
@@ -822,6 +831,8 @@ async function buildTaggedNodes(
     MAIN_SELECTOR_TAG,
     DOWNLOAD_SELECTOR_TAG,
     SELF_HOSTED_GROUP_TAG,
+    AUTO_SELECT_TAG,
+    ...REGION_DEFINITIONS.map((r) => r.tag),
     DIRECT_TAG,
     BLOCK_TAG,
     LOCAL_DNS_TAG,
@@ -877,8 +888,28 @@ async function buildTaggedNodes(
   };
 }
 
+function buildRegionGroups(taggedNodes: TaggedNode[]): { tag: string; nodeTags: string[] }[] {
+  const regionMap = new Map<string, string[]>();
+  for (const region of REGION_DEFINITIONS) {
+    regionMap.set(region.code, []);
+  }
+
+  for (const tagged of taggedNodes) {
+    const code = extractCountryCodeFromName(tagged.node.name);
+    if (code && regionMap.has(code)) {
+      regionMap.get(code)?.push(tagged.tag);
+    }
+  }
+
+  return REGION_DEFINITIONS.map((region) => ({
+    tag: region.tag,
+    nodeTags: regionMap.get(region.code) || [],
+  })).filter((group) => group.nodeTags.length > 0);
+}
+
 function buildGroupChoices(
   providerSelectors: { selectTag: string; autoTag: string }[],
+  regionGroups: { tag: string }[],
   selfHostedEnabled: boolean,
 ): {
   mainChoices: string[];
@@ -887,11 +918,14 @@ function buildGroupChoices(
 } {
   const autoTags = providerSelectors.map((provider) => provider.autoTag);
   const selectTags = providerSelectors.map((provider) => provider.selectTag);
+  const regionTags = regionGroups.map((g) => g.tag);
   const selfHostedTags = selfHostedEnabled ? [SELF_HOSTED_GROUP_TAG] : [];
 
+  const baseChoices = [AUTO_SELECT_TAG, ...regionTags, ...autoTags, ...selectTags, ...selfHostedTags];
+
   return {
-    mainChoices: [DOWNLOAD_SELECTOR_TAG, DIRECT_TAG, BLOCK_TAG, ...autoTags, ...selectTags, ...selfHostedTags],
-    proxyChoices: [MAIN_SELECTOR_TAG, DIRECT_TAG, BLOCK_TAG, ...autoTags, ...selectTags, ...selfHostedTags],
+    mainChoices: [DOWNLOAD_SELECTOR_TAG, DIRECT_TAG, BLOCK_TAG, ...baseChoices],
+    proxyChoices: [MAIN_SELECTOR_TAG, DIRECT_TAG, BLOCK_TAG, ...baseChoices],
     downloadChoices: [...autoTags, ...selectTags, ...selfHostedTags, DIRECT_TAG],
   };
 }
@@ -946,8 +980,11 @@ function buildOutbounds(
     if (outbound) outbounds.push(outbound);
   }
 
+  const regionGroups = buildRegionGroups(taggedNodes);
+
   const { mainChoices, proxyChoices, downloadChoices } = buildGroupChoices(
     providerSelectors,
+    regionGroups,
     selfHostedNodeTags.length > 0,
   );
   const downloadDefault = downloadChoices.find((tag) => tag !== DIRECT_TAG) || DIRECT_TAG;
@@ -961,6 +998,13 @@ function buildOutbounds(
   for (const provider of providerSelectors) {
     outbounds.push(buildSelector(provider.selectTag, provider.nodeTags, provider.nodeTags[0]));
     outbounds.push(buildUrlTest(provider.autoTag, provider.nodeTags));
+  }
+
+  const allNodeTags = taggedNodes.map((tn) => tn.tag);
+  outbounds.push(buildUrlTest(AUTO_SELECT_TAG, allNodeTags));
+
+  for (const region of regionGroups) {
+    outbounds.push(buildUrlTest(region.tag, region.nodeTags));
   }
 
   outbounds.push(buildSelector(MAIN_SELECTOR_TAG, mainChoices, DOWNLOAD_SELECTOR_TAG));
