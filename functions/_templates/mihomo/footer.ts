@@ -79,13 +79,6 @@ sniffer:
     - "+.sunlogin.net"
     - "+.push.apple.com"
 
-geodata-mode: true
 geo-auto-update: true
-geodata-loader: standard
 geo-update-interval: 24
-geox-url:
-  geoip: https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.dat
-  geosite: https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat
-  mmdb: https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/country.mmdb
-  asn: https://github.com/xishang0128/geoip/releases/download/latest/GeoLite2-ASN.mmdb
 `;

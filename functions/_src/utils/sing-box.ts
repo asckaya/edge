@@ -1,5 +1,6 @@
 import { LooseProxyNode, coerceProxyNodes } from './proxy-node';
 import { ResolvedSubscription } from './subscription-parser';
+import { GEODATA_URLS } from '../../_templates/shared/geox';
 
 const MAIN_SELECTOR_TAG = '🚀 节点选择';
 const DOWNLOAD_SELECTOR_TAG = '📦 资源下载';
@@ -1079,7 +1080,7 @@ function buildDns(): Record<string, any> {
   };
 }
 
-function buildRoute(ruleSets: Record<string, any>[], isMini: boolean = false, isMicro: boolean = false): Record<string, any> {
+function buildRoute(ruleSets: Record<string, any>[], isMini: boolean = false, isMicro: boolean = false, ghProxy?: string | null): Record<string, any> {
   const allowedMiniRuleSets = new Set(['advertising', 'adblockfilters', 'private-ip', 'private', 'geolocation-cn', 'cn', 'cn-ip', 'geolocation-!cn']);
   const allowedMicroRuleSets = new Set([
     'advertising', 'adblockfilters', 'private-ip', 'private',
@@ -1112,6 +1113,14 @@ function buildRoute(ruleSets: Record<string, any>[], isMini: boolean = false, is
   }) : ROUTE_RULES;
 
   return {
+    geoip: {
+      download_url: applyGithubProxy(GEODATA_URLS.geoip, ghProxy),
+      download_detour: DOWNLOAD_SELECTOR_TAG,
+    },
+    geosite: {
+      download_url: applyGithubProxy(GEODATA_URLS.geosite, ghProxy),
+      download_detour: DOWNLOAD_SELECTOR_TAG,
+    },
     rules,
     rule_set: ruleSets,
     final: isMicro ? DIRECT_TAG : '🐟 漏网之鱼',
@@ -1177,7 +1186,7 @@ export async function buildSingBoxConfig(options: BuildSingBoxOptions): Promise<
       },
     ],
     outbounds: buildOutbounds(taggedNodes, providerSelectors, selfHostedNodeTags, isMini, isMicro),
-    route: buildRoute(ruleSets, isMini, isMicro),
+    route: buildRoute(ruleSets, isMini, isMicro, ghProxy),
     experimental: {
       cache_file: {
         enabled: true,

@@ -3,6 +3,13 @@
  * Categorized for easy reference and reuse across Mihomo, Stash, and Sing-box.
  */
 
+export const GEODATA_URLS = {
+  geoip: "https://testingcf.jsdelivr.net/gh/Loyalsoldier/geoip@release/geoip.dat",
+  geosite: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat",
+  mmdb: "https://testingcf.jsdelivr.net/gh/Loyalsoldier/geoip@release/Country.mmdb",
+  asn: "https://testingcf.jsdelivr.net/gh/Loyalsoldier/geoip@release/GeoLite2-ASN.mmdb",
+};
+
 export const GEOX_REGISTRY = {
   ADVERTISING: {
     geosite: ['category-ads-all'],

@@ -1,5 +1,4 @@
-// Mihomo/Meta header configuration
-// Includes TUN, external-controller, and all Mihomo-specific settings.
+import { GEODATA_URLS } from '../shared/geox';
 
 export const configMihomoHeader = `tun:
   enable: false
@@ -28,6 +27,8 @@ mixed-port: 7897
 allow-lan: true
 unified-delay: true
 tcp-concurrent: true
+geodata-mode: true
+
 
 external-controller: 0.0.0.0:9090
 external-controller-cors:
@@ -37,4 +38,13 @@ external-controller-cors:
 secret: "{{SECRET}}"
 external-ui: ./ui
 external-ui-url: "https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip"
+
+geox-url:
+  geoip: "${GEODATA_URLS.geoip}"
+  geosite: "${GEODATA_URLS.geosite}"
+  mmdb: "${GEODATA_URLS.mmdb}"
+  asn: "${GEODATA_URLS.asn}"
 `;
+
+
+
