@@ -1,7 +1,7 @@
 // Stash iOS proxy-groups template
 // No relay type. Uses 入口节点/出口节点 for dialer-proxy chaining.
 
-export const configStashGroupsHeader = \`proxy-groups:
+export const configStashGroupsHeader = `proxy-groups:
   - name: 🚀 节点选择
     type: select
     proxies: [DIRECT, REJECT, ♻️ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, {{AUTO_GROUPS_LIST}}, {{PROVIDERS_LIST}}, {{SELF_HOSTED_GROUP}}]
@@ -59,7 +59,7 @@ export const configStashGroupsHeader = \`proxy-groups:
     include-all-proxies: true
     use: [{{PROVIDERS_LIST}}]
     filter: '(?i)(🇹🇼|🇼🇸|台|新北|彰化|\\bTW(?:[-_ ]?\\d+(?:[-_ ]?[A-Za-z]{2,})?)?\\b|Taiwan|TAIWAN|TWN|TPE|ROC)'
-\`;
+`;
 
 export const configStashGroupsMid = `  - name: 🛑 广告拦截
     type: select
