@@ -62,14 +62,6 @@ export const configMihomoGroupsHeader = `proxy-groups:
 `;
 
 
-  - name: 🇰🇷 韩国节点
-    type: url-test
-    url: https://www.gstatic.com/generate_204
-    interval: 300
-    tolerance: 50
-    include-all-proxies: true
-    use: [{{PROVIDERS_LIST}}]
-    filter: '(?i)(🇰🇷|\\bKR(?:[-_ ]?\\d+(?:[-_ ]?[A-Za-z]{2,})?)?\\b|Korea|KOREA|KOR|首尔|韩|韓|春川|Chuncheon|ICN)'
 
 export const configMihomoGroupsMid = `  - name: 🛑 广告拦截
     type: select
