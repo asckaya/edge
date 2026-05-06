@@ -148,6 +148,9 @@ const RULE_SET_DEFINITIONS: RuleSetDefinition[] = [
   { kind: 'geosite', tag: 'appletv', remoteName: 'apple-tvplus' },
   { kind: 'geosite', tag: 'google' },
   { kind: 'geoip', tag: 'google-ip', remoteName: 'google' },
+  { kind: 'geosite', tag: 'apple-cn' },
+  { kind: 'geosite', tag: 'google-cn' },
+  { kind: 'geosite', tag: 'category-games@cn' },
   { kind: 'geosite', tag: 'microsoft' },
   { kind: 'geosite', tag: 'category-dev' },
   { kind: 'geosite', tag: 'category-container' },
@@ -200,6 +203,9 @@ const ROUTE_RULES: RouteRuleDefinition[] = [
   { rule_set: 'cn-ip', action: 'route', outbound: '🔒 国内服务' },
   { rule_set: 'category-antivirus', action: 'route', outbound: '🔒 国内服务' },
   { rule_set: 'win-update', action: 'route', outbound: '🔒 国内服务' },
+  { rule_set: 'apple-cn', action: 'route', outbound: '🔒 国内服务' },
+  { rule_set: 'google-cn', action: 'route', outbound: '🔒 国内服务' },
+  { rule_set: 'category-games@cn', action: 'route', outbound: '🔒 国内服务' },
   { rule_set: 'category-speedtest', action: 'route', outbound: '🧪 测速专线' },
   { rule_set: 'category-ntp', action: 'route', outbound: '🕓 NTP 服务' },
   { rule_set: 'category-dev', action: 'route', outbound: '🐱 开发工具' },
@@ -1022,7 +1028,12 @@ function buildRoute(ruleSets: Record<string, any>[], isMini: boolean = false, is
   const allowedMiniRuleSets = new Set(['advertising', 'adblockfilters', 'private-ip', 'private', 'geolocation-cn', 'cn', 'cn-ip', 'geolocation-!cn']);
   const allowedMicroRuleSets = new Set([
     'advertising', 'adblockfilters', 'private-ip', 'private',
-    'google', 'google-ip', 'telegram-ip', 'youtube', 'netflix', 'netflix-ip', 'category-ai-chat-!cn', 'geolocation-!cn'
+    'google', 'google-ip', 'telegram', 'telegram-ip', 'youtube', 'netflix', 'netflix-ip', 'disney',
+    'category-ai-chat-!cn', 'openai', 'anthropic', 'google-gemini', 'perplexity', 'deepseek',
+    'category-dev', 'github', 'docker',
+    'category-social-media-!cn', 'twitter', 'twitter-ip',
+    'category-games-!cn', 'category-game-platforms-download',
+    'category-entertainment@!cn', 'geolocation-!cn'
   ]);
   
   const rules = isMini ? ROUTE_RULES.filter(r => {
@@ -1065,7 +1076,12 @@ export async function buildSingBoxConfig(options: BuildSingBoxOptions): Promise<
   const allowedMiniRuleSets = new Set(['advertising', 'adblockfilters', 'private-ip', 'private', 'geolocation-cn', 'cn', 'cn-ip', 'geolocation-!cn']);
   const allowedMicroRuleSets = new Set([
     'advertising', 'adblockfilters', 'private-ip', 'private',
-    'google', 'google-ip', 'telegram-ip', 'youtube', 'netflix', 'netflix-ip', 'category-ai-chat-!cn', 'geolocation-!cn'
+    'google', 'google-ip', 'telegram', 'telegram-ip', 'youtube', 'netflix', 'netflix-ip', 'disney',
+    'category-ai-chat-!cn', 'openai', 'anthropic', 'google-gemini', 'perplexity', 'deepseek',
+    'category-dev', 'github', 'docker',
+    'category-social-media-!cn', 'twitter', 'twitter-ip',
+    'category-games-!cn', 'category-game-platforms-download',
+    'category-entertainment@!cn', 'geolocation-!cn'
   ]);
   
   const ruleSets = RULE_SET_DEFINITIONS
