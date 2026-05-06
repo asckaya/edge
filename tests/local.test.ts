@@ -57,7 +57,9 @@ describe("Edge Subscription Worker - Logical", () => {
     const res = await callWorker("http://localhost/?type=stash-mini&Airport=http://sub.com");
     const yaml = YAML.parse(await res.text());
     
-    expect(yaml["rule-providers"]?.advertising).toBeDefined();
+    expect(yaml["rule-providers"]).toBeUndefined();
+    // Check that we are using GEOSITE
+    expect(yaml.rules.some((r: string) => r.includes("GEOSITE,category-ads-all"))).toBe(true);
     // 17 base groups + 2 for "Airport" sub = 19
     expect(yaml["proxy-groups"].length).toBe(19);
   });

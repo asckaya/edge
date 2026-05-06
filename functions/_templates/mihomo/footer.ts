@@ -18,9 +18,9 @@ dns:
     - https://dns.alidns.com/dns-query
     - 223.5.5.5
   nameserver-policy:
-    "rule-set:category-ai-chat-!cn,category-dev": ["https://8.8.8.8/dns-query", "8.8.8.8"]
-    "rule-set:geolocation-!cn": ["https://8.8.8.8/dns-query", "8.8.8.8"]
-    "rule-set:geolocation-cn,cn": ["https://dns.alidns.com/dns-query", "223.5.5.5"]
+    "geosite:category-ai-chat-!cn,category-dev": ["https://8.8.8.8/dns-query", "8.8.8.8"]
+    "geosite:geolocation-!cn": ["https://8.8.8.8/dns-query", "8.8.8.8"]
+    "geosite:geolocation-cn,cn": ["https://dns.alidns.com/dns-query", "223.5.5.5"]
   fallback:
     - 8.8.8.8
     - 114.114.114.114
@@ -49,130 +49,35 @@ dns:
     - "+.et.net"
     - "+.easytier.cn"
     - "+.easytier.top"
-    - "time.*.com"
-    - "time.*.gov"
-    - "time.*.edu.cn"
-    - "time.*.apple.com"
-    - "time1.*.com"
-    - "time2.*.com"
-    - "time3.*.com"
-    - "time4.*.com"
-    - "time5.*.com"
-    - "time6.*.com"
-    - "time7.*.com"
-    - "ntp.*.com"
-    - "ntp1.*.com"
-    - "ntp2.*.com"
-    - "ntp3.*.com"
-    - "ntp4.*.com"
-    - "ntp5.*.com"
-    - "ntp6.*.com"
-    - "ntp7.*.com"
-    - "*.time.edu.cn"
-    - "*.ntp.org.cn"
-    - "+.pool.ntp.org"
-    - "time1.cloud.tencent.com"
-    - "music.163.com"
-    - "*.music.163.com"
-    - "*.126.net"
-    - "musicapi.taihe.com"
-    - "music.taihe.com"
-    - "songsearch.kugou.com"
-    - "trackercdn.kugou.com"
-    - "*.kuwo.cn"
-    - "api-jooxtt.sanook.com"
-    - "api.joox.com"
-    - "joox.com"
-    - "y.qq.com"
-    - "*.y.qq.com"
-    - "streamoc.music.tc.qq.com"
-    - "mobileoc.music.tc.qq.com"
-    - "isure.stream.qqmusic.qq.com"
-    - "dl.stream.qqmusic.qq.com"
-    - "aqqmusic.tc.qq.com"
-    - "amobile.music.tc.qq.com"
-    - "*.xiami.com"
-    - "*.music.migu.cn"
-    - "music.migu.cn"
-    - "*.msftconnecttest.com"
-    - "*.msftncsi.com"
-    - "msftconnecttest.com"
-    - "msftncsi.com"
     - "localhost.ptlogin2.qq.com"
     - "localhost.sec.qq.com"
-    - "+.srv.nintendo.net"
-    - "+.stun.playstation.net"
-    - "xbox.*.microsoft.com"
-    - "xnotify.xboxlive.com"
-    - "+.battlenet.com.cn"
-    - "+.wotgame.cn"
-    - "+.wggames.cn"
-    - "+.wowsgame.cn"
-    - "+.wargaming.net"
-    - "proxy.golang.org"
-    - "stun.*.*"
-    - "stun.*.*.*"
-    - "+.stun.*.*"
-    - "+.stun.*.*.*"
-    - "+.stun.*.*.*.*"
-    - "heartbeat.belkin.com"
-    - "*.linksys.com"
-    - "*.linksyssmartwifi.com"
-    - "*.router.asus.com"
-    - "mesu.apple.com"
-    - "swscan.apple.com"
-    - "swquery.apple.com"
-    - "swdownload.apple.com"
-    - "swcdn.apple.com"
-    - "swdist.apple.com"
-    - "lens.l.google.com"
-    - "stun.l.google.com"
-    - "+.nflxvideo.net"
-    - "*.square-enix.com"
-    - "*.finalfantasyxiv.com"
-    - "*.ffxiv.com"
-    - "*.mcdn.bilivideo.cn"
-    - "+.ext.skype.com"
-    - "+.skype.com"
-    - "+.skypeforbusiness.com"
-    - "+.teams.microsoft.com"
-    - "teams.microsoft.com"
-    - "*.teams.microsoft.com"
-    - "*.s-microsoft.com"
-    - "+.msecnd.net"
-    - "+.visualstudio.com"
-    - "*.vsassets.io"
-    - "+.vo.msecnd.net"
-    - "+.aspnetcdn.com"
-    - "+.microsoft.com"
-    - "+.msn.com"
-    - "+.windows.com"
-    - "+.microsoftonline.com"
-    - "+.office.com"
-    - "+.office365.com"
-    - "+.outlook.com"
-    - "+.sharepoint.com"
-    - "broadcast.xboxlive.com"
-    - "+.github.com"
-    - "+.githubusercontent.com"
-    - "+.gitlab.com"
-    - "+.bitbucket.org"
-    - "+.gitea.com"
-    - "+.sourceforge.net"
-    - "+.launchpad.net"
-    - "+.codeberg.org"
+    - "geosite:cn"
 
 profile:
   store-selected: true
-  store-fake-ip: false
+  store-fake-ip: true
 
 sniffer:
   enable: true
+  override-destination: true
   parse-pure-ip: true
+  force-dns-mapping: true
   sniff:
     TLS: { ports: [443, 8443] }
     HTTP: { ports: [80, 8080-8880], override-destination: true }
     QUIC: { ports: [443, 8443] }
+  force-domain:
+    - "+.netflix.com"
+    - "+.nflxvideo.net"
+    - "+.amazonaws.com"
+    - "+.media.dssott.com"
+  skip-domain:
+    - "+.apple.com"
+    - "Mijia Cloud"
+    - "dlg.io.mi.com"
+    - "+.oray.com"
+    - "+.sunlogin.net"
+    - "+.push.apple.com"
 
 geodata-mode: true
 geo-auto-update: true

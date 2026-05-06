@@ -7,8 +7,10 @@ import { configStashFooter } from './_templates/stash/footer';
 import { configStashMiniGroupsHeader, configStashMiniGroupsMid } from './_templates/stash/mini/groups-mini';
 import { configStashMiniRuleProviders } from './_templates/stash/mini/rule-providers-mini';
 import { configStashMiniRules } from './_templates/stash/mini/rules-mini';
-import { configRuleProviders } from './_templates/shared/rule-providers';
-import { configRules } from './_templates/shared/rules';
+import { configRuleProviders } from './_templates/stash/rule-providers';
+import { configRules } from './_templates/stash/rules';
+import { configMihomoRuleProviders } from './_templates/mihomo/rule-providers';
+import { configMihomoRules } from './_templates/mihomo/rules';
 
 import { parseProxyUri } from './_src/utils/proxy-parser';
 import { buildSingBoxConfig } from './_src/utils/sing-box';
@@ -152,12 +154,14 @@ export const onRequest = async (context: PagesFunctionContext) => {
     dynamicGroupsSection += `  - name: ${name}
     type: select
     use: [${name}]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
   - name: ${autoGroupName}
     type: url-test
     use: [${name}]
     url: https://www.gstatic.com/generate_204
     interval: 300
     lazy: false
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
 `;
   });
 
@@ -175,8 +179,8 @@ export const onRequest = async (context: PagesFunctionContext) => {
   const tplGroupsMid = isStashMini ? configStashMiniGroupsMid : isStash ? configStashGroupsMid : configMihomoGroupsMid;
   const tplHeader = (isStash || isStashMini) ? configStashHeader : configMihomoHeader.replace(/{{SECRET}}/g, providedSecret);
   const tplFooter = (isStash || isStashMini) ? configStashFooter : configMihomoFooter;
-  const tplRuleProviders = isStashMini ? configStashMiniRuleProviders : configRuleProviders;
-  const tplRules = isStashMini ? configStashMiniRules : configRules;
+  const tplRuleProviders = isStashMini ? configStashMiniRuleProviders : isStash ? configRuleProviders : configMihomoRuleProviders;
+  const tplRules = isStashMini ? configStashMiniRules : isStash ? configRules : configMihomoRules;
 
   const fillPlaceholders = (s: string) => s
     .replace(/{{PROVIDERS_LIST}}/g, providersList)

@@ -7,9 +7,9 @@
 **Edge** 是一个部署在 Cloudflare Workers 上的代理订阅转换器。用户通过 URL 参数传入机场订阅和自建节点，Worker 返回一份完整的 Mihomo / Stash YAML 或 sing-box JSON 配置。
 
 支持四种配置输出类型：
-- **Mihomo / Clash Meta**（桌面端，完整功能）
-- **Stash**（iOS 完整版）
-- **Stash Mini**（iOS 内存优化版，目标 <50 MB Network Extension）
+- **Mihomo / Clash Meta**（桌面端，完整功能，原生 GeoX 极速版）
+- **Stash**（iOS 完整版，外部 YAML Rule-Provider 兼容版）
+- **Stash Mini**（iOS 内存优化版，目标 <50 MB Network Extension，全 GeoX 无外部依赖）
 - **sing-box**（1.13+ JSON 配置，服务端展开订阅）
 - **Web UI**（基于 Next.js 的图形界面，部署在根路径）
 
@@ -40,8 +40,8 @@ const isSingBox   = configType === 'sing-box';
 
 const tplGroupsHeader  = isStashMini ? configStashMiniGroupsHeader  : isStash ? configStashGroupsHeader  : configMihomoGroupsHeader;
 const tplGroupsMid     = isStashMini ? configStashMiniGroupsMid     : isStash ? configStashGroupsMid     : configMihomoGroupsMid;
-const tplRuleProviders = isStashMini ? configStashMiniRuleProviders : configRuleProviders;
-const tplRules         = isStashMini ? configStashMiniRules         : configRules;
+const tplRuleProviders = isStashMini ? configStashMiniRuleProviders : isStash ? configRuleProviders : configMihomoRuleProviders;
+const tplRules         = isStashMini ? configStashMiniRules         : isStash ? configRules : configMihomoRules;
 ```
 
 **YAML 最终拼接顺序：**
@@ -49,122 +49,63 @@ const tplRules         = isStashMini ? configStashMiniRules         : configRule
 tplHeader → proxy-providers → proxies → groupsHeader → Self-Hosted → 动态分组 → groupsMid → tplFooter → tplRuleProviders → tplRules
 ```
 
-**sing-box 分支注意事项：**
-- `type=sing-box` 时不走 YAML 模板拼接，直接返回 JSON。
-- Worker 会在服务端拉取机场订阅并展开节点，不能复用 Mihomo 的 `proxy-providers` 机制。
-- 自建节点和订阅节点都会先走统一解析，再转换为 sing-box outbounds / selectors / urltests。
+---
+
+## 模板系统架构演进 (GeoX 与 Rule-Providers 分离)
+
+为了解决外部 `rule-providers` 带来的高内存占用和启动慢问题，我们对各平台的规则系统进行了深度特化：
+
+### 1. `templates/mihomo/` (Mihomo 原生 GeoX 版)
+Mihomo 已经全面拥抱内置的二进制 `GEOSITE`/`GEOIP` 数据库。
+- `rules.ts`：完全使用 `GEOSITE,xxx` 语法，不再依赖外部的 `RULE-SET`（大幅降低内存，将 50MB+ 的内存消耗压缩到 15MB 左右）。
+- `rule-providers.ts`：几乎被清空，仅保留极个别无法用 Geo 数据替代的第三方规则库（如 `adblockfilters`）。
+- `groups.ts`：含自动测速链式分组，并自带垃圾节点清洗正则匹配（剔除过期、流量提示等无用节点）。
+
+### 2. `templates/stash/` (Stash 完整兼容版)
+Stash 虽然支持 GeoX，但由于其内部字典缺乏 MetaCubeX 精细化分类（如 `category-ai-chat-!cn`），直接使用 `GEOSITE` 会导致规则漏配。
+- `rule-providers.ts`：保留了完整的 67 个外部规则下载链接，**强制使用 `format: yaml`**（Stash 不支持 `.mrs` 格式）。
+- `rules.ts`：继续使用传统的 `RULE-SET,xxx` 语法。
+- `groups.ts`：提供匹配完整版的 26 个策略组。
+
+### 3. `templates/stash/mini/` (Stash 极致内存版)
+为了防止 iOS 设备的 Network Extension 因为内存超过 50MB 而崩溃，Mini 版追求极致的轻量化。
+- `rule-providers-mini.ts`：**完全置空（0 外部规则依赖）**。
+- `rules-mini.ts`：强制全盘改写为原生 `GEOSITE`/`GEOIP`。即便内置字典无法识别个别细分类，也会回退到 `geolocation-!cn` 兜底。
+- `groups-mini.ts`：保留 17 个轻量级策略组。
+
+---
+
+## Rule Provider / GeoX 设计原则
+
+1. **新增分类规则：**
+   - 如果是为 Mihomo 加规则：直接在 `mihomo/rules.ts` 中添加 `GEOSITE,xxx`，不要去增加外部 provider。
+   - 如果是为 Stash (完整版) 加规则：必须在 `stash/rule-providers.ts` 加 yaml 下载链接，然后在 `stash/rules.ts` 加 `RULE-SET`。
+   - 如果是为 Stash (Mini版) 加规则：直接在 `stash/mini/rules-mini.ts` 中加 `GEOSITE,xxx`。
+
+2. **行为分离原则（IP vs 域名）：**
+   - 域名规则只匹配 hostname，IP 规则匹配目标 IP 地址。
+   - 像 `geolocation-cn` 必须在所有代理规则之前；而 `cn-ip` 和 `private-ip` 需要加上 `no-resolve` 防止提前触发 DNS 泄露。
+
+3. **国内直连兜底：**
+   - `GEOSITE,google-cn` 和 `GEOSITE,category-games@cn` 是为了优化特定大陆服务的直连，避免游戏和国内版谷歌服务绕远路。
 
 ---
 
 ## sing-box 现状
 
 ### `functions/_src/utils/sing-box.ts`
-
-sing-box 配置生成器，负责输出完整 JSON 配置：
+sing-box 配置不使用上述 YAML 模板，而是纯 TypeScript 对象生成：
 - `outbounds`：`selector` / `urltest` / `direct` / `block` / 各协议节点
-- `inbounds`：`mixed` (`0.0.0.0:7897`) + `tun`
-- `route.rules`：沿用现有策略组语义映射到 sing-box 路由动作
-- `route.rule_set`：使用 `MetaCubeX/meta-rules-dat@sing` 的 remote `geosite/geoip` `.srs`，并单独接入 `217heidai/adblockfilters` 的 sing-box 广告规则
-- `experimental.clash_api`：默认监听 `0.0.0.0:9090`，供图形客户端切组
-- 订阅节点会优先按服务器 IP 做 GeoIP，并重命名为 `国家 icon + 机场名 + 数字 + (原节点名)`，例如 `🇯🇵 Kitty 12 (HK-Node)`
-- GeoIP 命名存在兜底链路：节点 IP → 节点 SNI/Host → 订阅源域名
-- 若整份订阅只返回 `127.0.0.1:1` 这类告警占位节点，会自动收敛成单个 `⚠️ 机场名 订阅失效`
-- 生成结果需要兼容 `sing-box check`：`shadowsocks` 插件参数会转换为 sing-box 期望的字符串格式，`reality` 会补齐 `uTLS`，不输出 Android 专属 `override_android_vpn`
-
-### `functions/_src/utils/subscription-parser.ts`
-
-订阅解析入口，支持：
-- 机场常见 base64 订阅文本
-- `proxies:` YAML / JSON 数组
-- 多行 URI 文本
-- sing-box `outbounds` JSON / YAML
-- 注释开头的 Mihomo YAML
-- 告警订阅识别：当订阅只剩回环地址占位告警节点时，折叠为单个告警节点
-
-### `functions/_src/utils/proxy-node.ts`
-
-对松散节点做归一化和 Zod 校验，补齐常见别名字段，例如：
-- `shadowsocks` → `ss`
-- `wg` → `wireguard`
-- `server_port` → `port`
-
-### 当前 sing-box 支持范围
-
-- 当前输出类型：`hysteria2`、`vless`、`trojan`、`ss`、`vmess`、`tuic`、`anytls`
-- `wireguard` 目前**不生成** sing-box 节点；sing-box 1.13+ 推荐迁移到 endpoint 写法，暂未接入本仓库
-- 规则源默认走 `.srs`，不是 Mihomo 的 YAML `rule-provider`
-- shared 分流规则已补齐到与 Clash 完整版同级覆盖，包含 `🧪 测速专线` 与 `🕓 NTP 服务`
-- 默认开启局域网访问：`mixed-in` 监听 `0.0.0.0:7897`
-- 已确认可通过本机 `sing-box 1.13.8` 命令行 `check`
-
-## 模板系统
-
-### `templates/shared/`
-
-Mihomo 和 Stash **完整版**共用的规则集，不要在这里做 iOS 专属优化。
-
-| 文件 | 说明 |
-|---|---|
-| `rule-providers.ts` | **67 个** rule-providers（含 `private-ip` 聚合 IP 库） |
-| `rules.ts` | 与 providers 对应的路由规则，**优先级**：端口拒绝/直连 > 局域网 > 国内直连 > 核心服务 > AI > 流媒体 > 社交 > 游戏 > 云/其他 > 兜底 |
-
-**规则排列原则：** REJECT/DIRECT（DST-PORT、IP-CIDR）在最顶部；`geolocation-cn` 在所有代理规则之前；`geolocation-!cn` 作为非中文流量兜底；`MATCH` 最后。
-
-### `templates/mihomo/`
-
-| 文件 | 说明 |
-|---|---|
-| `header.ts` | tun、external-controller、geodata-mode、find-process-mode 等 |
-| `groups.ts` | 含 `🔗 节点链`（dialer-proxy 链式）的完整分组，共 **26 个**策略组 |
-| `footer.ts` | DNS + sniffer（含 QUIC） + profile |
-
-### `templates/stash/`
-
-| 文件 | 说明 |
-|---|---|
-| `header.ts` | 简化版 header（无 tun/external-controller） |
-| `groups.ts` | 含 `🏮 入口节点` + `🛫 出口节点` 链式分组，共 **26 个**策略组 |
-| `footer.ts` | Stash 专属 DNS（`geosite:` 语法），无 sniffer |
-
-### `templates/stash/mini/`
-
-**iOS 内存优化版，目标 <50 MB Network Extension。**
-
-| 文件 | 内容 |
-|---|---|
-| `rule-providers-mini.ts` | **17 个** providers（完整版 66 个） |
-| `rules-mini.ts` | 与 17 个 provider 对应的路由规则 |
-| `groups-mini.ts` | **17 个**策略组（完整版 26 个） |
-
-**Mini 保留的 17 个 providers：**
-`advertising`, `category-ai-chat-!cn`, `youtube`, `category-entertainment@!cn`,
-`category-voip`, `category-social-media-!cn`, `apple`, `google`, `microsoft`,
-`category-dev`, `category-games-!cn`, `cloudflare`, `private`,
-`geolocation-cn`, `geolocation-!cn`, `cn`, `cn-ip`
-
-> ℹ️ `cn-ip`（`behavior: ipcidr`）是必要保留的 GeoIP 规则——腾讯会议等 CN App 媒体流量会直接走国内 IP，域名规则覆盖不到。
-
----
-
-## 模板占位符
-
-| 占位符 | 替换内容 |
-|---|---|
-| `{{PROVIDERS_LIST}}` | 所有 proxy-provider 名称，逗号分隔 |
-| `{{AUTO_GROUPS_LIST}}` | 所有 `⚡ xxx 自动选择` 组名，逗号分隔 |
-| `{{SELF_HOSTED_GROUP}}` | `Self-Hosted`（无自建节点时为空） |
-| `{{SECRET}}` | Mihomo external-controller 密码 |
-
-`fillPlaceholders()` 方法会同时清理空占位符产生的多余逗号 `", ]"` → `"]"`。
+- `route.rule_set`：使用 `MetaCubeX/meta-rules-dat@sing` 的 remote `geosite/geoip` `.srs`
+- 订阅节点会优先按服务器 IP 做 GeoIP，并重命名为 `国家 icon + 机场名 + 数字 + (原节点名)`
+- 若整份订阅只返回占位告警节点，会自动收敛成单个 `⚠️ 机场名 订阅失效`
 
 ---
 
 ## 工具脚本
 
 ### `gen-url.ts`
-
 从 `proxy.yaml` 读取配置，生成 Worker 订阅 URL。
-
 ```bash
 bun gen-url.ts                    # 默认 mihomo
 bun gen-url.ts --type stash       # Stash 完整版
@@ -172,91 +113,8 @@ bun gen-url.ts --type stash-mini  # Stash Mini
 bun gen-url.ts --type sing-box    # sing-box 1.13+ JSON
 ```
 
-支持的协议：`hysteria2`（含端口跳跃）、`vless`、`trojan`、`ss`、`vmess`。
-自建节点配置需符合 `functions/_src/types.ts` 中的 Zod 架构（使用 `type` 而非 `protocol`，`skip-cert-verify` 而非 `insecure`）。
-
 ### Tests
-
-本地验证 Worker 逻辑，对 `mihomo`、`stash`、`stash-mini`、`sing-box` 四种类型进行自动化测试。
-
+验证 Worker 逻辑，对四种类型进行自动化测试：
 ```bash
 bun test
 ```
-
----
-
-## Rule Provider 设计原则
-
-1. **优先使用 `category-*` 聚合集**，而非单独品牌 provider。
-2. **单独 provider 只在以下情况保留：**
-   - 需要 DNS `nameserver-policy` 精确匹配（仅 Mihomo，如 `openai`、`anthropic` 等 AI 提供商）
-   - 所属 category 不存在（如流媒体：`netflix`、`disney`、`hbo`、`hulu`、`primevideo` 无聚合 category）
-   - 需要独立路由到不同策略组（如 `appletv` 独立于 `apple`）
-3. **IP 规则（`behavior: ipcidr`）不可被域名规则替代**：
-   - 域名规则只匹配 hostname，IP 规则匹配目标 IP 地址，两者完全不同维度
-   - `telegram-ip`、`google-ip`、`netflix-ip`、`twitter-ip`、`cloudflare-ip`、`cn-ip` 都必须保留
-  - **私有网络优化**：硬编码的 `10.x/100.x` IP 段已合并入 `private-ip` rule-provider，统一维护
-4. **Mini 版额外原则**：删除所有在 iOS 上不常用或已被 category 兜底的 provider，宁可走 `geolocation-!cn` 兜底也不占内存。
-5. **STUN 策略**：为保证 EasyTier/Tailscale 等 VPN 的 P2P 打洞质量，默认**不拦截** 3478/3479 等 STUN 端口。
-
----
-
-## 策略组说明（完整版）
-
-| 组名 | 默认动作 | 说明 |
-|---|---|---|
-| 🚀 节点选择 | 代理 | 主选择组 |
-| 🔗 节点链 / 🏮 入口 / 🛫 出口 | — | 多跳链路（Mihomo: dialer-proxy；Stash: 手动链） |
-| 🛑 广告拦截 | REJECT | 广告域名 |
-| 💬 AI 服务 | 代理 | OpenAI/Claude/Gemini 等 |
-| 📹 油管视频 | 代理 | YouTube |
-| 🎬 流媒体 | 代理 | Netflix/Disney+/HBO/Hulu/Prime/TikTok 等 |
-| 📲 电报消息 | 代理 | Telegram/Discord/WhatsApp/Zoom 等 |
-| 🌐 社交媒体 | 代理 | Twitter/Facebook/Instagram/Reddit 等 |
-| 🐱 开发工具 | 代理 | GitHub/npm/PyPI/GitLab/Docker 等 |
-| Ⓜ️ 微软服务 | 代理 | 含 OneDrive/Office/Azure/Teams |
-| 🍏 苹果服务 | 代理 | App Store/iCloud 等 |
-| 🎬 苹果视频 | 代理 | Apple TV+ |
-| 🔍 谷歌服务 | 代理 | Google 全服务 |
-| 🎮 游戏平台 | 代理 | Steam/EA/Riot/Blizzard 等境外游戏 |
-| 📚 教育资源 | 代理 | arXiv/Coursera/学术搜索等 |
-| 🛠️ 生产力工具 | 代理 | TeamViewer/AnyDesk/1Password/Bitwarden 等 |
-| 💰 金融服务 | 代理 | PayPal/Coinbase/Binance 等 |
-| 📰 新闻资讯 | 代理 | TechCrunch/The Verge/境外新闻 |
-| 🔞 成人内容 | 代理 | — |
-| 🧲 BT/PT | 漏网之鱼 | 可切换为 DIRECT（国内 PT）或 REJECT |
-| ☁️ 云服务 | 代理 | Cloudflare/Dropbox/Mega |
-| 🔒 国内服务 | DIRECT | CN 域名 + 杀毒更新 + Windows Update |
-| 🏠 私有网络 | DIRECT | 由 `private-ip` (IP) + `private` (Domain) 共同接管 |
-| 🌐 非中国 | 代理 | geolocation-!cn 兜底 |
-| 🐟 漏网之鱼 | 代理 | MATCH 最终兜底 |
-
----
-
-## 常见修改场景
-
-### 添加新 rule-provider（完整版）
-
-1. 在 `templates/shared/rule-providers.ts` 的对应分类下添加 provider 定义
-2. 在 `templates/shared/rules.ts` 添加对应 `RULE-SET` 规则（注意放在合适的优先级位置）
-3. 如需新分组，在 `templates/stash/groups.ts` 和 `templates/mihomo/groups.ts` 同步添加
-
-### 添加新 rule-provider（mini 版）
-
-1. 在 `templates/stash/mini/rule-providers-mini.ts` 添加
-2. 在 `templates/stash/mini/rules-mini.ts` 添加对应规则
-3. 如需新分组，在 `templates/stash/mini/groups-mini.ts` 添加
-
-### 修改 DNS 配置
-
-- Mihomo：`functions/_templates/mihomo/footer.ts`（支持 `rule-set:` 语法）
-- Stash：`functions/_templates/stash/footer.ts`（使用 `geosite:` 语法，不支持 `rule-set:`）
-
-### 添加新配置类型
-
-1. 在 `functions/_templates/` 下创建新目录和文件
-2. 在 `functions/[[path]].ts` 顶部添加 import
-3. 在 `functions/[[path]].ts` 的逻辑中加入新类型
-4. 在 `gen-url.ts` 的 `validTypes` 数组和 `modeLabels` 中注册
-
-> ℹ️ `sing-box` 是特例：它不依赖 `functions/_templates/`，而是走 `functions/_src/utils/sing-box.ts` 的 JSON 生成路径。

@@ -7,6 +7,7 @@ export const configMihomoHeader = `tun:
   auto-route: true
   auto-redirect: true
   auto-detect-interface: true
+  endpoint-independent-nat: true
   inet4-route-address-exclude:
     - 10.0.0.0/8
     - 100.64.0.0/10
