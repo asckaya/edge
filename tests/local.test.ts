@@ -60,8 +60,8 @@ describe("Edge Subscription Worker - Logical", () => {
     expect(yaml["rule-providers"]).toBeUndefined();
     // Check that we are using GEOSITE
     expect(yaml.rules.some((r: string) => r.includes("GEOSITE,category-ads-all"))).toBe(true);
-    // 17 base groups + 2 for "Airport" sub = 19
-    expect(yaml["proxy-groups"].length).toBe(19);
+    // 4 base groups + 2 for "Airport" sub = 6
+    expect(yaml["proxy-groups"].length).toBe(6);
   });
 
   test("sing-box", async () => {

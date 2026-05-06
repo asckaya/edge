@@ -1,6 +1,5 @@
 // Stash iOS Mini routing rules.
-// Ordered from most-specific to least-specific.
-// Matches the 17 providers in rule-providers-mini.ts.
+// White-list mode: Domestic Direct, Everything else Proxy.
 
 export const configStashMiniRules = `rules:
   # 广告拦截
@@ -13,47 +12,18 @@ export const configStashMiniRules = `rules:
   - DST-PORT,11010,DIRECT
 
   # 局域网 & 私有网络
-  - GEOIP,private,🏠 私有网络,no-resolve
-  - GEOSITE,private,🏠 私有网络
+  - GEOIP,private,DIRECT,no-resolve
+  - GEOSITE,private,DIRECT
   - DOMAIN-SUFFIX,et.net,DIRECT
   - DOMAIN-SUFFIX,ts.net,DIRECT
 
-  # 国内直连
+  # 国内直连 (White-list)
   - GEOSITE,geolocation-cn,🔒 国内服务
   - GEOSITE,cn,🔒 国内服务
   - GEOIP,cn,🔒 国内服务,no-resolve
 
-  # AI 服务
-  - GEOSITE,category-ai-chat-!cn,💬 AI 服务
-
-  # 油管
-  - GEOSITE,youtube,📹 油管视频
-
-  # 流媒体（category-entertainment@!cn 主要覆盖 TikTok；netflix/spotify/twitch/biliintl 等）
-  - GEOSITE,category-entertainment@!cn,🎬 流媒体
-
-  # 即时通讯（telegram/signal/whatsapp 等）
-  - GEOSITE,category-voip,📲 电报消息
-
-  # 社交媒体（twitter/fb/ig/tiktok/discord/reddit 等）
-  - GEOSITE,category-social-media-!cn,🌐 社交媒体
-
-  # 游戏平台（仅境外）
-  - GEOSITE,category-games-!cn,🎮 游戏平台
-
-  # 开发工具（github/npm/pypi 等）
-  - GEOSITE,category-dev,🐱 开发工具
-
-  # 谷歌 / 苹果 / 微软
-  - GEOSITE,google,🔍 谷歌服务
-  - GEOSITE,apple,🍏 苹果服务
-  - GEOSITE,microsoft,Ⓜ️ 微软服务
-
-  # 云服务 / Cloudflare
-  - GEOSITE,cloudflare,☁️ 云服务
-
   # 非中国兜底（代理）
-  - GEOSITE,geolocation-!cn,🌐 非中国
+  - GEOSITE,geolocation-!cn,🐟 漏网之鱼
 
   # 漏网之鱼
   - MATCH,🐟 漏网之鱼

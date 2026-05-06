@@ -66,10 +66,10 @@ Mihomo 和最新的 Stash 都已全面拥抱内置的二进制 `GEOSITE`/`GEOIP`
 - `groups.ts`：Stash 仅保留了自己特有的入口/出口节点链式分组策略。
 
 ### 3. `templates/stash/mini/` (Stash 极致内存版)
-为了防止 iOS 设备的 Network Extension 因为内存超过 50MB 而崩溃，Mini 版追求极致的轻量化。
+为了防止 iOS 设备的 Network Extension 因为内存超过 50MB 而崩溃，Mini 版追求极致的轻量化。**当前采用白名单模式（全局代理，仅国内直连）**。
 - `rule-providers-mini.ts`：**完全置空（0 外部规则依赖）**。
-- `rules-mini.ts`：强制全盘改写为原生 `GEOSITE`/`GEOIP`。即便内置字典无法识别个别细分类，也会回退到 `geolocation-!cn` 兜底。
-- `groups-mini.ts`：保留 17 个轻量级策略组。
+- `rules-mini.ts`：仅包含 5 条基础规则（广告拦截、局域网直连、国内 GeoX 直连、其他全局走代理）。
+- `groups-mini.ts`：精简到只剩 4 个策略组（节点选择、广告拦截、国内服务、漏网之鱼）。
 
 ---
 
