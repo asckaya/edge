@@ -7,8 +7,6 @@ import { configStashFooter } from './_templates/stash/footer';
 import { configStashMiniGroupsHeader, configStashMiniGroupsMid } from './_templates/stash/mini/groups-mini';
 import { configStashMiniRuleProviders } from './_templates/stash/mini/rule-providers-mini';
 import { configStashMiniRules } from './_templates/stash/mini/rules-mini';
-import { configRuleProviders } from './_templates/stash/rule-providers';
-import { configRules } from './_templates/stash/rules';
 import { configMihomoRuleProviders } from './_templates/mihomo/rule-providers';
 import { configMihomoRules } from './_templates/mihomo/rules';
 
@@ -179,8 +177,8 @@ export const onRequest = async (context: PagesFunctionContext) => {
   const tplGroupsMid = isStashMini ? configStashMiniGroupsMid : isStash ? configStashGroupsMid : configMihomoGroupsMid;
   const tplHeader = (isStash || isStashMini) ? configStashHeader : configMihomoHeader.replace(/{{SECRET}}/g, providedSecret);
   const tplFooter = (isStash || isStashMini) ? configStashFooter : configMihomoFooter;
-  const tplRuleProviders = isStashMini ? configStashMiniRuleProviders : isStash ? configRuleProviders : configMihomoRuleProviders;
-  const tplRules = isStashMini ? configStashMiniRules : isStash ? configRules : configMihomoRules;
+  const tplRuleProviders = isStashMini ? configStashMiniRuleProviders : configMihomoRuleProviders;
+  const tplRules = isStashMini ? configStashMiniRules : configMihomoRules;
 
   const fillPlaceholders = (s: string) => s
     .replace(/{{PROVIDERS_LIST}}/g, providersList)
