@@ -5,16 +5,16 @@ import { buildDns } from './dns';
 import { buildRoute } from './route';
 
 export async function buildSingBoxConfig(options: BuildSingBoxOptions): Promise<Record<string, unknown>> {
-  const { secret, subscriptions, customNodes, ghProxy, isMini = false, isMicro = false } = options;
+  const { secret, subscriptions, customNodes, ghProxy, isMini = false, isMicro = false, isDual = false } = options;
   const { taggedNodes, providerSelectors, selfHostedNodeTags } = await buildTaggedNodes(subscriptions, customNodes);
 
   if (taggedNodes.length === 0) {
     throw new Error('No supported sing-box nodes were produced from the provided subscriptions or proxies.');
   }
 
-  const outbounds = buildOutbounds(taggedNodes, providerSelectors, selfHostedNodeTags, isMini, isMicro);
+  const outbounds = buildOutbounds(taggedNodes, providerSelectors, selfHostedNodeTags, isMini, isMicro, isDual);
   const dns = buildDns();
-  const route = buildRoute([], isMini, isMicro, ghProxy); // Note: ruleSets param is empty as buildRoute handles definitions internally
+  const route = buildRoute([], isMini, isMicro, ghProxy, isDual); // Note: ruleSets param is empty as buildRoute handles definitions internally
 
   return {
     log: { level: 'info', timestamp: true },

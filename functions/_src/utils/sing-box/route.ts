@@ -2,12 +2,15 @@ import { GEODATA_URLS, GEODATA_URLS_LITE } from '../../../_templates/shared/geox
 import { RULE_SET_DEFINITIONS, ROUTE_RULES } from './definitions';
 import { buildRuleSetUrl } from './utils';
 
-export function buildRoute(ruleSets: Record<string, unknown>[], isMini = false, isMicro = false, ghProxy?: string | null): Record<string, unknown> {
+export function buildRoute(ruleSets: Record<string, unknown>[], isMini = false, isMicro = false, ghProxy?: string | null, isDual = false): Record<string, unknown> {
   const selectedGeoUrls = (isMini || isMicro) ? GEODATA_URLS_LITE : GEODATA_URLS;
   const allowedMini = new Set(['advertising', 'adblockfilters', 'private-ip', 'private', 'geolocation-cn', 'cn', 'cn-ip', 'geolocation-!cn', 'apple-cn', 'google-cn', 'microsoft@cn', 'steam@cn', 'onedrive', 'category-ai-cn', 'category-netdisk-cn', 'category-ecommerce@cn', 'category-collaborate-cn', 'category-scholar-cn', 'category-bank-cn', 'category-games@cn']);
   const allowedMicro = new Set(['advertising', 'adblockfilters', 'private-ip', 'private', 'google', 'google-ip', 'telegram', 'telegram-ip', 'youtube', 'netflix', 'netflix-ip', 'disney', 'category-ai-chat-!cn', 'openai', 'anthropic', 'google-gemini', 'perplexity', 'deepseek', 'category-dev', 'github', 'docker', 'category-social-media-!cn', 'twitter', 'twitter-ip', 'category-games-!cn', 'category-game-platforms-download', 'category-scholar-!cn', 'category-remote-control', 'category-password-management', 'category-entertainment@!cn', 'geolocation-!cn']);
+  const allowedDual = new Set(['advertising', 'adblockfilters', 'private-ip', 'private', 'geolocation-cn', 'cn', 'cn-ip', 'geolocation-!cn', 'google', 'youtube', 'telegram', 'category-ai-chat-!cn', 'category-ecommerce', 'category-social-media-!cn', 'category-entertainment@!cn', 'category-games-!cn']);
 
-  const filteredDefinitions = RULE_SET_DEFINITIONS.filter((d) => isMini ? allowedMini.has(d.tag) : isMicro ? allowedMicro.has(d.tag) : true);
+  const filteredDefinitions = RULE_SET_DEFINITIONS.filter((d) => 
+    isDual ? allowedDual.has(d.tag) : isMini ? allowedMini.has(d.tag) : isMicro ? allowedMicro.has(d.tag) : true
+  );
 
   const remoteRuleSets = filteredDefinitions.map((d) => {
     const remote: Record<string, unknown> = { type: 'remote', tag: d.tag, format: d.format || 'binary', url: buildRuleSetUrl(d, ghProxy), download_detour: '🚀 节点选择' };
@@ -24,7 +27,18 @@ export function buildRoute(ruleSets: Record<string, unknown>[], isMini = false, 
     return remote;
   });
 
-  const activeRules = isMicro ? ROUTE_RULES.filter((r) => !r.rule_set || (typeof r.rule_set === 'string' ? allowedMicro.has(r.rule_set) : r.rule_set.some((s) => allowedMicro.has(s)))) : ROUTE_RULES;
+  let activeRules = ROUTE_RULES;
+  if (isMicro) {
+    activeRules = ROUTE_RULES.filter((r) => !r.rule_set || (typeof r.rule_set === 'string' ? allowedMicro.has(r.rule_set) : r.rule_set.some((s) => allowedMicro.has(s))));
+  } else if (isDual) {
+    const preservedOutbounds = new Set(['🔒 国内服务', '🏠 私有网络', '🛑 广告拦截', '🧪 测速专线', '🕓 NTP 服务', '🧲 BT/PT', '🛒 购物网站', 'DIRECT', 'REJECT']);
+    activeRules = ROUTE_RULES.map((r) => {
+      if (r.action === 'route' && r.outbound && !preservedOutbounds.has(r.outbound)) {
+        return { ...r, outbound: '🚀 节点选择' };
+      }
+      return r;
+    });
+  }
 
   return { rules: activeRules, rule_set: remoteRuleSets, final: isMicro ? 'direct' : '🐟 漏网之鱼', auto_detect_interface: true };
 }

@@ -178,7 +178,7 @@ export const ROUTE_RULES: RouteRuleDefinition[] = [
   { rule_set: 'category-android-app-download', action: 'route', outbound: '☁️ 云服务' },
   { rule_set: 'dropbox', action: 'route', outbound: '☁️ 云服务' },
   { rule_set: 'mega', action: 'route', outbound: '☁️ 云服务' },
-  { rule_set: 'category-ecommerce', action: 'route', outbound: '🎬 流媒体' },
+  { rule_set: 'category-ecommerce', action: 'route', outbound: '🛒 购物网站' },
   { rule_set: 'category-ip-geo-detect', action: 'route', outbound: '🧪 测速专线' },
   { rule_set: 'geolocation-!cn', action: 'route', outbound: '🌐 非中国' },
 ];
@@ -205,6 +205,7 @@ export const GROUP_DEFINITIONS: GroupDefinition[] = [
   { tag: '🔞 成人内容', layout: 'main-direct' },
   { tag: '🧲 BT/PT', layout: 'main-direct' },
   { tag: '🐱 开发工具', layout: 'main-direct' },
+  { tag: '🛒 购物网站', layout: 'main-direct' },
   { tag: '☁️ 云服务', layout: 'main-direct' },
   { tag: '🧪 测速专线', layout: 'main-direct' },
   { tag: '🌐 非中国', layout: 'main-direct' },

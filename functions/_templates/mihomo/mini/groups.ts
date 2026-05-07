@@ -17,9 +17,15 @@ export const configMihomoMiniGroupsHeader = `proxy-groups:
 
   - name: 🔒 国内服务
     type: select
-    proxies:
-      - DIRECT
-      - 🚀 节点选择
+    proxies: [DIRECT, REJECT, 🚀 节点选择, {{AUTO_GROUPS_LIST}}]
+    include-all-proxies: true
+    use: [{{PROVIDERS_LIST}}]
+
+  - name: 🛒 购物网站
+    type: select
+    proxies: [🚀 节点选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, DIRECT, REJECT, {{AUTO_GROUPS_LIST}}]
+    include-all-proxies: true
+    use: [{{PROVIDERS_LIST}}]
 
   - name: 🛑 广告拦截
     type: select

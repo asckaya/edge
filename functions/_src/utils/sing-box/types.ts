@@ -45,6 +45,7 @@ export interface BuildSingBoxOptions {
   ghProxy?: string | null;
   isMini?: boolean;
   isMicro?: boolean;
+  isDual?: boolean;
 }
 
 export interface TaggedNode {

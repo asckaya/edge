@@ -1,15 +1,15 @@
 import { configMihomoHeader } from './_templates/mihomo/header';
-import { configMihomoGroupsHeader, configMihomoGroupsMid } from './_templates/mihomo/groups';
+import { configMihomoGroupsHeader, configMihomoGroupsMid } from './_templates/mihomo/full/groups';
 import { configMihomoFooter } from './_templates/mihomo/footer';
 import { configStashHeader } from './_templates/stash/header';
-import { configStashGroupsHeader, configStashGroupsMid } from './_templates/stash/groups';
+import { configStashGroupsHeader, configStashGroupsMid } from './_templates/stash/full/groups';
 import { configStashFooter } from './_templates/stash/footer';
-import { configMihomoMiniGroupsHeader, configMihomoMiniGroupsMid } from './_templates/mihomo/groups-mini';
-import { configMihomoMiniRuleProviders } from './_templates/mihomo/rule-providers-mini';
-import { configMihomoMiniRules } from './_templates/mihomo/rules-mini';
-import { configMihomoMicroRules } from './_templates/mihomo/rules-micro';
+import { configMihomoMiniGroupsHeader, configMihomoMiniGroupsMid } from './_templates/mihomo/mini/groups';
+import { configMihomoMiniRuleProviders } from './_templates/mihomo/mini/rule-providers';
+import { configMihomoMiniRules } from './_templates/mihomo/mini/rules';
+import { configMihomoMicroRules } from './_templates/mihomo/micro/rules';
 import { configMihomoRuleProviders } from './_templates/mihomo/rule-providers';
-import { configMihomoRules } from './_templates/mihomo/rules';
+import { configMihomoRules } from './_templates/mihomo/full/rules';
 import { GEODATA_URLS, GEODATA_URLS_LITE } from './_templates/shared/geox';
 
 import { parseProxyUri } from './_src/utils/proxy-parser';
@@ -57,10 +57,11 @@ export const onRequest = async (context: PagesFunctionContext) => {
 
   const { type: configType, secret: providedSecret, proxies: customProxiesRaw, gh_proxy: ghProxy, subscriptions } = parseResult.data;
   
-  const isStash = configType === 'stash' || configType === 'stash-mini' || configType === 'stash-micro';
-  const isSingBox = configType === 'sing-box' || configType === 'sing-box-mini' || configType === 'sing-box-micro';
+  const isStash = configType === 'stash' || configType === 'stash-mini' || configType === 'stash-micro' || configType === 'stash-dual';
+  const isSingBox = configType === 'sing-box' || configType === 'sing-box-mini' || configType === 'sing-box-micro' || configType === 'sing-box-dual';
   const isMini = configType === 'stash-mini' || configType === 'mihomo-mini' || configType === 'sing-box-mini';
   const isMicro = configType === 'stash-micro' || configType === 'mihomo-micro' || configType === 'sing-box-micro';
+  const isDual = configType === 'stash-dual' || configType === 'mihomo-dual' || configType === 'sing-box-dual';
 
   if (subscriptions.length === 0 && !customProxiesRaw) {
     return new Response('Edge Subscription API - Missing parameters. Visit / for the interface. Add ?proxies=... or ?SubName=SubUrl', {
@@ -88,6 +89,7 @@ export const onRequest = async (context: PagesFunctionContext) => {
       ghProxy,
       isMini,
       isMicro,
+      isDual,
     });
 
     return Response.json(finalConfig, {
@@ -178,11 +180,11 @@ export const onRequest = async (context: PagesFunctionContext) => {
   const selfHostedPlaceholder = customProxyNames.length > 0 ? 'Self-Hosted' : '';
 
   // Select the right templates based on config type
-  const useMiniTemplates = isMini || isMicro;
+  const useMiniTemplates = isMini || isMicro || isDual;
   const tplGroupsHeader = useMiniTemplates ? configMihomoMiniGroupsHeader : isStash ? configStashGroupsHeader : configMihomoGroupsHeader;
   const tplGroupsMid = useMiniTemplates ? configMihomoMiniGroupsMid : isStash ? configStashGroupsMid : configMihomoGroupsMid;
   
-  const selectedGeoUrls = useMiniTemplates ? GEODATA_URLS_LITE : GEODATA_URLS;
+  const selectedGeoUrls = (isMini || isMicro) ? GEODATA_URLS_LITE : GEODATA_URLS;
   const tplHeader = (isStash ? configStashHeader : configMihomoHeader)
     .replace(/{{SECRET}}/g, providedSecret)
     .replace(/{{GEOIP_URL}}/g, selectedGeoUrls.geoip)
@@ -192,7 +194,29 @@ export const onRequest = async (context: PagesFunctionContext) => {
 
   const tplFooter = isStash ? configStashFooter : configMihomoFooter;
   const tplRuleProviders = useMiniTemplates ? configMihomoMiniRuleProviders : configMihomoRuleProviders;
-  const tplRules = isMicro ? configMihomoMicroRules : isMini ? configMihomoMiniRules : configMihomoRules;
+  let tplRules = isMicro ? configMihomoMicroRules : isMini ? configMihomoMiniRules : configMihomoRules;
+
+  // Dual mode: Redirect all scenario groups to the main proxy group
+  if (isDual) {
+    const preserved = ['🔒 国内服务', '🏠 私有网络', '🛑 广告拦截', '🧪 测速专线', '🕓 NTP 服务', '🧲 BT/PT', '🛒 购物网站', 'DIRECT', 'REJECT'];
+    // Matches all groups in rules: - [MATCH_TYPE],[TAG],[GROUP_NAME]
+    // We want to replace [GROUP_NAME] if it's not in preserved.
+    const ruleLines = tplRules.split('\n');
+    const transformedLines = ruleLines.map(line => {
+      if (line.trim().startsWith('- ')) {
+        const parts = line.split(',');
+        if (parts.length >= 3) {
+          const groupName = parts[2].trim();
+          if (!preserved.includes(groupName)) {
+            parts[2] = '🚀 节点选择';
+            return parts.join(',');
+          }
+        }
+      }
+      return line;
+    });
+    tplRules = transformedLines.join('\n');
+  }
 
   const fillPlaceholders = (s: string) => s
     .replace(/{{PROVIDERS_LIST}}/g, providersList)

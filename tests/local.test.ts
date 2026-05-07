@@ -60,8 +60,8 @@ describe("Edge Subscription Worker - Logical", () => {
     expect(yaml["rule-providers"]).toBeUndefined();
     // Check that we are using GEOSITE
     expect(yaml.rules.some((r: string) => r.includes("GEOSITE,category-ads-all"))).toBe(true);
-    // 4 base groups + 7 regional/auto groups + 2 for "Airport" sub = 13
-    expect(yaml["proxy-groups"].length).toBe(13);
+    // 5 base groups + 7 regional/auto groups + 2 for "Airport" sub = 14
+    expect(yaml["proxy-groups"].length).toBe(14);
   });
   test("Mihomo Mini", async () => {
     const res = await callWorker("http://localhost/?type=mihomo-mini&Airport=http://sub.com");
@@ -70,8 +70,8 @@ describe("Edge Subscription Worker - Logical", () => {
     expect(yaml["rule-providers"]).toBeUndefined();
     // Check that we are using GEOSITE
     expect(yaml.rules.some((r: string) => r.includes("GEOSITE,category-ads-all"))).toBe(true);
-    // 4 base groups + 7 regional/auto groups + 2 for "Airport" sub = 13
-    expect(yaml["proxy-groups"].length).toBe(13);
+    // 5 base groups + 7 regional/auto groups + 2 for "Airport" sub = 14
+    expect(yaml["proxy-groups"].length).toBe(14);
   });
 
   test("sing-box-mini", async () => {
@@ -93,7 +93,7 @@ describe("Edge Subscription Worker - Logical", () => {
       expect(json.outbounds).toBeDefined();
       expect(json.route).toBeDefined();
       // Should only contain mini rule sets
-      expect(json.route.rule_set.length).toBe(21);
+      expect(json.route.rule_set.length).toBe(20);
       // Ensure "adblockfilters" is in rule_set
       expect(json.route.rule_set.some((r: any) => r.tag === "adblockfilters")).toBe(true);
       // Ensure large groups are removed
@@ -112,8 +112,8 @@ describe("Edge Subscription Worker - Logical", () => {
     // Check for black-list rules
     expect(yaml.rules.some((r: string) => r.includes("MATCH,DIRECT"))).toBe(true);
     expect(yaml.rules.some((r: string) => r.includes("GEOSITE,google,🔍 谷歌服务"))).toBe(true);
-    // 4 base + 7 regional/auto + 2 sub = 13
-    expect(yaml["proxy-groups"].length).toBe(13);
+    // 5 base + 7 regional/auto + 2 sub = 14
+    expect(yaml["proxy-groups"].length).toBe(14);
   });
 
   test("sing-box-micro", async () => {

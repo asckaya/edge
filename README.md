@@ -44,13 +44,14 @@ https://your-edge.pages.dev/?type=mihomo-mini&secret=xxx&MySub=https://机场链
 | 模式 | 路由逻辑 | 适用场景 |
 |---|---|---|
 | `*-full` | **精细化分流** | 全量 60+ 规则组，覆盖 AI/媒体/开发/金融等细分领域。 |
+| `*-dual` | **双模分流 (推荐)** | 全量规则，但合并所有国外场景为统一的“节点选择”，简单直接。 |
 | `*-mini` | **白名单 (代理优先)** | 全局代理，仅 CN 内容直连。iOS 内存受限设备首选。 |
 | `*-micro` | **黑名单 (直连优先)** | 全局直连，仅规则匹配内容代理。极致省流/低功耗。 |
 
 ### 支持内核：
-- `mihomo`, `mihomo-mini`, `mihomo-micro`
-- `stash`, `stash-mini`, `stash-micro`
-- `sing-box`, `sing-box-mini`, `sing-box-micro`
+- `mihomo`, `mihomo-dual`, `mihomo-mini`, `mihomo-micro`
+- `stash`, `stash-dual`, `stash-mini`, `stash-micro`
+- `sing-box`, `sing-box-dual`, `sing-box-mini`, `sing-box-micro`
 
 ## 🛠️ 项目结构
 
@@ -59,7 +60,13 @@ https://your-edge.pages.dev/?type=mihomo-mini&secret=xxx&MySub=https://机场链
 ├── functions/
 │   ├── [[path]].ts          # Cloudflare Pages API 主路由
 │   ├── _src/                # 核心逻辑 (解析器、构建器)
-│   └── _templates/          # 配置模板 (Mihomo/Stash/Shared)
+│   └── _templates/          # 配置模板
+│       ├── mihomo/          # Mihomo/Stash 核心模板
+│       │   ├── full/        # 完整版/双模版规则与分组
+│       │   ├── mini/        # 精简版规则与分组
+│       │   └── micro/       # 极简版规则
+│       ├── stash/           # Stash 特化模板
+│       └── shared/          # 跨内核共用资源 (GeoX 注册中心)
 ├── src/
 │   ├── app/                 # Next.js Web UI 页面
 │   └── components/          # UI 组件 (NodeBuilder, SubscriptionPanel)
