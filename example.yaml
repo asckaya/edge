@@ -1,9 +1,10 @@
 # ============================================================
 # proxy.yaml — 订阅转换器配置文件
 # 使用方法：
-#   bun gen-url.ts                       # Mihomo / Clash Meta（默认）
+#   bun gen-url.ts                       # Mihomo / Clash Meta (默认 Full)
+#   bun gen-url.ts --type mihomo-dual    # Mihomo 双模 (推荐)
 #   bun gen-url.ts --type stash          # Stash iOS 完整版
-#   bun gen-url.ts --type stash-mini     # Stash iOS 内存优化版（<50 MB）
+#   bun gen-url.ts --type stash-mini     # Stash iOS 内存优化版 (<50 MB)
 #   bun gen-url.ts --type sing-box       # sing-box 1.13+ JSON 配置
 # ============================================================
 
@@ -13,8 +14,11 @@ worker: https://your-worker.workers.dev/
 # 用于保护订阅链接的密码（可选，留空则不鉴权）
 secret: "your-secret-password"
 
+# GitHub 规则源加速前缀 (可选)
+# gh_proxy: https://mirror.ghproxy.com/
+
 # ============================================================
-# 订阅提供商（机场订阅）
+# 订阅提供商 (机场订阅)
 # 每条订阅会生成独立的 proxy-provider，名称作为 URL 参数 key
 # ============================================================
 provider:
@@ -29,12 +33,12 @@ provider:
   #   url: https://...
 
 # ============================================================
-# 自建节点（直接写单节点配置，会出现在 Self-Hosted 节点组）
-# 支持协议：hysteria2 / vless / trojan / ss / vmess
+# 自建节点 (直接写单节点配置，会出现在 Self-Hosted 节点组)
+# 支持协议: hysteria2 / vless / trojan / ss / vmess / wireguard / tuic
 # ============================================================
 proxy:
 
-  # --- Hysteria2 示例（单端口）---
+  # --- Hysteria2 示例 (单端口) ---
   - name: "My-Hy2"
     type: hysteria2
     server: your-server.example.com
@@ -43,15 +47,6 @@ proxy:
     sni: your-server.example.com
     alpn: [h3]
     skip-cert-verify: false    # false=验证证书 true=跳过验证
-
-  # --- Hysteria2 示例（端口跳跃）---
-  - name: "My-Hy2-PortHopping"
-    type: hysteria2
-    server: your-server.example.com
-    ports: 20000-40000    # 端口范围，使用 ports 字段
-    password: your-password
-    sni: your-server.example.com
-    skip-cert-verify: false
 
   # --- VLESS + REALITY 示例 ---
   - name: "My-VLESS-Reality"
@@ -66,59 +61,30 @@ proxy:
       public-key: your-reality-public-key
       short-id: your-short-id
 
-  # --- VLESS + WS + TLS 示例 ---
-  - name: "My-VLESS-WS"
-    type: vless
+  # --- WireGuard 示例 ---
+  - name: "My-WG"
+    type: wireguard
     server: your-server.example.com
-    port: 443
-    uuid: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-    network: ws
-    tls: true
-    servername: your-server.example.com
-    ws-opts:
-      path: /your-ws-path
-
-  # --- Trojan 示例 ---
-  - name: "My-Trojan"
-    type: trojan
-    server: your-server.example.com
-    port: 443
-    password: your-trojan-password
-    sni: your-server.example.com
+    port: 51820
+    ip: 10.0.0.1
+    public-key: your-wg-public-key
+    private-key: your-wg-private-key
+    mtu: 1420
+    reserved: [1, 2, 3]
 
   # --- Shadowsocks 示例 ---
   - name: "My-SS"
     type: ss
     server: your-server.example.com
     port: 8388
-    cipher: aes-256-gcm   # 常用：aes-256-gcm / chacha20-ietf-poly1305
+    cipher: aes-256-gcm   # 常用: aes-256-gcm / chacha20-ietf-poly1305
     password: your-ss-password
 
-  # --- VMess + WS + TLS 示例 ---
-  - name: "My-VMess-WS"
-    type: vmess
-    server: your-server.example.com
-    port: 443
-    uuid: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-    alterId: 0
-    cipher: auto
-    network: ws
-    tls: true
-    servername: your-server.example.com
-    ws-opts:
-      path: /your-ws-path
-      headers:
-        Host: your-server.example.com
-
 # ============================================================
-# 生成的 URL 示例（供参考，bun gen-url.ts 会自动生成）
+# 配置模式对比 (Type 参数)
 #
-# Mihomo:
-#   https://your-worker.workers.dev/?secret=xxx&Airport1=https://...&proxies=...
-# Stash:
-#   https://your-worker.workers.dev/?secret=xxx&type=stash&Airport1=https://...
-# Stash Mini:
-#   https://your-worker.workers.dev/?secret=xxx&type=stash-mini&Airport1=https://...
-# sing-box:
-#   https://your-worker.workers.dev/?secret=xxx&type=sing-box&Airport1=https://...
+# *-full:  精细化分流 (60+ 分组, 覆盖 AI/媒体/开发等)
+# *-dual:  双模分流 (推荐, 全量规则但合并国外场景为统一选择)
+# *-mini:  白名单模式 (全局代理, 仅国内直连, iOS 首选)
+# *-micro: 黑名单模式 (全局直连, 仅规则匹配代理)
 # ============================================================

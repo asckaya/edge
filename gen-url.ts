@@ -19,9 +19,9 @@ function generateUrl() {
     const typeIdx = process.argv.indexOf('--type');
     const configType = typeIdx !== -1 ? (process.argv[typeIdx + 1] ?? 'mihomo') : 'mihomo';
     const validTypes = [
-        'mihomo', 'mihomo-mini', 'mihomo-micro',
-        'stash', 'stash-mini', 'stash-micro',
-        'sing-box', 'sing-box-mini', 'sing-box-micro'
+        'mihomo', 'mihomo-dual', 'mihomo-mini', 'mihomo-micro',
+        'stash', 'stash-dual', 'stash-mini', 'stash-micro',
+        'sing-box', 'sing-box-dual', 'sing-box-mini', 'sing-box-micro'
     ];
     if (!validTypes.includes(configType)) {
         console.error(`\x1b[31m✘ Unknown --type "${configType}". Valid values: ${validTypes.join(', ')}\x1b[0m`);
@@ -33,13 +33,18 @@ function generateUrl() {
     const ghProxyIdx = process.argv.indexOf('--gh-proxy');
     const cliGhProxy = ghProxyIdx !== -1 ? process.argv[ghProxyIdx + 1] : null;
 
-    const configFile = 'proxy.yaml';
+    let configFile = 'proxy.yaml';
+    if (!fs.existsSync(configFile)) {
+        configFile = 'example.yaml';
+    }
 
     if (!fs.existsSync(configFile)) {
-        console.error(`\x1b[31m✘ ${configFile} not found!\x1b[0m`);
-        console.error('Copy example.yaml to proxy.yaml and fill in your values.');
+        console.error(`\x1b[31m✘ No configuration file found!\x1b[0m`);
+        console.error('Create proxy.yaml or use example.yaml.');
         process.exit(1);
     }
+
+    console.log(`\x1b[34mℹ Reading configuration from ${configFile}\x1b[0m`);
 
     const yamlContent = fs.readFileSync(configFile, 'utf-8');
     let parsedYaml;
@@ -88,13 +93,16 @@ function generateUrl() {
     const finalUrl = `${base}/?${params.toString()}`;
 
     const modeLabels: Record<string, string> = {
-        'mihomo': 'Mihomo Full',
+        'mihomo': 'Mihomo Full (Category-based)',
+        'mihomo-dual': 'Mihomo Dual (Domestic/Global)',
         'mihomo-mini': 'Mihomo Mini (Whitelist)',
         'mihomo-micro': 'Mihomo Micro (Blacklist)',
-        'stash': 'Stash Full',
+        'stash': 'Stash Full (Category-based)',
+        'stash-dual': 'Stash Dual (Domestic/Global)',
         'stash-mini': 'Stash Mini (Whitelist)',
         'stash-micro': 'Stash Micro (Blacklist)',
-        'sing-box': 'sing-box Full',
+        'sing-box': 'sing-box Full (Category-based)',
+        'sing-box-dual': 'sing-box Dual (Domestic/Global)',
         'sing-box-mini': 'sing-box Mini (Whitelist)',
         'sing-box-micro': 'sing-box Micro (Blacklist)',
     };

@@ -10,7 +10,8 @@
     "build": "next build",
     "lint": "eslint .",
     "deploy": "wrangler pages deploy out",
-    "gen": "tsx gen-url.ts"
+    "gen": "tsx gen-url.ts",
+    "local": "tsx yaml-to-config.ts"
   },
   "private": true,
   "dependencies": {
