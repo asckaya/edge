@@ -72,7 +72,7 @@ export function renderMihomoGroups(options: GroupOptions, isMinimal = false): st
       ...CORE_GROUPS.filter(g => ![GROUP_TAGS.DIRECT, GROUP_TAGS.REJECT, GROUP_TAGS.PROXY].includes(g))
     ];
     allGroups.forEach(name => {
-      let proxies = defaultProxies;
+      let proxies = `[${GROUP_TAGS.PROXY}, ${defaultProxies.substring(1)}`;
       const type = 'select';
       let filter = commonFilter.split(': ')[1].replace(/"/g, '');
       let use = `[${providersList}]`;
@@ -109,7 +109,7 @@ export function renderMihomoGroups(options: GroupOptions, isMinimal = false): st
     // Minimal mode basic groups
     groups.push({ name: GROUP_TAGS.CN_SERVICES, type: 'select', proxies: `[DIRECT, REJECT, ${GROUP_TAGS.PROXY}, ${autoGroupsList}]`, use: `[${providersList}]`, 'include-all-proxies': isStash ? true : undefined });
     groups.push({ name: GROUP_TAGS.AD_BLOCK, type: 'select', proxies: `[REJECT, DIRECT, ${GROUP_TAGS.PROXY}]` });
-    groups.push({ name: GROUP_TAGS.FINAL, type: 'select', proxies: defaultProxies, use: `[${providersList}]`, 'include-all-proxies': isStash ? true : undefined });
+    groups.push({ name: GROUP_TAGS.FINAL, type: 'select', proxies: `[${GROUP_TAGS.PROXY}, ${defaultProxies.substring(1)}`, use: `[${providersList}]`, 'include-all-proxies': isStash ? true : undefined });
   }
 
   // Convert to YAML
