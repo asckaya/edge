@@ -10,6 +10,9 @@ import { ProxyNode } from './functions/_src/types';
  * Directly converts a local YAML config to a final proxy configuration.
  *
  * Usage: pnpm tsx yaml-to-config.ts [--type <config-type>] [--output <file>]
+ *   Types: mihomo, mihomo-dual, mihomo-white, mihomo-black
+ *          stash, stash-dual, stash-white, stash-black
+ *          sing-box, sing-box-dual, sing-box-white, sing-box-black
  */
 
 async function main() {

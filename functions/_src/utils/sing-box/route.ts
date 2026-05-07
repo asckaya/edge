@@ -1,20 +1,20 @@
-import { GEODATA_URLS, GEODATA_URLS_LITE } from '../../../_templates/shared/geox';
+import { GEODATA_URLS, GEODATA_URLS_LITE, GEOX_ALLOWED_WHITE, GEOX_ALLOWED_BLACK, GEOX_ALLOWED_DUAL } from '../../../_templates/shared/geox';
 import { RULE_SET_DEFINITIONS, ROUTE_RULES } from './definitions';
-import { DIRECT_TAG } from './types';
+import { DIRECT_TAG, PROXY_SELECTOR_TAG, GROUP_TAGS } from '../shared-constants';
 import { buildRuleSetUrl } from './utils';
 
 export function buildRoute(ruleSets: Record<string, unknown>[], isWhite = false, isBlack = false, ghProxy?: string | null, isDual = false): Record<string, unknown> {
   const selectedGeoUrls = (isWhite || isBlack) ? GEODATA_URLS_LITE : GEODATA_URLS;
-  const allowedWhite = new Set(['advertising', 'adblockfilters', 'private-ip', 'private', 'geolocation-cn', 'cn', 'cn-ip', 'apple-cn', 'google-cn', 'microsoft@cn', 'steam@cn', 'onedrive', 'category-ai-cn', 'category-netdisk-cn', 'category-ecommerce@cn', 'category-collaborate-cn', 'category-scholar-cn', 'category-bank-cn', 'category-games@cn']);
-  const allowedBlack = new Set(['advertising', 'adblockfilters', 'private-ip', 'private', 'google', 'google-ip', 'telegram', 'telegram-ip', 'youtube', 'netflix', 'netflix-ip', 'disney', 'category-ai-chat-!cn', 'openai', 'anthropic', 'google-gemini', 'perplexity', 'deepseek', 'category-dev', 'github', 'docker', 'category-social-media-!cn', 'twitter', 'twitter-ip', 'category-games-!cn', 'category-game-platforms-download', 'category-scholar-!cn', 'category-remote-control', 'category-password-management', 'category-entertainment@!cn', 'geolocation-!cn']);
-  const allowedDual = new Set(['advertising', 'adblockfilters', 'private-ip', 'private', 'geolocation-cn', 'cn', 'cn-ip', 'geolocation-!cn', 'google', 'youtube', 'telegram', 'category-ai-chat-!cn', 'category-ecommerce', 'category-social-media-!cn', 'category-entertainment@!cn', 'category-games-!cn']);
+  const allowedWhite = new Set(GEOX_ALLOWED_WHITE);
+  const allowedBlack = new Set(GEOX_ALLOWED_BLACK);
+  const allowedDual = new Set(GEOX_ALLOWED_DUAL);
 
   const filteredDefinitions = RULE_SET_DEFINITIONS.filter((d) => 
     isDual ? allowedDual.has(d.tag) : isWhite ? allowedWhite.has(d.tag) : isBlack ? allowedBlack.has(d.tag) : true
   );
 
   const remoteRuleSets = filteredDefinitions.map((d) => {
-    const remote: Record<string, unknown> = { type: 'remote', tag: d.tag, format: d.format || 'binary', url: buildRuleSetUrl(d, ghProxy), download_detour: '🚀 节点选择' };
+    const remote: Record<string, unknown> = { type: 'remote', tag: d.tag, format: d.format || 'binary', url: buildRuleSetUrl(d, ghProxy), download_detour: PROXY_SELECTOR_TAG };
     if (d.tag === 'adblockfilters') {
       delete remote.download_detour;
     } else {
@@ -34,17 +34,17 @@ export function buildRoute(ruleSets: Record<string, unknown>[], isWhite = false,
   } else if (isBlack) {
     activeRules = ROUTE_RULES.filter((r) => !r.rule_set || (typeof r.rule_set === 'string' ? allowedBlack.has(r.rule_set) : r.rule_set.some((s) => allowedBlack.has(s))));
   } else if (isDual) {
-    const coreOutbounds = new Set(['🔒 国内服务', '🛑 广告拦截', 'DIRECT', 'REJECT', '🚀 节点选择']);
+    const coreOutbounds = new Set([GROUP_TAGS.CN_SERVICES, GROUP_TAGS.AD_BLOCK, DIRECT_TAG, GROUP_TAGS.REJECT, PROXY_SELECTOR_TAG]);
     activeRules = ROUTE_RULES.map((r) => {
       if (r.action === 'route' && r.outbound) {
         const outbound = r.outbound;
         // BT/PT, Private, NTP -> DIRECT
-        if (['🧲 BT/PT', '🏠 私有网络', '🕓 NTP 服务'].includes(outbound)) {
+        if ([GROUP_TAGS.BT_PT, GROUP_TAGS.PRIVATE_NET, GROUP_TAGS.NTP_SERVICES].includes(outbound)) {
           return { ...r, outbound: DIRECT_TAG };
         }
-        // Non-core -> 🚀 节点选择
+        // Non-core -> PROXY_SELECTOR_TAG
         if (!coreOutbounds.has(outbound)) {
-          return { ...r, outbound: '🚀 节点选择' };
+          return { ...r, outbound: PROXY_SELECTOR_TAG };
         }
       }
       return r;
@@ -52,6 +52,8 @@ export function buildRoute(ruleSets: Record<string, unknown>[], isWhite = false,
   }
 
   // White: fallback to proxy; Black: fallback to direct
-  const finalRoute = isBlack ? 'direct' : '🚀 节点选择';
+  const finalRoute = isBlack ? 'direct' : PROXY_SELECTOR_TAG;
   return { rules: activeRules, rule_set: remoteRuleSets, final: finalRoute, auto_detect_interface: true, default_domain_resolver: 'local-dns' };
 }
+
+

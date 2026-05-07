@@ -19,9 +19,9 @@ function generateUrl() {
     const typeIdx = process.argv.indexOf('--type');
     const configType = typeIdx !== -1 ? (process.argv[typeIdx + 1] ?? 'mihomo') : 'mihomo';
     const validTypes = [
-        'mihomo', 'mihomo-dual', 'mihomo-mini', 'mihomo-micro',
-        'stash', 'stash-dual', 'stash-mini', 'stash-micro',
-        'sing-box', 'sing-box-dual', 'sing-box-mini', 'sing-box-micro'
+        'mihomo', 'mihomo-dual', 'mihomo-white', 'mihomo-black',
+        'stash', 'stash-dual', 'stash-white', 'stash-black',
+        'sing-box', 'sing-box-dual', 'sing-box-white', 'sing-box-black'
     ];
     if (!validTypes.includes(configType)) {
         console.error(`\x1b[31m✘ Unknown --type "${configType}". Valid values: ${validTypes.join(', ')}\x1b[0m`);
@@ -95,16 +95,16 @@ function generateUrl() {
     const modeLabels: Record<string, string> = {
         'mihomo': 'Mihomo Full (Category-based)',
         'mihomo-dual': 'Mihomo Dual (Domestic/Global)',
-        'mihomo-mini': 'Mihomo Mini (Whitelist)',
-        'mihomo-micro': 'Mihomo Micro (Blacklist)',
+        'mihomo-white': 'Mihomo White (Domestic-Direct)',
+        'mihomo-black': 'Mihomo Black (Overseas-Proxy)',
         'stash': 'Stash Full (Category-based)',
         'stash-dual': 'Stash Dual (Domestic/Global)',
-        'stash-mini': 'Stash Mini (Whitelist)',
-        'stash-micro': 'Stash Micro (Blacklist)',
+        'stash-white': 'Stash White (Domestic-Direct)',
+        'stash-black': 'Stash Black (Overseas-Proxy)',
         'sing-box': 'sing-box Full (Category-based)',
         'sing-box-dual': 'sing-box Dual (Domestic/Global)',
-        'sing-box-mini': 'sing-box Mini (Whitelist)',
-        'sing-box-micro': 'sing-box Micro (Blacklist)',
+        'sing-box-white': 'sing-box White (Domestic-Direct)',
+        'sing-box-black': 'sing-box Black (Overseas-Proxy)',
     };
     
     console.log('\n\x1b[32m✔ Worker URL Generated Successfully!\x1b[0m');

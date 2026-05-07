@@ -15,8 +15,8 @@ export function buildRegionGroups(taggedNodes: TaggedNode[]): { tag: string; nod
 }
 
 export function buildGroupChoices(providerSelectors: { selectTag: string; autoTag: string }[], regionGroups: { tag: string }[], selfHostedNodeTags: string[], allNodeTags: string[]) {
-  const autoTags = providerSelectors.map((p) => p.autoTag);
-  const selectTags = providerSelectors.map((p) => p.selectTag);
+  const autoTags = providerSelectors.map((p) => p.autoTag).filter(Boolean);
+  const selectTags = providerSelectors.map((p) => p.selectTag).filter(Boolean);
   const regionTags = regionGroups.map((g) => g.tag);
   const selfHostedTags = selfHostedNodeTags.length > 0 ? [SELF_HOSTED_GROUP_TAG] : [];
   const baseChoices = [AUTO_SELECT_TAG, ...regionTags, ...autoTags, ...selectTags, ...selfHostedTags, ...allNodeTags];
@@ -55,8 +55,9 @@ export async function buildTaggedNodes(subscriptions: ResolvedSubscription[], cu
   for (const sub of subscriptions) {
     const nodes = normalizeProxyList(sub.nodes);
     if (nodes.length === 0) continue;
-    const selectTag = createUniqueTag(`📡 ${sub.name}`, usedTags);
-    const autoTag = createUniqueTag(`⚡ ${sub.name} 自动选择`, usedTags);
+    const isSingleSub = subscriptions.length === 1;
+    const selectTag = isSingleSub ? '' : createUniqueTag(`📡 ${sub.name}`, usedTags);
+    const autoTag = isSingleSub ? '' : createUniqueTag(`⚡ ${sub.name} 自动选择`, usedTags);
     const fallback = await getProviderFallbackCountryCode(sub.url, context);
     const baseLabels = await Promise.all(nodes.map((n, i) => n.__subscriptionAlert ? Promise.resolve(String(n.name)) : buildGeoNodeLabel(sub.name, i + 1, n, fallback, context)));
     const nodeTags = nodes.map((n, i) => {

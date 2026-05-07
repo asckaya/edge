@@ -1,7 +1,8 @@
 import { LooseProxyNode } from '../proxy-node';
 import { ResolvedSubscription } from '../subscription-parser';
+import { PROXY_SELECTOR_TAG } from '../shared-constants';
 
-export const MAIN_SELECTOR_TAG = '🚀 节点选择';
+export const MAIN_SELECTOR_TAG = PROXY_SELECTOR_TAG;
 export const DOWNLOAD_SELECTOR_TAG = '📦 资源下载';
 export const SELF_HOSTED_GROUP_TAG = 'Self-Hosted';
 export const DIRECT_TAG = 'direct';
@@ -9,6 +10,7 @@ export const BLOCK_TAG = 'block';
 export const LOCAL_DNS_TAG = 'local-dns';
 export const REMOTE_DNS_TAG = 'remote-dns';
 export const AUTO_SELECT_TAG = '♻️ 自动选择';
+
 
 export type RuleSetKind = 'geosite' | 'geoip';
 
@@ -18,6 +20,7 @@ export interface RuleSetDefinition {
   remoteName?: string;
   url?: string;
   format?: 'binary' | 'source';
+  mihomoType?: 'RULE-SET' | 'GEOSITE' | 'GEOIP';
 }
 
 export interface RouteRuleDefinition {

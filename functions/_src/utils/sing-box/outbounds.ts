@@ -1,7 +1,8 @@
 import { LooseProxyNode } from '../proxy-node';
-import { TaggedNode, MAIN_SELECTOR_TAG, DOWNLOAD_SELECTOR_TAG, SELF_HOSTED_GROUP_TAG, DIRECT_TAG, BLOCK_TAG, AUTO_SELECT_TAG, ProviderSelector } from './types';
+import { TaggedNode, DOWNLOAD_SELECTOR_TAG, SELF_HOSTED_GROUP_TAG, DIRECT_TAG, BLOCK_TAG, AUTO_SELECT_TAG, ProviderSelector } from './types';
 import { GROUP_DEFINITIONS } from './definitions';
 import { buildGroupChoices, buildGroupOutbounds, buildRegionGroups, buildSelector, buildUrlTest } from './groups';
+import { SCENARIO_GROUPS, PROXY_SELECTOR_TAG, GROUP_TAGS } from '../shared-constants';
 
 export function buildTls(node: LooseProxyNode): Record<string, unknown> | undefined {
   const enabled = node.tls === true || node.security === 'tls' || node.security === 'reality' || Boolean(node.sni) || Boolean(node.servername) || Boolean(node.alpn);
@@ -115,26 +116,26 @@ export function buildOutbounds(taggedNodes: TaggedNode[], providerSelectors: Pro
   const downloadDefault = downloadChoices.find((t) => t !== DIRECT_TAG) || DIRECT_TAG;
 
   const selectorOutbounds: any[] = [
-    buildSelector(MAIN_SELECTOR_TAG, mainChoices, DOWNLOAD_SELECTOR_TAG),
+    buildSelector(PROXY_SELECTOR_TAG, mainChoices, DOWNLOAD_SELECTOR_TAG),
     buildUrlTest(AUTO_SELECT_TAG, allNodeTags),
     ...regionGroups.map((r) => buildUrlTest(r.tag, r.nodeTags)),
   ];
 
   let groups = GROUP_DEFINITIONS;
   if (isDual || isWhite || isBlack) {
-    // Keep only 🛑 广告拦截 and 🔒 国内服务 for all minimal modes
-    groups = GROUP_DEFINITIONS.filter((g) => ['🛑 广告拦截', '🔒 国内服务'].includes(g.tag));
+    const scenarioSet = new Set(SCENARIO_GROUPS);
+    groups = GROUP_DEFINITIONS.filter((g) => !scenarioSet.has(g.tag));
   }
 
   for (const g of groups) {
     const outbounds = buildGroupOutbounds(g.layout, proxyChoices);
-    const def = g.layout === 'block-first' ? BLOCK_TAG : (g.layout.startsWith('direct') ? DIRECT_TAG : MAIN_SELECTOR_TAG);
+    const def = g.layout === 'block-first' ? GROUP_TAGS.AD_BLOCK : (g.layout.startsWith('direct') ? DIRECT_TAG : PROXY_SELECTOR_TAG);
     selectorOutbounds.push(buildSelector(g.tag, outbounds, def));
   }
 
   for (const p of providerSelectors) {
-    selectorOutbounds.push(buildSelector(p.selectTag, p.nodeTags, p.nodeTags[0]));
-    selectorOutbounds.push(buildUrlTest(p.autoTag, p.nodeTags));
+    if (p.selectTag) selectorOutbounds.push(buildSelector(p.selectTag, p.nodeTags, p.nodeTags[0]));
+    if (p.autoTag) selectorOutbounds.push(buildUrlTest(p.autoTag, p.nodeTags));
   }
 
   selectorOutbounds.push(buildSelector(DOWNLOAD_SELECTOR_TAG, downloadChoices, downloadDefault));
@@ -142,3 +143,4 @@ export function buildOutbounds(taggedNodes: TaggedNode[], providerSelectors: Pro
 
   return [{ type: 'direct', tag: DIRECT_TAG }, { type: 'block', tag: BLOCK_TAG }, ...selectorOutbounds, ...nodeOutbounds];
 }
+
