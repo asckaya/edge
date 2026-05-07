@@ -32,7 +32,6 @@ export const configMihomoRules = `rules:
   - GEOSITE,category-collaborate-cn,🔒 国内服务
   - GEOSITE,category-scholar-cn,🔒 国内服务
   - GEOSITE,category-bank-cn,🔒 国内服务
-  - GEOSITE,category-cdn-cn,🔒 国内服务
   - GEOSITE,geolocation-cn,🔒 国内服务
   - GEOSITE,cn,🔒 国内服务
   - GEOIP,cn,🔒 国内服务,no-resolve

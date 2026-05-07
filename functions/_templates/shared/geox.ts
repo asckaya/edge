@@ -105,7 +105,6 @@ export const GEOX_REGISTRY = {
       'category-ai-cn',
       'category-netdisk-cn',
       'category-ecommerce@cn',
-      'category-cdn-cn',
       'category-collaborate-cn',
       'category-scholar-cn',
       'category-bank-cn'
