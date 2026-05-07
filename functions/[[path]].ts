@@ -10,6 +10,7 @@ import { configMihomoMiniRules } from './_templates/mihomo/rules-mini';
 import { configMihomoMicroRules } from './_templates/mihomo/rules-micro';
 import { configMihomoRuleProviders } from './_templates/mihomo/rule-providers';
 import { configMihomoRules } from './_templates/mihomo/rules';
+import { GEODATA_URLS, GEODATA_URLS_LITE } from './_templates/shared/geox';
 
 import { parseProxyUri } from './_src/utils/proxy-parser';
 import { buildSingBoxConfig } from './_src/utils/sing-box';
@@ -180,7 +181,15 @@ export const onRequest = async (context: PagesFunctionContext) => {
   const useMiniTemplates = isMini || isMicro;
   const tplGroupsHeader = useMiniTemplates ? configMihomoMiniGroupsHeader : isStash ? configStashGroupsHeader : configMihomoGroupsHeader;
   const tplGroupsMid = useMiniTemplates ? configMihomoMiniGroupsMid : isStash ? configStashGroupsMid : configMihomoGroupsMid;
-  const tplHeader = isStash ? configStashHeader : configMihomoHeader.replace(/{{SECRET}}/g, providedSecret);
+  
+  const selectedGeoUrls = useMiniTemplates ? GEODATA_URLS_LITE : GEODATA_URLS;
+  const tplHeader = (isStash ? configStashHeader : configMihomoHeader)
+    .replace(/{{SECRET}}/g, providedSecret)
+    .replace(/{{GEOIP_URL}}/g, selectedGeoUrls.geoip)
+    .replace(/{{GEOSITE_URL}}/g, selectedGeoUrls.geosite)
+    .replace(/{{MMDB_URL}}/g, selectedGeoUrls.mmdb)
+    .replace(/{{ASN_URL}}/g, selectedGeoUrls.asn);
+
   const tplFooter = isStash ? configStashFooter : configMihomoFooter;
   const tplRuleProviders = useMiniTemplates ? configMihomoMiniRuleProviders : configMihomoRuleProviders;
   const tplRules = isMicro ? configMihomoMicroRules : isMini ? configMihomoMiniRules : configMihomoRules;

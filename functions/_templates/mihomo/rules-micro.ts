@@ -19,31 +19,28 @@ export const configMihomoMicroRules = `rules:
 
   # AI 服务 (Proxy)
   - GEOSITE,category-ai-chat-!cn,💬 AI 服务
-  - GEOSITE,openai,💬 AI 服务
-  - GEOSITE,anthropic,💬 AI 服务
-  - GEOSITE,google-gemini,💬 AI 服务
-  - GEOSITE,perplexity,💬 AI 服务
-  - GEOSITE,deepseek,💬 AI 服务
 
   # 开发者工具 (Proxy)
   - GEOSITE,category-dev,🐱 开发工具
-  - GEOSITE,github,🐱 开发工具
-  - GEOSITE,docker,🐱 开发工具
+  - GEOSITE,category-container,🐱 开发工具
 
   # 核心海外服务 (Proxy)
   - GEOSITE,google,🔍 谷歌服务
   - GEOSITE,youtube,📹 油管视频
-  - GEOSITE,telegram,📲 电报消息
+  - GEOSITE,category-communication,📲 电报消息
   - GEOIP,telegram,📲 电报消息,no-resolve
-  - GEOSITE,twitter,🌐 社交媒体
-  - GEOSITE,netflix,🎬 流媒体
+  - GEOSITE,category-social-media-!cn,🌐 社交媒体
+  - GEOSITE,category-entertainment,🎬 流媒体
   - GEOIP,netflix,🎬 流媒体,no-resolve
-  - GEOSITE,disney,🎬 流媒体
-  - GEOSITE,category-entertainment@!cn,🎬 流媒体
 
   # 游戏平台 (Proxy)
   - GEOSITE,category-games-!cn,🎮 游戏平台
-  - GEOSITE,category-game-platforms-download,🎮 游戏平台
+  - GEOSITE,category-game-platforms-download,🎮 游戏下载
+
+  # 教育 & 生产力 (Proxy)
+  - GEOSITE,category-scholar-!cn,📚 教育资源
+  - GEOSITE,category-remote-control,🛠️ 生产力工具
+  - GEOSITE,category-password-management,🛠️ 生产力工具
 
   # 海外分流兜底 (Proxy)
   - GEOSITE,geolocation-!cn,🚀 节点选择

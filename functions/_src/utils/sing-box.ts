@@ -1,6 +1,6 @@
 import { LooseProxyNode, coerceProxyNodes } from './proxy-node';
 import { ResolvedSubscription } from './subscription-parser';
-import { GEODATA_URLS } from '../../_templates/shared/geox';
+import { GEODATA_URLS, GEODATA_URLS_LITE } from '../../_templates/shared/geox';
 
 const MAIN_SELECTOR_TAG = '🚀 节点选择';
 const DOWNLOAD_SELECTOR_TAG = '📦 资源下载';
@@ -191,6 +191,20 @@ const RULE_SET_DEFINITIONS: RuleSetDefinition[] = [
   { kind: 'geoip', tag: 'cloudflare-ip', remoteName: 'cloudflare' },
   { kind: 'geosite', tag: 'dropbox' },
   { kind: 'geosite', tag: 'mega' },
+  { kind: 'geosite', tag: 'microsoft@cn' },
+  { kind: 'geosite', tag: 'steam@cn' },
+  { kind: 'geosite', tag: 'onedrive' },
+  { kind: 'geosite', tag: 'category-netdisk-!cn' },
+  { kind: 'geosite', tag: 'category-netdisk-cn' },
+  { kind: 'geosite', tag: 'category-ecommerce' },
+  { kind: 'geosite', tag: 'category-ecommerce@cn' },
+  { kind: 'geosite', tag: 'category-collaborate-cn' },
+  { kind: 'geosite', tag: 'category-cdn-cn' },
+  { kind: 'geosite', tag: 'category-ip-geo-detect' },
+  { kind: 'geosite', tag: 'category-android-app-download' },
+  { kind: 'geosite', tag: 'category-scholar-cn' },
+  { kind: 'geosite', tag: 'category-bank-cn' },
+  { kind: 'geosite', tag: 'category-ai-cn' },
 ];
 
 const ROUTE_RULES: RouteRuleDefinition[] = [
@@ -215,6 +229,15 @@ const ROUTE_RULES: RouteRuleDefinition[] = [
   { rule_set: 'win-update', action: 'route', outbound: '🔒 国内服务' },
   { rule_set: 'apple-cn', action: 'route', outbound: '🔒 国内服务' },
   { rule_set: 'google-cn', action: 'route', outbound: '🔒 国内服务' },
+  { rule_set: 'microsoft@cn', action: 'route', outbound: '🔒 国内服务' },
+  { rule_set: 'steam@cn', action: 'route', outbound: '🔒 国内服务' },
+  { rule_set: 'onedrive', action: 'route', outbound: '🔒 国内服务' },
+  { rule_set: 'category-netdisk-cn', action: 'route', outbound: '🔒 国内服务' },
+  { rule_set: 'category-ecommerce@cn', action: 'route', outbound: '🔒 国内服务' },
+  { rule_set: 'category-collaborate-cn', action: 'route', outbound: '🔒 国内服务' },
+  { rule_set: 'category-cdn-cn', action: 'route', outbound: '🔒 国内服务' },
+  { rule_set: 'category-scholar-cn', action: 'route', outbound: '🔒 国内服务' },
+  { rule_set: 'category-bank-cn', action: 'route', outbound: '🔒 国内服务' },
   { rule_set: 'category-games@cn', action: 'route', outbound: '🔒 国内服务' },
   { rule_set: 'category-speedtest', action: 'route', outbound: '🧪 测速专线' },
   { rule_set: 'category-ntp', action: 'route', outbound: '🕓 NTP 服务' },
@@ -265,8 +288,12 @@ const ROUTE_RULES: RouteRuleDefinition[] = [
   { rule_set: 'category-pt', action: 'route', outbound: '🧲 BT/PT' },
   { rule_set: 'cloudflare', action: 'route', outbound: '☁️ 云服务' },
   { rule_set: 'cloudflare-ip', action: 'route', outbound: '☁️ 云服务' },
+  { rule_set: 'category-netdisk-!cn', action: 'route', outbound: '☁️ 云服务' },
+  { rule_set: 'category-android-app-download', action: 'route', outbound: '☁️ 云服务' },
   { rule_set: 'dropbox', action: 'route', outbound: '☁️ 云服务' },
   { rule_set: 'mega', action: 'route', outbound: '☁️ 云服务' },
+  { rule_set: 'category-ecommerce', action: 'route', outbound: '🎬 流媒体' },
+  { rule_set: 'category-ip-geo-detect', action: 'route', outbound: '🧪 测速专线' },
   { rule_set: 'geolocation-!cn', action: 'route', outbound: '🌐 非中国' },
 ];
 
@@ -1081,7 +1108,14 @@ function buildDns(): Record<string, any> {
 }
 
 function buildRoute(ruleSets: Record<string, any>[], isMini: boolean = false, isMicro: boolean = false, ghProxy?: string | null): Record<string, any> {
-  const allowedMiniRuleSets = new Set(['advertising', 'adblockfilters', 'private-ip', 'private', 'geolocation-cn', 'cn', 'cn-ip', 'geolocation-!cn']);
+  const selectedGeoUrls = (isMini || isMicro) ? GEODATA_URLS_LITE : GEODATA_URLS;
+  const allowedMiniRuleSets = new Set([
+    'advertising', 'adblockfilters', 'private-ip', 'private', 
+    'geolocation-cn', 'cn', 'cn-ip', 'geolocation-!cn',
+    'apple-cn', 'google-cn', 'microsoft@cn', 'steam@cn', 'onedrive',
+    'category-ai-cn', 'category-netdisk-cn', 'category-ecommerce@cn', 
+    'category-collaborate-cn', 'category-scholar-cn', 'category-bank-cn', 'category-games@cn', 'category-cdn-cn'
+  ]);
   const allowedMicroRuleSets = new Set([
     'advertising', 'adblockfilters', 'private-ip', 'private',
     'google', 'google-ip', 'telegram', 'telegram-ip', 'youtube', 'netflix', 'netflix-ip', 'disney',
@@ -1089,6 +1123,7 @@ function buildRoute(ruleSets: Record<string, any>[], isMini: boolean = false, is
     'category-dev', 'github', 'docker',
     'category-social-media-!cn', 'twitter', 'twitter-ip',
     'category-games-!cn', 'category-game-platforms-download',
+    'category-scholar-!cn', 'category-remote-control', 'category-password-management',
     'category-entertainment@!cn', 'geolocation-!cn'
   ]);
   
@@ -1114,11 +1149,11 @@ function buildRoute(ruleSets: Record<string, any>[], isMini: boolean = false, is
 
   return {
     geoip: {
-      download_url: applyGithubProxy(GEODATA_URLS.geoip, ghProxy),
+      download_url: applyGithubProxy(selectedGeoUrls.geoip, ghProxy),
       download_detour: DOWNLOAD_SELECTOR_TAG,
     },
     geosite: {
-      download_url: applyGithubProxy(GEODATA_URLS.geosite, ghProxy),
+      download_url: applyGithubProxy(selectedGeoUrls.geosite, ghProxy),
       download_detour: DOWNLOAD_SELECTOR_TAG,
     },
     rules,
@@ -1137,7 +1172,13 @@ export async function buildSingBoxConfig(options: BuildSingBoxOptions): Promise<
     throw new Error('No supported sing-box nodes were produced from the provided subscriptions or proxies.');
   }
 
-  const allowedMiniRuleSets = new Set(['advertising', 'adblockfilters', 'private-ip', 'private', 'geolocation-cn', 'cn', 'cn-ip', 'geolocation-!cn']);
+  const allowedMiniRuleSets = new Set([
+    'advertising', 'adblockfilters', 'private-ip', 'private', 
+    'geolocation-cn', 'cn', 'cn-ip', 'geolocation-!cn',
+    'apple-cn', 'google-cn', 'microsoft@cn', 'steam@cn', 'onedrive',
+    'category-ai-cn', 'category-netdisk-cn', 'category-ecommerce@cn', 
+    'category-collaborate-cn', 'category-scholar-cn', 'category-bank-cn', 'category-games@cn', 'category-cdn-cn'
+  ]);
   const allowedMicroRuleSets = new Set([
     'advertising', 'adblockfilters', 'private-ip', 'private',
     'google', 'google-ip', 'telegram', 'telegram-ip', 'youtube', 'netflix', 'netflix-ip', 'disney',
@@ -1145,6 +1186,7 @@ export async function buildSingBoxConfig(options: BuildSingBoxOptions): Promise<
     'category-dev', 'github', 'docker',
     'category-social-media-!cn', 'twitter', 'twitter-ip',
     'category-games-!cn', 'category-game-platforms-download',
+    'category-scholar-!cn', 'category-remote-control', 'category-password-management',
     'category-entertainment@!cn', 'geolocation-!cn'
   ]);
   

@@ -93,7 +93,7 @@ describe("Edge Subscription Worker - Logical", () => {
       expect(json.outbounds).toBeDefined();
       expect(json.route).toBeDefined();
       // Should only contain mini rule sets
-      expect(json.route.rule_set.length).toBe(8);
+      expect(json.route.rule_set.length).toBe(21);
       // Ensure "adblockfilters" is in rule_set
       expect(json.route.rule_set.some((r: any) => r.tag === "adblockfilters")).toBe(true);
       // Ensure large groups are removed

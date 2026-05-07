@@ -50,3 +50,5 @@ AGENTS.md.bak
 .agents/
 skills-lock.json
 
+# meta
+_meta/

@@ -10,6 +10,13 @@ export const GEODATA_URLS = {
   asn: "https://testingcf.jsdelivr.net/gh/Loyalsoldier/geoip@release/GeoLite2-ASN.mmdb",
 };
 
+export const GEODATA_URLS_LITE = {
+  geoip: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip-lite.dat",
+  geosite: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite-lite.dat",
+  mmdb: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/Country-lite.mmdb",
+  asn: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/GeoLite2-ASN.mmdb",
+};
+
 export const GEOX_REGISTRY = {
   ADVERTISING: {
     geosite: ['category-ads-all'],
@@ -21,81 +28,88 @@ export const GEOX_REGISTRY = {
   AI: {
     geosite: [
       'category-ai-chat-!cn',
-      'openai',
-      'anthropic',
-      'google-gemini',
-      'perplexity',
-      'deepseek',
-      'poe',
+      'category-ai-cn',
       'midjourney',
-      'xai',
-      'cursor',
-      'windsurf',
-      'trae',
-      'manus',
       'jetbrains-ai'
     ],
   },
   MEDIA: {
     geosite: [
-      'youtube',
-      'netflix',
-      'disney',
-      'hbo',
-      'hulu',
-      'primevideo',
-      'apple-tvplus',
-      'spotify',
-      'tidal',
-      'twitch',
-      'abematv',
-      'bahamut',
-      'bilibili@intl',
-      'category-entertainment@!cn'
+      'category-entertainment',
+      'category-media',
+      'category-media-cn',
+      'bilibili@intl'
     ],
     geoip: ['netflix', 'google'],
   },
   COMMUNICATION: {
-    geosite: ['category-communication', 'category-voip', 'telegram', 'discord', 'slack'],
+    geosite: [
+      'category-communication',
+      'category-voip'
+    ],
     geoip: ['telegram'],
   },
   SOCIAL: {
     geosite: [
       'category-social-media-!cn',
-      'twitter',
-      'facebook',
-      'instagram',
-      'pinterest',
-      'reddit',
       'category-forums'
     ],
-    geoip: ['twitter', 'facebook', 'instagram'],
+    geoip: ['twitter', 'facebook'],
   },
   DEV: {
     geosite: [
       'category-dev',
-      'category-container',
-      'github',
-      'gitlab',
-      'stackoverflow',
-      'docker',
-      'npm',
-      'pypi',
-      'microsoft-dev',
-      'jetbrains'
+      'category-container'
     ],
   },
   GAMES: {
-    geosite: ['category-games-!cn', 'category-game-platforms-download', 'steam', 'epicgames', 'ea', 'nintendo', 'playstation', 'xbox'],
+    geosite: [
+      'category-games-!cn',
+      'category-game-platforms-download'
+    ],
   },
   FINANCE: {
-    geosite: ['category-cryptocurrency', 'paypal', 'binance', 'coinbase', 'category-finance'],
+    geosite: [
+      'category-cryptocurrency',
+      'category-finance'
+    ],
   },
   PRODUCTIVITY: {
-    geosite: ['category-remote-control', 'category-password-management', 'notion', 'obsidian', 'figma', 'adobe', 'autodesk', 'tutanota'],
+    geosite: [
+      'category-remote-control',
+      'category-password-management',
+      'notion',
+      'obsidian',
+      'figma',
+      'adobe',
+      'autodesk',
+      'tutanota'
+    ],
+  },
+  SCHOLAR: {
+    geosite: [
+      'category-scholar-!cn'
+    ],
   },
   CN: {
-    geosite: ['geolocation-cn', 'cn', 'google-cn', 'apple-cn', 'category-games@cn'],
+    geosite: [
+      'geolocation-cn',
+      'cn',
+      'google-cn',
+      'apple-cn',
+      'microsoft@cn',
+      'steam@cn',
+      'onedrive',
+      'category-games@cn',
+      'category-logistics-cn',
+      'category-ai-cn',
+      'category-netdisk-cn',
+      'category-ecommerce@cn',
+      'category-cdn-cn',
+      'category-collaborate-cn',
+      'category-scholar-cn',
+      'category-bank-cn'
+    ],
     geoip: ['cn'],
   },
   NON_CN: {
@@ -112,8 +126,14 @@ export const GEOX_REGISTRY = {
       'win-update',
       'category-antivirus',
       'category-speedtest',
-      'category-ntp'
+      'category-ntp',
+      'category-doh',
+      'category-httpdns-cn',
+      'category-ip-geo-detect',
+      'category-android-app-download',
+      'category-netdisk-!cn',
+      'category-ecommerce'
     ],
-    geoip: ['cloudflare', 'google', 'apple', 'microsoft'],
+    geoip: ['cloudflare', 'google', 'fastly', 'cloudfront'],
   }
 };

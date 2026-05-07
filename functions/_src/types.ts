@@ -119,10 +119,10 @@ export const RequestParamsSchema = z.object({
   type: ConfigTypeSchema.default('mihomo'),
   secret: z.string().default('edge-default'),
   proxies: z.string().default(''),
-  gh_proxy: z.string().optional(),
+  gh_proxy: z.url().optional(),
   subscriptions: z.array(z.object({
     name: z.string(),
-    url: z.string().url(),
+    url: z.url(),
   })).default([]),
 });
 

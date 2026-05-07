@@ -7,20 +7,23 @@ find-process-mode: strict
 
 dns:
   enable: true
-  listen: "127.0.0.1:1053"
-  use-system-hosts: false
+  listen: 0.0.0.0:1053
+  ipv6: false
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
   default-nameserver:
     - 223.5.5.5
     - 119.29.29.29
   nameserver:
+    - https://doh.pub/dns-query
     - https://dns.alidns.com/dns-query
-    - 223.5.5.5
+  proxy-server-nameserver:
+    - https://doh.pub/dns-query
   nameserver-policy:
-    "geosite:category-ai-chat-!cn,category-dev": ["https://8.8.8.8/dns-query", "8.8.8.8"]
-    "geosite:geolocation-!cn": ["https://8.8.8.8/dns-query", "8.8.8.8"]
-    "geosite:geolocation-cn,cn": ["https://dns.alidns.com/dns-query", "223.5.5.5"]
+    "geosite:cn,private,apple,microsoft@cn,steam@cn,onedrive":
+      - https://doh.pub/dns-query
+      - https://dns.alidns.com/dns-query
+    "geosite:category-ads-all": rcode://success
   fallback:
     - 8.8.8.8
     - 114.114.114.114
@@ -36,13 +39,15 @@ dns:
       - +.googleapis.cn
       - +.googleapis.com
   fake-ip-filter:
-    - "*.lan"
+    - "*"
+    - "+.lan"
+    - "+.local"
+    - "+.market.xiaomi.com"
     - "*.localdomain"
     - "*.example"
     - "*.invalid"
     - "*.localhost"
     - "*.test"
-    - "*.local"
     - "*.home.arpa"
     - "+.tailscale.net"
     - "+.ts.net"

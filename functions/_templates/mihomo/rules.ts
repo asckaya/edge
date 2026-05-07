@@ -21,7 +21,18 @@ export const configMihomoRules = `rules:
 
   # 国内直连
   - GEOSITE,google-cn,🔒 国内服务
+  - GEOSITE,apple-cn,🔒 国内服务
+  - GEOSITE,microsoft@cn,🔒 国内服务
+  - GEOSITE,steam@cn,🔒 国内服务
+  - GEOSITE,onedrive,🔒 国内服务
+  - GEOSITE,category-ai-cn,🔒 国内服务
   - GEOSITE,category-games@cn,🔒 国内服务
+  - GEOSITE,category-netdisk-cn,🔒 国内服务
+  - GEOSITE,category-ecommerce@cn,🔒 国内服务
+  - GEOSITE,category-collaborate-cn,🔒 国内服务
+  - GEOSITE,category-scholar-cn,🔒 国内服务
+  - GEOSITE,category-bank-cn,🔒 国内服务
+  - GEOSITE,category-cdn-cn,🔒 国内服务
   - GEOSITE,geolocation-cn,🔒 国内服务
   - GEOSITE,cn,🔒 国内服务
   - GEOIP,cn,🔒 国内服务,no-resolve
@@ -52,17 +63,12 @@ export const configMihomoRules = `rules:
   # 微软服务（microsoft 已包含 OneDrive / Office / Azure 等）
   - GEOSITE,microsoft,Ⓜ️ 微软服务
 
-  # AI 服务（category 覆盖主流服务；AI 编辑器单独列出确保不遗漏）
+  # AI 服务（category-ai-chat-!cn 涵盖 OpenAI, Anthropic, Gemini, Perplexity, Cursor, Windsurf, Trae 等）
   - GEOSITE,category-ai-chat-!cn,💬 AI 服务
-  - GEOSITE,xai,💬 AI 服务
-  - GEOSITE,cursor,💬 AI 服务
-  - GEOSITE,windsurf,💬 AI 服务
-  - GEOSITE,trae,💬 AI 服务
-  - GEOSITE,manus,💬 AI 服务
+  - GEOSITE,midjourney,💬 AI 服务
   - GEOSITE,jetbrains-ai,💬 AI 服务
 
   # 即时通讯（category-communication 涵盖 telegram/discord/slack/whatsapp 等；category-voip 涵盖 zoom/webex）
-  # telegram-ip：Telegram DC 服务器 IP，域名规则覆盖不到
   - GEOSITE,category-communication,📲 电报消息
   - GEOSITE,category-voip,📲 电报消息
   - GEOIP,telegram,📲 电报消息,no-resolve
@@ -70,17 +76,12 @@ export const configMihomoRules = `rules:
   # 油管
   - GEOSITE,youtube,📹 油管视频
 
-  # 流媒体（无聚合 category，主流平台单独列出；category-entertainment@!cn 补充 TikTok/WebNovel）
-  # netflix-ip：Netflix CDN IP，必须用 IP 规则才能捕获到
-  - GEOSITE,netflix,🎬 流媒体
+  # 流媒体（category-entertainment 涵盖 Netflix, Disney+, HBO, Hulu, Prime Video, Spotify 等）
+  - GEOSITE,category-entertainment,🎬 流媒体
+  - GEOSITE,category-media,🎬 流媒体
   - GEOIP,netflix,🎬 流媒体,no-resolve
-  - GEOSITE,disney,🎬 流媒体
-  - GEOSITE,hbo,🎬 流媒体
-  - GEOSITE,hulu,🎬 流媒体
-  - GEOSITE,primevideo,🎬 流媒体
-  - GEOSITE,category-entertainment@!cn,🎬 流媒体
 
-  # 社交媒体（category-social-media-!cn 覆盖 twitter/fb/ig/tiktok/discord 等）
+  # 社交媒体（category-social-media-!cn 覆盖 twitter/fb/ig/threads 等）
   - GEOSITE,category-forums,🌐 社交媒体
   - GEOSITE,category-social-media-!cn,🌐 社交媒体
   - GEOIP,twitter,🌐 社交媒体,no-resolve
@@ -95,11 +96,12 @@ export const configMihomoRules = `rules:
   # 生产力工具（remote-control: TeamViewer/AnyDesk；password-management: 1Password/Bitwarden 等）
   - GEOSITE,category-remote-control,🛠️ 生产力工具
   - GEOSITE,category-password-management,🛠️ 生产力工具
-  - GEOSITE,tutanota,🛠️ 生产力工具
+  - GEOSITE,notion,🛠️ 生产力工具
+  - GEOSITE,obsidian,🛠️ 生产力工具
+  - GEOSITE,figma,🛠️ 生产力工具
 
   # 金融服务（含加密货币交易所）
   - GEOSITE,category-cryptocurrency,💰 金融服务
-  - GEOSITE,paypal,💰 金融服务
   - GEOSITE,category-finance,💰 金融服务
 
   # 新闻资讯（科技媒体 + 境外新闻）
@@ -113,11 +115,19 @@ export const configMihomoRules = `rules:
   - GEOSITE,category-public-tracker,🧲 BT/PT
   - GEOSITE,category-pt,🧲 BT/PT
 
-  # 云服务 / Cloudflare
+  # 云服务 / 存储 / 下载
   - GEOSITE,cloudflare,☁️ 云服务
   - GEOIP,cloudflare,☁️ 云服务,no-resolve
+  - GEOSITE,category-netdisk-!cn,☁️ 云服务
+  - GEOSITE,category-android-app-download,☁️ 云服务
   - GEOSITE,dropbox,☁️ 云服务
   - GEOSITE,mega,☁️ 云服务
+
+  # 购物 / 旅游
+  - GEOSITE,category-ecommerce,🎬 流媒体
+
+  # IP 检测
+  - GEOSITE,category-ip-geo-detect,🧪 测速专线
 
   # 非中国兜底
   - GEOSITE,geolocation-!cn,🌐 非中国

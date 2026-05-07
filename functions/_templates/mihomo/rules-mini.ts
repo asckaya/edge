@@ -17,7 +17,19 @@ export const configMihomoMiniRules = `rules:
   - DOMAIN-SUFFIX,et.net,DIRECT
   - DOMAIN-SUFFIX,ts.net,DIRECT
 
-  # 国内直连 (White-list)
+  # 国内直连 (White-list: CN services go DIRECT)
+  - GEOSITE,google-cn,🔒 国内服务
+  - GEOSITE,apple-cn,🔒 国内服务
+  - GEOSITE,microsoft@cn,🔒 国内服务
+  - GEOSITE,steam@cn,🔒 国内服务
+  - GEOSITE,onedrive,🔒 国内服务
+  - GEOSITE,category-ai-cn,🔒 国内服务
+  - GEOSITE,category-games@cn,🔒 国内服务
+  - GEOSITE,category-netdisk-cn,🔒 国内服务
+  - GEOSITE,category-ecommerce@cn,🔒 国内服务
+  - GEOSITE,category-collaborate-cn,🔒 国内服务
+  - GEOSITE,category-scholar-cn,🔒 国内服务
+  - GEOSITE,category-bank-cn,🔒 国内服务
   - GEOSITE,geolocation-cn,🔒 国内服务
   - GEOSITE,cn,🔒 国内服务
   - GEOIP,cn,🔒 国内服务,no-resolve

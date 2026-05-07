@@ -1,5 +1,3 @@
-import { GEODATA_URLS } from '../shared/geox';
-
 export const configMihomoHeader = `tun:
   enable: false
   stack: mixed
@@ -40,10 +38,10 @@ external-ui: ./ui
 external-ui-url: "https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip"
 
 geox-url:
-  geoip: "${GEODATA_URLS.geoip}"
-  geosite: "${GEODATA_URLS.geosite}"
-  mmdb: "${GEODATA_URLS.mmdb}"
-  asn: "${GEODATA_URLS.asn}"
+  geoip: "{{GEOIP_URL}}"
+  geosite: "{{GEOSITE_URL}}"
+  mmdb: "{{MMDB_URL}}"
+  asn: "{{ASN_URL}}"
 `;
 
 
