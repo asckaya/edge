@@ -107,7 +107,7 @@ export function toSingBoxOutbound(node: LooseProxyNode, tag: string): Record<str
   return null;
 }
 
-export function buildOutbounds(taggedNodes: TaggedNode[], providerSelectors: ProviderSelector[], selfHostedNodeTags: string[], isMinimal = false, isDual = false): Record<string, unknown>[] {
+export function buildOutbounds(taggedNodes: TaggedNode[], providerSelectors: ProviderSelector[], selfHostedNodeTags: string[], isWhite = false, isBlack = false, isDual = false): Record<string, unknown>[] {
   const nodeOutbounds = taggedNodes.map((tn) => toSingBoxOutbound(tn.node, tn.tag)).filter(Boolean);
   const regionGroups = buildRegionGroups(taggedNodes);
   const allNodeTags = taggedNodes.map((tn) => tn.tag);
@@ -121,10 +121,9 @@ export function buildOutbounds(taggedNodes: TaggedNode[], providerSelectors: Pro
   ];
 
   let groups = GROUP_DEFINITIONS;
-  if (isDual) {
+  if (isDual || isWhite || isBlack) {
+    // Keep only 🛑 广告拦截 and 🔒 国内服务 for all minimal modes
     groups = GROUP_DEFINITIONS.filter((g) => ['🛑 广告拦截', '🔒 国内服务'].includes(g.tag));
-  } else if (isMinimal) {
-    groups = GROUP_DEFINITIONS.filter((g) => ['🛑 广告拦截'].includes(g.tag));
   }
 
   for (const g of groups) {

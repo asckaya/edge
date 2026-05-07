@@ -3,13 +3,14 @@ import { RULE_SET_DEFINITIONS, ROUTE_RULES } from './definitions';
 import { DIRECT_TAG } from './types';
 import { buildRuleSetUrl } from './utils';
 
-export function buildRoute(ruleSets: Record<string, unknown>[], isMinimal = false, ghProxy?: string | null, isDual = false): Record<string, unknown> {
-  const selectedGeoUrls = isMinimal ? GEODATA_URLS_LITE : GEODATA_URLS;
-  const allowedMinimal = new Set(['advertising', 'adblockfilters', 'private-ip', 'private', 'google', 'google-ip', 'telegram', 'telegram-ip', 'youtube', 'netflix', 'netflix-ip', 'disney', 'category-ai-chat-!cn', 'openai', 'anthropic', 'google-gemini', 'perplexity', 'deepseek', 'category-dev', 'github', 'docker', 'category-social-media-!cn', 'twitter', 'twitter-ip', 'category-games-!cn', 'category-game-platforms-download', 'category-scholar-!cn', 'category-remote-control', 'category-password-management', 'category-entertainment@!cn', 'geolocation-!cn']);
+export function buildRoute(ruleSets: Record<string, unknown>[], isWhite = false, isBlack = false, ghProxy?: string | null, isDual = false): Record<string, unknown> {
+  const selectedGeoUrls = (isWhite || isBlack) ? GEODATA_URLS_LITE : GEODATA_URLS;
+  const allowedWhite = new Set(['advertising', 'adblockfilters', 'private-ip', 'private', 'geolocation-cn', 'cn', 'cn-ip', 'apple-cn', 'google-cn', 'microsoft@cn', 'steam@cn', 'onedrive', 'category-ai-cn', 'category-netdisk-cn', 'category-ecommerce@cn', 'category-collaborate-cn', 'category-scholar-cn', 'category-bank-cn', 'category-games@cn']);
+  const allowedBlack = new Set(['advertising', 'adblockfilters', 'private-ip', 'private', 'google', 'google-ip', 'telegram', 'telegram-ip', 'youtube', 'netflix', 'netflix-ip', 'disney', 'category-ai-chat-!cn', 'openai', 'anthropic', 'google-gemini', 'perplexity', 'deepseek', 'category-dev', 'github', 'docker', 'category-social-media-!cn', 'twitter', 'twitter-ip', 'category-games-!cn', 'category-game-platforms-download', 'category-scholar-!cn', 'category-remote-control', 'category-password-management', 'category-entertainment@!cn', 'geolocation-!cn']);
   const allowedDual = new Set(['advertising', 'adblockfilters', 'private-ip', 'private', 'geolocation-cn', 'cn', 'cn-ip', 'geolocation-!cn', 'google', 'youtube', 'telegram', 'category-ai-chat-!cn', 'category-ecommerce', 'category-social-media-!cn', 'category-entertainment@!cn', 'category-games-!cn']);
 
   const filteredDefinitions = RULE_SET_DEFINITIONS.filter((d) => 
-    isDual ? allowedDual.has(d.tag) : isMinimal ? allowedMinimal.has(d.tag) : true
+    isDual ? allowedDual.has(d.tag) : isWhite ? allowedWhite.has(d.tag) : isBlack ? allowedBlack.has(d.tag) : true
   );
 
   const remoteRuleSets = filteredDefinitions.map((d) => {
@@ -28,8 +29,10 @@ export function buildRoute(ruleSets: Record<string, unknown>[], isMinimal = fals
   });
 
   let activeRules = ROUTE_RULES;
-  if (isMinimal) {
-    activeRules = ROUTE_RULES.filter((r) => !r.rule_set || (typeof r.rule_set === 'string' ? allowedMinimal.has(r.rule_set) : r.rule_set.some((s) => allowedMinimal.has(s))));
+  if (isWhite) {
+    activeRules = ROUTE_RULES.filter((r) => !r.rule_set || (typeof r.rule_set === 'string' ? allowedWhite.has(r.rule_set) : r.rule_set.some((s) => allowedWhite.has(s))));
+  } else if (isBlack) {
+    activeRules = ROUTE_RULES.filter((r) => !r.rule_set || (typeof r.rule_set === 'string' ? allowedBlack.has(r.rule_set) : r.rule_set.some((s) => allowedBlack.has(s))));
   } else if (isDual) {
     const coreOutbounds = new Set(['🔒 国内服务', '🛑 广告拦截', 'DIRECT', 'REJECT', '🚀 节点选择']);
     activeRules = ROUTE_RULES.map((r) => {
@@ -48,5 +51,7 @@ export function buildRoute(ruleSets: Record<string, unknown>[], isMinimal = fals
     });
   }
 
-  return { rules: activeRules, rule_set: remoteRuleSets, final: isMinimal ? 'direct' : '🚀 节点选择', auto_detect_interface: true };
+  // White: fallback to proxy; Black: fallback to direct
+  const finalRoute = isBlack ? 'direct' : '🚀 节点选择';
+  return { rules: activeRules, rule_set: remoteRuleSets, final: finalRoute, auto_detect_interface: true, default_domain_resolver: 'local-dns' };
 }

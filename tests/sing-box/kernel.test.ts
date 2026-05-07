@@ -8,10 +8,10 @@ import { coerceProxyNode } from "../../functions/_src/utils/proxy-node";
 import { buildProxyUri } from "../../functions/_src/utils/proxy-builder";
 
 /**
- * Mihomo Bare Kernel Test
+ * Sing-box Bare Kernel Test
  * 
  * This test generates a real configuration based on proxy.yaml and passes it 
- * to the 'mihomo' binary with the '-t' flag to ensure validity.
+ * to the 'sing-box' binary with the 'check' command to ensure validity.
  */
 
 async function callWorker(url: string) {
@@ -27,19 +27,17 @@ async function callWorker(url: string) {
   } as any);
 }
 
-describe("Mihomo Bare Kernel Validation", () => {
-  const testConfigPath = path.join(process.cwd(), "mihomo-kernel-test.yaml");
+describe("Sing-box Bare Kernel Validation", () => {
+  const testConfigPath = path.join(process.cwd(), "sing-box-kernel-test.json");
   const proxyYamlPath = path.join(process.cwd(), "proxy.yaml");
 
   const runBareTest = async (type: string) => {
-    // Read real data from proxy.yaml
     if (!fs.existsSync(proxyYamlPath)) {
         throw new Error("proxy.yaml not found");
     }
     const yamlContent = fs.readFileSync(proxyYamlPath, 'utf-8');
     const parsedYaml = YAML.parse(yamlContent);
 
-    // Build URL with real parameters
     const params = new URLSearchParams();
     params.set('type', type);
     if (parsedYaml.secret) params.set('secret', parsedYaml.secret);
@@ -66,16 +64,16 @@ describe("Mihomo Bare Kernel Validation", () => {
     fs.writeFileSync(testConfigPath, content);
 
     try {
-      // Run mihomo -t to verify the configuration
-      execSync(`mihomo -t -f ${testConfigPath}`, { 
+      // Run sing-box check -c to verify the configuration
+      execSync(`sing-box check -c ${testConfigPath}`, { 
         stdio: ['pipe', 'pipe', 'pipe'],
-        env: { ...process.env, SKIP_GEO_DOWNLOAD: '1' }
+        env: { ...process.env }
       });
       return true;
     } catch (error: any) {
       const stderr = error.stderr?.toString() || "";
       const stdout = error.stdout?.toString() || "";
-      console.error(`Mihomo ${type} validation failed:\nSTDOUT: ${stdout}\nSTDERR: ${stderr}`);
+      console.error(`Sing-box ${type} validation failed:\nSTDOUT: ${stdout}\nSTDERR: ${stderr}`);
       return false;
     } finally {
       if (fs.existsSync(testConfigPath)) {
@@ -84,23 +82,23 @@ describe("Mihomo Bare Kernel Validation", () => {
     }
   };
 
-  test("Mihomo Full Mode", async () => {
-    const success = await runBareTest("mihomo");
+  test("Sing-box Full Mode", async () => {
+    const success = await runBareTest("sing-box");
     expect(success).toBe(true);
-  });
+  }, 30000);
 
-  test("Mihomo Dual Mode", async () => {
-    const success = await runBareTest("mihomo-dual");
+  test("Sing-box Dual Mode", async () => {
+    const success = await runBareTest("sing-box-dual");
     expect(success).toBe(true);
-  });
+  }, 30000);
 
-  test("Mihomo White Mode", async () => {
-    const success = await runBareTest("mihomo-white");
+  test("Sing-box White Mode", async () => {
+    const success = await runBareTest("sing-box-white");
     expect(success).toBe(true);
-  });
+  }, 30000);
 
-  test("Mihomo Black Mode", async () => {
-    const success = await runBareTest("mihomo-black");
+  test("Sing-box Black Mode", async () => {
+    const success = await runBareTest("sing-box-black");
     expect(success).toBe(true);
-  });
+  }, 30000);
 });

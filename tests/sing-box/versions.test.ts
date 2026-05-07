@@ -49,15 +49,27 @@ describe("Sing-box Kernel - Versions", () => {
     }
   });
 
-  test("Minimal Edition", async () => {
+  test("White Edition", async () => {
     globalThis.fetch = mockFetch;
     try {
-      const res = await callWorker("http://localhost/?type=sing-box-minimal&Sub=http://sub.com");
+      const res = await callWorker("http://localhost/?type=sing-box-white&Sub=http://sub.com");
       const json = await res.json() as any;
-      // Blacklist mode: final route should be direct
+      // White-list: final route to proxy
+      expect(json.route.final).toBe("🚀 节点选择");
+      expect(json.outbounds.some((item: any) => item.tag === "🔒 国内服务")).toBe(true);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  test("Black Edition", async () => {
+    globalThis.fetch = mockFetch;
+    try {
+      const res = await callWorker("http://localhost/?type=sing-box-black&Sub=http://sub.com");
+      const json = await res.json() as any;
+      // Black-list: final route to direct
       expect(json.route.final).toBe("direct");
-      // No CN group
-      expect(json.outbounds.some((item: any) => item.tag === "🔒 国内服务")).toBe(false);
+      expect(json.outbounds.some((item: any) => item.tag === "🔒 国内服务")).toBe(true);
     } finally {
       globalThis.fetch = originalFetch;
     }

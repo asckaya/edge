@@ -26,7 +26,8 @@ dns:
   nameserver-policy:
     "geosite:category-ai-chat-!cn": "https://8.8.8.8/dns-query"
     "geosite:geolocation-!cn": "https://1.1.1.1/dns-query"
-    "geosite:geolocation-cn,geosite:cn": "https://dns.alidns.com/dns-query"
+    "geosite:geolocation-cn": "https://dns.alidns.com/dns-query"
+    "geosite:cn": "https://dns.alidns.com/dns-query"
   fallback:
     - 8.8.8.8
     - https://8.8.8.8/dns-query

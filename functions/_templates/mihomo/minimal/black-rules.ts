@@ -1,7 +1,7 @@
-// Mihomo/Stash Minimal (Black-list mode) routing rules.
-// Black-list mode: Specified rules Proxy, Everything else Direct.
+// Mihomo/Stash Black (Black-list mode) routing rules.
+// Black-list mode: Specified overseas rules Proxy, Everything else Direct.
 
-export const configMihomoMinimalRules = `rules:
+export const configMihomoBlackRules = `rules:
   # 广告拦截
   - GEOSITE,category-ads-all,🛑 广告拦截
 

@@ -4,7 +4,7 @@
 
 ## 🌟 核心特性
 
-- **九种编排模式**：Mihomo / Stash / sing-box，每种内核均支持 **Full (完整)**、**Dual (双模)**、**Minimal (极简)** 三种规则深度。
+- **十二种编排模式**：Mihomo / Stash / sing-box，每种内核均支持 **Full (完整)**、**Dual (双模)**、**White (白名单)**、**Black (黑名单)** 四种规则深度。
 - **Native GeoX 优先**：弃用传统的外部 `rule-provider` YAML，完全基于 `GEOSITE` 和 `GEOIP` 匹配，大幅降低内存占用，启动速度提升 80%。
 - **极致内存优化**：针对 iOS Stash 的 50MB 内存限制，提供 Minimal 版本，防止 Network Extension 崩溃。
 - **节点自动重命名**：订阅节点自动按国家/地区图标 + 机场名 + 序号进行重命名，确保 UI 整洁。
@@ -44,13 +44,14 @@ https://your-edge.pages.dev/?type=mihomo-dual&secret=xxx&MySub=https://机场链
 | 模式 | 路由逻辑 | 适用场景 |
 |---|---|---|
 | `*-full` | **精细化分流** | 全量 60+ 规则组，覆盖 AI/媒体/开发/金融等细分领域。 |
-| `*-dual` | **双模分流 (推荐)** | 全量规则，但合并所有国外场景为统一的"节点选择"，BT/PT 强制直连防封号。 |
-| `*-minimal` | **黑名单 (极简)** | 全局直连，仅核心国外服务规则走代理。极致省流/低内存/低功耗。 |
+| `*-dual` | **双模分流 (推荐)** | 全量规则，合并国外场景为统一"节点选择"，BT/PT 强制直连防封号。 |
+| `*-white` | **白名单 (代理优先)** | 只写国内规则，其余兜底走代理。适合经常访问国外内容的用户。 |
+| `*-black` | **黑名单 (直连优先)** | 只写国外规则，其余兜底走直连。适合偶尔访问国外内容、省流优先的用户。 |
 
 ### 支持内核：
-- `mihomo`, `mihomo-dual`, `mihomo-minimal`
-- `stash`, `stash-dual`, `stash-minimal`
-- `sing-box`, `sing-box-dual`, `sing-box-minimal`
+- `mihomo`, `mihomo-dual`, `mihomo-white`, `mihomo-black`
+- `stash`, `stash-dual`, `stash-white`, `stash-black`
+- `sing-box`, `sing-box-dual`, `sing-box-white`, `sing-box-black`
 
 ## 🛠️ 项目结构
 

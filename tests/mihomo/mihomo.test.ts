@@ -34,12 +34,19 @@ describe("Mihomo Kernel", () => {
     expect(yaml["proxy-groups"].some((g: any) => g.name === "📹 油管视频")).toBe(false);
   });
 
-  test("Minimal Edition", async () => {
-    const res = await callWorker("http://localhost/?type=mihomo-minimal&Airport=http://sub.com");
+  test("White Edition", async () => {
+    const res = await callWorker("http://localhost/?type=mihomo-white&Airport=http://sub.com");
     const yaml = YAML.parse(await res.text());
-    // Blacklist mode: MATCH should fall through to DIRECT
+    // White-list: CN rules direct, MATCH → proxy
+    expect(yaml.rules.some((r: string) => r.includes("MATCH,🚀 节点选择"))).toBe(true);
+    expect(yaml["proxy-groups"].some((g: { name: string }) => g.name === "🔒 国内服务")).toBe(true);
+  });
+
+  test("Black Edition", async () => {
+    const res = await callWorker("http://localhost/?type=mihomo-black&Airport=http://sub.com");
+    const yaml = YAML.parse(await res.text());
+    // Black-list: overseas rules proxy, MATCH → direct
     expect(yaml.rules.some((r: string) => r.includes("MATCH,DIRECT"))).toBe(true);
-    // Only 🚀 节点选择 + ⚡ 自动 + 7 regional + 2 Airport groups (no scenario or CN groups)
-    expect(yaml["proxy-groups"].some((g: { name: string }) => g.name === "🔒 国内服务")).toBe(false);
+    expect(yaml["proxy-groups"].some((g: { name: string }) => g.name === "🔒 国内服务")).toBe(true);
   });
 });

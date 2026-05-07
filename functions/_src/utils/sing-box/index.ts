@@ -5,16 +5,16 @@ import { buildDns } from './dns';
 import { buildRoute } from './route';
 
 export async function buildSingBoxConfig(options: BuildSingBoxOptions): Promise<Record<string, unknown>> {
-  const { secret, subscriptions, customNodes, ghProxy, isMinimal = false, isDual = false } = options;
+  const { secret, subscriptions, customNodes, ghProxy, isWhite = false, isBlack = false, isDual = false } = options;
   const { taggedNodes, providerSelectors, selfHostedNodeTags } = await buildTaggedNodes(subscriptions, customNodes);
 
   if (taggedNodes.length === 0) {
     throw new Error('No supported sing-box nodes were produced from the provided subscriptions or proxies.');
   }
 
-  const outbounds = buildOutbounds(taggedNodes, providerSelectors, selfHostedNodeTags, isMinimal, isDual);
+  const outbounds = buildOutbounds(taggedNodes, providerSelectors, selfHostedNodeTags, isWhite, isBlack, isDual);
   const dns = buildDns();
-  const route = buildRoute([], isMinimal, ghProxy, isDual); // Note: ruleSets param is empty as buildRoute handles definitions internally
+  const route = buildRoute([], isWhite, isBlack, ghProxy, isDual); // Note: ruleSets param is empty as buildRoute handles definitions internally
 
   return {
     log: { level: 'info', timestamp: true },
@@ -31,7 +31,7 @@ export async function buildSingBoxConfig(options: BuildSingBoxOptions): Promise<
     },
     dns,
     inbounds: [
-      { type: 'mixed', tag: 'mixed-in', listen: '0.0.0.0', listen_port: 7897, sniff: true, set_system_proxy: false },
+      { type: 'mixed', tag: 'mixed-in', listen: '0.0.0.0', listen_port: 7897 },
     ],
     outbounds,
     route,

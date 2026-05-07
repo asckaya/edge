@@ -6,7 +6,8 @@ import { configStashGroupsHeader, configStashGroupsMid } from './_templates/stas
 import { configStashFooter } from './_templates/stash/footer';
 import { configMihomoMinimalGroupsHeader, configMihomoMinimalGroupsMid } from './_templates/mihomo/minimal/groups';
 import { configMihomoMinimalRuleProviders } from './_templates/mihomo/minimal/rule-providers';
-import { configMihomoMinimalRules } from './_templates/mihomo/minimal/rules';
+import { configMihomoBlackRules } from './_templates/mihomo/minimal/black-rules';
+import { configMihomoWhiteRules } from './_templates/mihomo/minimal/white-rules';
 import { configMihomoRuleProviders } from './_templates/mihomo/rule-providers';
 import { configMihomoRules } from './_templates/mihomo/full/rules';
 import { GEODATA_URLS, GEODATA_URLS_LITE } from './_templates/shared/geox';
@@ -56,9 +57,10 @@ export const onRequest = async (context: PagesFunctionContext) => {
 
   const { type: configType, secret: providedSecret, proxies: customProxiesRaw, gh_proxy: ghProxy, subscriptions } = parseResult.data;
   
-  const isStash = configType === 'stash' || configType === 'stash-minimal' || configType === 'stash-dual';
-  const isSingBox = configType === 'sing-box' || configType === 'sing-box-minimal' || configType === 'sing-box-dual';
-  const isMinimal = configType === 'stash-minimal' || configType === 'mihomo-minimal' || configType === 'sing-box-minimal';
+  const isStash = configType === 'stash' || configType === 'stash-white' || configType === 'stash-black' || configType === 'stash-dual';
+  const isSingBox = configType === 'sing-box' || configType === 'sing-box-white' || configType === 'sing-box-black' || configType === 'sing-box-dual';
+  const isWhite = configType === 'mihomo-white' || configType === 'stash-white' || configType === 'sing-box-white';
+  const isBlack = configType === 'mihomo-black' || configType === 'stash-black' || configType === 'sing-box-black';
   const isDual = configType === 'stash-dual' || configType === 'mihomo-dual' || configType === 'sing-box-dual';
 
   if (subscriptions.length === 0 && !customProxiesRaw) {
@@ -85,7 +87,8 @@ export const onRequest = async (context: PagesFunctionContext) => {
       subscriptions: resolvedSubscriptions,
       customNodes: customProxyNodes,
       ghProxy,
-      isMinimal,
+      isWhite,
+      isBlack,
       isDual,
     });
 
@@ -177,11 +180,11 @@ export const onRequest = async (context: PagesFunctionContext) => {
   const selfHostedPlaceholder = customProxyNames.length > 0 ? 'Self-Hosted' : '';
 
   // Select the right templates based on config type
-  const useMinimalTemplates = isMinimal || isDual;
+  const useMinimalTemplates = isWhite || isBlack || isDual;
   let tplGroupsHeader = useMinimalTemplates ? configMihomoMinimalGroupsHeader : isStash ? configStashGroupsHeader : configMihomoGroupsHeader;
   let tplGroupsMid = useMinimalTemplates ? configMihomoMinimalGroupsMid : isStash ? configStashGroupsMid : configMihomoGroupsMid;
   
-  const selectedGeoUrls = (isMinimal) ? GEODATA_URLS_LITE : GEODATA_URLS;
+  const selectedGeoUrls = (isWhite || isBlack) ? GEODATA_URLS_LITE : GEODATA_URLS;
   const tplHeader = (isStash ? configStashHeader : configMihomoHeader)
     .replace(/{{SECRET}}/g, providedSecret)
     .replace(/{{GEOIP_URL}}/g, selectedGeoUrls.geoip)
@@ -191,7 +194,7 @@ export const onRequest = async (context: PagesFunctionContext) => {
 
   const tplFooter = isStash ? configStashFooter : configMihomoFooter;
   const tplRuleProviders = (useMinimalTemplates && !isDual) ? configMihomoMinimalRuleProviders : configMihomoRuleProviders;
-  let tplRules = isMinimal ? configMihomoMinimalRules : configMihomoRules;
+  let tplRules = isBlack ? configMihomoBlackRules : isWhite ? configMihomoWhiteRules : configMihomoRules;
 
   // Dual mode: Redirect all scenario groups to the main proxy group
   if (isDual) {
@@ -231,20 +234,17 @@ export const onRequest = async (context: PagesFunctionContext) => {
     tplRules = transformedLines.join('\n');
   }
 
-  // 2. Group Purification: Remove groups that are no longer referenced by rules.
+  // 2. Group Purification: Remove all scenario groups (keep only core: 🚀/🔒/ad-block + regional/auto).
   const scenarioGroups = ['🛒 购物网站', '🐟 漏网之鱼', '🧪 测速专线', '💬 AI 服务', '📹 油管视频', '🔍 谷歌服务', '📲 电报消息', '🐱 开发工具', 'Ⓜ️ 微软服务', '🍏 苹果服务', '🎬 苹果视频', '🌐 社交媒体', '🎬 流媒体', '🎮 游戏平台', '🎮 游戏下载', '📚 教育资源', '🛠️ 生产力工具', '💰 金融服务', '📰 新闻资讯', '🔞 成人内容', '☁️ 云服务', '🌐 非中国'];
-  const groupsToRemove = [...scenarioGroups];
-  if (isMinimal) {
-    groupsToRemove.push('🔒 国内服务');
-  }
 
-  if (isDual || isMinimal) {
-    for (const groupName of groupsToRemove) {
+  if (isDual || isWhite || isBlack) {
+    for (const groupName of scenarioGroups) {
       const groupRegex = new RegExp(`\\s+-\\s+name:\\s+${groupName}[^]*?(?=\\s+-\\s+name:|$)`, 'g');
       tplGroupsHeader = tplGroupsHeader.replace(groupRegex, '');
       tplGroupsMid = tplGroupsMid.replace(groupRegex, '');
     }
   }
+
 
 
   const fillPlaceholders = (s: string) => s

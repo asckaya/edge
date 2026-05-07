@@ -8,10 +8,11 @@ import { coerceProxyNode } from "../../functions/_src/utils/proxy-node";
 import { buildProxyUri } from "../../functions/_src/utils/proxy-builder";
 
 /**
- * Mihomo Bare Kernel Test
+ * Stash Bare Kernel Test
  * 
  * This test generates a real configuration based on proxy.yaml and passes it 
- * to the 'mihomo' binary with the '-t' flag to ensure validity.
+ * to the 'mihomo' binary with the '-t' flag. Stash configurations are 
+ * fundamentally compatible with Clash Meta (Mihomo) bare core for validation.
  */
 
 async function callWorker(url: string) {
@@ -27,19 +28,17 @@ async function callWorker(url: string) {
   } as any);
 }
 
-describe("Mihomo Bare Kernel Validation", () => {
-  const testConfigPath = path.join(process.cwd(), "mihomo-kernel-test.yaml");
+describe("Stash Bare Kernel Validation", () => {
+  const testConfigPath = path.join(process.cwd(), "stash-kernel-test.yaml");
   const proxyYamlPath = path.join(process.cwd(), "proxy.yaml");
 
   const runBareTest = async (type: string) => {
-    // Read real data from proxy.yaml
     if (!fs.existsSync(proxyYamlPath)) {
         throw new Error("proxy.yaml not found");
     }
     const yamlContent = fs.readFileSync(proxyYamlPath, 'utf-8');
     const parsedYaml = YAML.parse(yamlContent);
 
-    // Build URL with real parameters
     const params = new URLSearchParams();
     params.set('type', type);
     if (parsedYaml.secret) params.set('secret', parsedYaml.secret);
@@ -75,7 +74,7 @@ describe("Mihomo Bare Kernel Validation", () => {
     } catch (error: any) {
       const stderr = error.stderr?.toString() || "";
       const stdout = error.stdout?.toString() || "";
-      console.error(`Mihomo ${type} validation failed:\nSTDOUT: ${stdout}\nSTDERR: ${stderr}`);
+      console.error(`Stash ${type} validation failed:\nSTDOUT: ${stdout}\nSTDERR: ${stderr}`);
       return false;
     } finally {
       if (fs.existsSync(testConfigPath)) {
@@ -84,23 +83,23 @@ describe("Mihomo Bare Kernel Validation", () => {
     }
   };
 
-  test("Mihomo Full Mode", async () => {
-    const success = await runBareTest("mihomo");
+  test("Stash Full Mode", async () => {
+    const success = await runBareTest("stash");
     expect(success).toBe(true);
   });
 
-  test("Mihomo Dual Mode", async () => {
-    const success = await runBareTest("mihomo-dual");
+  test("Stash Dual Mode", async () => {
+    const success = await runBareTest("stash-dual");
     expect(success).toBe(true);
   });
 
-  test("Mihomo White Mode", async () => {
-    const success = await runBareTest("mihomo-white");
+  test("Stash White Mode", async () => {
+    const success = await runBareTest("stash-white");
     expect(success).toBe(true);
   });
 
-  test("Mihomo Black Mode", async () => {
-    const success = await runBareTest("mihomo-black");
+  test("Stash Black Mode", async () => {
+    const success = await runBareTest("stash-black");
     expect(success).toBe(true);
   });
 });
