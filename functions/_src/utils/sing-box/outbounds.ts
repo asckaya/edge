@@ -123,7 +123,7 @@ export function buildOutbounds(taggedNodes: TaggedNode[], providerSelectors: Pro
   const useMini = isMini || isMicro;
   let groups = GROUP_DEFINITIONS;
   if (isDual) {
-    groups = GROUP_DEFINITIONS.filter((g) => ['🛑 广告拦截', '🔒 国内服务', '🛒 购物网站', '🐟 漏网之鱼'].includes(g.tag));
+    groups = GROUP_DEFINITIONS.filter((g) => ['🛑 广告拦截', '🔒 国内服务'].includes(g.tag));
   } else if (useMini) {
     groups = GROUP_DEFINITIONS.filter((g) => ['🛑 广告拦截', '🔒 国内服务', '🐟 漏网之鱼'].includes(g.tag));
   }

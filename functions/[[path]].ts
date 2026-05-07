@@ -181,8 +181,8 @@ export const onRequest = async (context: PagesFunctionContext) => {
 
   // Select the right templates based on config type
   const useMiniTemplates = isMini || isMicro || isDual;
-  const tplGroupsHeader = useMiniTemplates ? configMihomoMiniGroupsHeader : isStash ? configStashGroupsHeader : configMihomoGroupsHeader;
-  const tplGroupsMid = useMiniTemplates ? configMihomoMiniGroupsMid : isStash ? configStashGroupsMid : configMihomoGroupsMid;
+  let tplGroupsHeader = useMiniTemplates ? configMihomoMiniGroupsHeader : isStash ? configStashGroupsHeader : configMihomoGroupsHeader;
+  let tplGroupsMid = useMiniTemplates ? configMihomoMiniGroupsMid : isStash ? configStashGroupsMid : configMihomoGroupsMid;
   
   const selectedGeoUrls = (isMini || isMicro) ? GEODATA_URLS_LITE : GEODATA_URLS;
   const tplHeader = (isStash ? configStashHeader : configMihomoHeader)
@@ -198,17 +198,26 @@ export const onRequest = async (context: PagesFunctionContext) => {
 
   // Dual mode: Redirect all scenario groups to the main proxy group
   if (isDual) {
-    const preserved = ['🔒 国内服务', '🏠 私有网络', '🛑 广告拦截', '🧪 测速专线', '🕓 NTP 服务', '🧲 BT/PT', '🛒 购物网站', 'DIRECT', 'REJECT'];
-    // Matches all groups in rules: - [MATCH_TYPE],[TAG],[GROUP_NAME]
-    // We want to replace [GROUP_NAME] if it's not in preserved.
+    // 1. Rule Transformation: Force BT/PT/Private/NTP to DIRECT, and merge others to Proxy.
     const ruleLines = tplRules.split('\n');
     const transformedLines = ruleLines.map(line => {
-      if (line.trim().startsWith('- ')) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('- ')) {
         const parts = line.split(',');
         if (parts.length >= 3) {
-          const groupName = parts[2].trim();
-          if (!preserved.includes(groupName)) {
-            parts[2] = '🚀 节点选择';
+          const groupPart = parts[2];
+          const groupName = groupPart.trim();
+
+          // BT/PT, Private, NTP -> DIRECT
+          if (['🧲 BT/PT', '🏠 私有网络', '🕓 NTP 服务'].includes(groupName)) {
+            parts[2] = groupPart.replace(groupName, 'DIRECT');
+            return parts.join(',');
+          }
+
+          // Core groups to preserve
+          const coreGroups = ['🔒 国内服务', '🛑 广告拦截', 'DIRECT', 'REJECT', '🚀 节点选择'];
+          if (!coreGroups.includes(groupName)) {
+            parts[2] = groupPart.replace(groupName, '🚀 节点选择');
             return parts.join(',');
           }
         }
@@ -216,6 +225,14 @@ export const onRequest = async (context: PagesFunctionContext) => {
       return line;
     });
     tplRules = transformedLines.join('\n');
+
+    // 2. Group Purification: Remove groups that are no longer referenced by rules.
+    const groupsToRemove = ['🛒 购物网站', '🐟 漏网之鱼', '🧪 测速专线', '💬 AI 服务', '📹 油管视频', '🔍 谷歌服务', '📲 电报消息', '🐱 开发工具', 'Ⓜ️ 微软服务', '🍏 苹果服务', '🎬 苹果视频', '🌐 社交媒体', '🎬 流媒体', '🎮 游戏平台', '🎮 游戏下载', '📚 教育资源', '🛠️ 生产力工具', '💰 金融服务', '📰 新闻资讯', '🔞 成人内容', '☁️ 云服务', '🌐 非中国'];
+    for (const groupName of groupsToRemove) {
+      const groupRegex = new RegExp(`\\s+-\\s+name:\\s+${groupName}[^]*?(?=\\s+-\\s+name:|$)`, 'g');
+      tplGroupsHeader = tplGroupsHeader.replace(groupRegex, '');
+      tplGroupsMid = tplGroupsMid.replace(groupRegex, '');
+    }
   }
 
   const fillPlaceholders = (s: string) => s

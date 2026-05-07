@@ -1,5 +1,6 @@
 import { GEODATA_URLS, GEODATA_URLS_LITE } from '../../../_templates/shared/geox';
 import { RULE_SET_DEFINITIONS, ROUTE_RULES } from './definitions';
+import { DIRECT_TAG } from './types';
 import { buildRuleSetUrl } from './utils';
 
 export function buildRoute(ruleSets: Record<string, unknown>[], isMini = false, isMicro = false, ghProxy?: string | null, isDual = false): Record<string, unknown> {
@@ -31,10 +32,18 @@ export function buildRoute(ruleSets: Record<string, unknown>[], isMini = false, 
   if (isMicro) {
     activeRules = ROUTE_RULES.filter((r) => !r.rule_set || (typeof r.rule_set === 'string' ? allowedMicro.has(r.rule_set) : r.rule_set.some((s) => allowedMicro.has(s))));
   } else if (isDual) {
-    const preservedOutbounds = new Set(['🔒 国内服务', '🏠 私有网络', '🛑 广告拦截', '🧪 测速专线', '🕓 NTP 服务', '🧲 BT/PT', '🛒 购物网站', 'DIRECT', 'REJECT']);
+    const coreOutbounds = new Set(['🔒 国内服务', '🛑 广告拦截', 'DIRECT', 'REJECT', '🚀 节点选择']);
     activeRules = ROUTE_RULES.map((r) => {
-      if (r.action === 'route' && r.outbound && !preservedOutbounds.has(r.outbound)) {
-        return { ...r, outbound: '🚀 节点选择' };
+      if (r.action === 'route' && r.outbound) {
+        const outbound = r.outbound;
+        // BT/PT, Private, NTP -> DIRECT
+        if (['🧲 BT/PT', '🏠 私有网络', '🕓 NTP 服务'].includes(outbound)) {
+          return { ...r, outbound: DIRECT_TAG };
+        }
+        // Non-core -> 🚀 节点选择
+        if (!coreOutbounds.has(outbound)) {
+          return { ...r, outbound: '🚀 节点选择' };
+        }
       }
       return r;
     });
