@@ -89,30 +89,27 @@ export function buildMihomoConfig(options: BuildMihomoOptions): string {
   const tplFooter = isStash ? configStashFooter : configMihomoFooter;
   const tplRuleProviders = configMihomoRuleProviders;
 
-  // Group generation
-  let proxyGroupsSection = 'proxy-groups:\n';
+  // 1. Prepare airport and self-hosted groups
+  let airportAndSelfHostedYaml = '';
   
-  // 1. Add scenario/region groups FIRST (includes 🚀 节点选择)
-  const baseGroups = renderMihomoGroups({
+  // Add Self-Hosted group first in this sub-section
+  if (customProxyNames.length > 0) {
+    airportAndSelfHostedYaml += `  - name: Self-Hosted\n    type: select\n    proxies: [${customProxyNames.join(', ')}]\n`;
+  }
+  
+  // Add subscription groups
+  if (!isSingleSub) {
+    airportAndSelfHostedYaml += subGroupsSection;
+  }
+
+  // 2. Generate all groups in the requested order
+  const proxyGroupsSection = renderMihomoGroups({
     providersList,
     autoGroupsList,
     selfHostedGroup: selfHostedPlaceholder,
     isStash,
     isSingleSub
-  }, useMinimalTemplates);
-  
-  // Strip the 'proxy-groups:\n' header from base groups since we added it manually
-  proxyGroupsSection += baseGroups.replace('proxy-groups:\n', '');
-
-  // 2. Add Self-Hosted group
-  if (customProxyNames.length > 0) {
-    proxyGroupsSection += `  - name: Self-Hosted\n    type: select\n    proxies: [${customProxyNames.join(', ')}]\n`;
-  }
-
-  // 3. Add subscription groups LAST
-  if (!isSingleSub) {
-    proxyGroupsSection += subGroupsSection;
-  }
+  }, airportAndSelfHostedYaml, useMinimalTemplates);
 
   // Rule generation logic
   const allowedWhite = new Set(GEOX_ALLOWED_WHITE);
