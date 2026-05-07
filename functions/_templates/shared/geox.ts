@@ -114,6 +114,21 @@ export const GEOX_REGISTRY = {
   NON_CN: {
     geosite: ['geolocation-!cn'],
   },
+  NEWS: {
+    geosite: [
+      'category-tech-media',
+      'category-news-ir'
+    ],
+  },
+  PORN: {
+    geosite: ['category-porn'],
+  },
+  P2P: {
+    geosite: [
+      'category-public-tracker',
+      'category-pt'
+    ],
+  },
   INFRA: {
     geosite: [
       'cloudflare',
