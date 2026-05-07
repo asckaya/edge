@@ -90,9 +90,8 @@ export const onRequest = async (context: PagesFunctionContext) => {
       isMicro,
     });
 
-    return new Response(finalConfig, {
+    return Response.json(finalConfig, {
       headers: {
-        'content-type': 'application/json; charset=utf-8',
         'Cache-Control': 'no-cache',
       },
     });
