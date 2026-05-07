@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { buildProxyUri } from "../functions/_src/utils/proxy-builder";
-import { ProxyNode } from "../functions/_src/types";
+import { buildProxyUri } from "../../functions/_src/utils/proxy-builder";
+import { ProxyNode } from "../../functions/_src/types";
 
 describe("buildProxyUri", () => {
   test("builds vless protocol", () => {

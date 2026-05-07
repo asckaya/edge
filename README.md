@@ -4,7 +4,7 @@
 
 ## 🌟 核心特性
 
-- **九种编排模式**：Mihomo / Stash / sing-box，每种内核均支持 **Full (完整)**、**Mini (白名单)**、**Micro (黑名单)** 三种规则深度。
+- **十二种编排模式**：Mihomo / Stash / sing-box，每种内核均支持 **Full (完整)**、**Dual (双模)**、**Mini (白名单)**、**Micro (黑名单)** 四种规则深度。
 - **Native GeoX 优先**：弃用传统的外部 `rule-provider` YAML，完全基于 `GEOSITE` 和 `GEOIP` 匹配，大幅降低内存占用，启动速度提升 80%。
 - **极致内存优化**：针对 iOS Stash 的 50MB 内存限制，提供 Mini/Micro 版本，防止 Network Extension 崩溃。
 - **节点自动重命名**：订阅节点自动按国家/地区图标 + 机场名 + 序号进行重命名，确保 UI 整洁。
@@ -70,8 +70,11 @@ https://your-edge.pages.dev/?type=mihomo-mini&secret=xxx&MySub=https://机场链
 ├── src/
 │   ├── app/                 # Next.js Web UI 页面
 │   └── components/          # UI 组件 (NodeBuilder, SubscriptionPanel)
-├── tests/
-│   └── local.test.ts        # 自动化测试 (Vitest)
+├── tests/                   # 自动化集成测试 (Vitest)
+│   ├── mihomo/              # Mihomo 内核各版本测试
+│   ├── stash/               # Stash 内核各版本测试
+│   ├── sing-box/            # Sing-box 内核各版本测试
+│   └── common/              # 通用逻辑测试 (Parser, Builder, URI)
 └── gen-url.ts               # 本地调试工具
 ```
 

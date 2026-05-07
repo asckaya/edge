@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { parseProxyUri } from "../functions/_src/utils/proxy-parser";
+import { parseProxyUri } from "../../functions/_src/utils/proxy-parser";
 import YAML from "yaml";
 
 describe("parseProxyUri", () => {
