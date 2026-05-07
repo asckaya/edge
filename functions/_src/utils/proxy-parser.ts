@@ -14,7 +14,7 @@ export function parseProxyLine(line: string): { node?: LooseProxyNode; rawLine?:
   }
 
   try {
-    let node: any = {};
+    let node: Record<string, unknown> = {};
 
     if (trimmedUri.startsWith('vmess://')) {
       const vmessData = JSON.parse(atob(trimmedUri.replace('vmess://', '')));

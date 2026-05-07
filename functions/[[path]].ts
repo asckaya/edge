@@ -35,7 +35,7 @@ export const onRequest = async (context: PagesFunctionContext) => {
   }
 
   // Parse search params into a plain object for Zod
-  const paramsObj: Record<string, any> = {};
+  const paramsObj: Record<string, unknown> = {};
   for (const [key, value] of searchParams.entries()) {
     paramsObj[key] = value;
   }
@@ -48,7 +48,7 @@ export const onRequest = async (context: PagesFunctionContext) => {
       dynamicSubscriptions.push({ name: key, url: value });
     }
   }
-  paramsObj.subscriptions = dynamicSubscriptions;
+  (paramsObj as any).subscriptions = dynamicSubscriptions;
 
   const parseResult = RequestParamsSchema.safeParse(paramsObj);
   if (!parseResult.success) {
@@ -72,7 +72,7 @@ export const onRequest = async (context: PagesFunctionContext) => {
 
   // Parse custom proxies
   let customProxies = customProxiesRaw;
-  let customProxyNames: string[] = [];
+  const customProxyNames: string[] = [];
   const customProxyNodes = customProxies ? parseSubscriptionContent(customProxies) : [];
 
   if (isSingBox) {
@@ -106,7 +106,8 @@ export const onRequest = async (context: PagesFunctionContext) => {
         try {
           const vmessData = JSON.parse(atob(line.replace('vmess://', '')));
           customProxyNames.push(vmessData.ps || 'VMess-Proxy');
-        } catch (e) {}
+        } catch {
+        }
       } else {
         const nameMatch = line.match(/- name:\s*['"]?([^'"]+)['"]?/);
         if (nameMatch) customProxyNames.push(nameMatch[1]);

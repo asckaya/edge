@@ -44,20 +44,9 @@ function decodeBase64Text(input: string): string | null {
   }
 }
 
-function looksLikeStructuredConfig(input: string): boolean {
-  return (
-    input.startsWith('proxies:') ||
-    input.startsWith('- name:') ||
-    input.startsWith('outbounds:') ||
-    input.includes('"outbounds"') ||
-    input.includes('\noutbounds:') ||
-    input.startsWith('{') ||
-    input.startsWith('[')
-  );
-}
 
-function applySingBoxTls(node: Record<string, any>, outbound: Record<string, any>, proto: string): void {
-  const tls = outbound.tls;
+function applySingBoxTls(node: Record<string, unknown>, outbound: Record<string, unknown>, proto: string): void {
+  const tls = outbound.tls as Record<string, unknown> | undefined;
   if (!tls || typeof tls !== 'object' || tls.enabled !== true) return;
 
   node.tls = true;
@@ -90,8 +79,8 @@ function applySingBoxTls(node: Record<string, any>, outbound: Record<string, any
   }
 }
 
-function applySingBoxTransport(node: Record<string, any>, outbound: Record<string, any>): void {
-  const transport = outbound.transport;
+function applySingBoxTransport(node: Record<string, unknown>, outbound: Record<string, unknown>): void {
+  const transport = outbound.transport as Record<string, unknown> | undefined;
   if (!transport || typeof transport !== 'object') return;
 
   if (transport.type === 'ws') {
@@ -120,13 +109,14 @@ function applySingBoxTransport(node: Record<string, any>, outbound: Record<strin
   }
 }
 
-function parseSingBoxOutbound(outbound: any): LooseProxyNode | null {
+function parseSingBoxOutbound(outbound: unknown): LooseProxyNode | null {
   if (!outbound || typeof outbound !== 'object') return null;
 
-  const rawType = String(outbound.type || '').toLowerCase();
-  const tag = String(outbound.tag || '').trim();
-  const server = outbound.server;
-  const serverPort = outbound.server_port;
+  const outboundObj = outbound as any;
+  const rawType = String(outboundObj.type || '').toLowerCase();
+  const tag = String(outboundObj.tag || '').trim();
+  const server = outboundObj.server;
+  const serverPort = outboundObj.server_port;
 
   if (!tag || !server || serverPort == null) return null;
 
@@ -139,59 +129,59 @@ function parseSingBoxOutbound(outbound: any): LooseProxyNode | null {
   };
 
   if (rawType === 'hysteria2') {
-    node.password = outbound.password || '';
-    if (Array.isArray(outbound.server_ports) && outbound.server_ports.length > 0) {
-      node.ports = outbound.server_ports.join(',');
+    node.password = outboundObj.password || '';
+    if (Array.isArray(outboundObj.server_ports) && outboundObj.server_ports.length > 0) {
+      node.ports = outboundObj.server_ports.join(',');
     }
-    if (outbound.obfs && typeof outbound.obfs === 'object') {
-      node.obfs = outbound.obfs.type;
-      if (outbound.obfs.password) node['obfs-password'] = outbound.obfs.password;
+    if (outboundObj.obfs && typeof outboundObj.obfs === 'object') {
+      node.obfs = outboundObj.obfs.type;
+      if (outboundObj.obfs.password) node['obfs-password'] = outboundObj.obfs.password;
     }
   } else if (rawType === 'vless') {
-    node.uuid = outbound.uuid || '';
-    if (outbound.flow) node.flow = outbound.flow;
+    node.uuid = outboundObj.uuid || '';
+    if (outboundObj.flow) node.flow = outboundObj.flow;
   } else if (rawType === 'vmess') {
-    node.uuid = outbound.uuid || '';
-    node.alterId = outbound.alter_id || 0;
-    if (outbound.security) node.cipher = outbound.security;
+    node.uuid = outboundObj.uuid || '';
+    node.alterId = outboundObj.alter_id || 0;
+    if (outboundObj.security) node.cipher = outboundObj.security;
   } else if (rawType === 'trojan') {
-    node.password = outbound.password || '';
+    node.password = outboundObj.password || '';
   } else if (rawType === 'shadowsocks') {
-    node.cipher = outbound.method || '';
-    node.password = outbound.password || '';
-    if (outbound.plugin) node.plugin = outbound.plugin;
-    if (outbound.plugin_opts) node['plugin-opts'] = outbound.plugin_opts;
+    node.cipher = outboundObj.method || '';
+    node.password = outboundObj.password || '';
+    if (outboundObj.plugin) node.plugin = outboundObj.plugin;
+    if (outboundObj.plugin_opts) node['plugin-opts'] = outboundObj.plugin_opts;
   } else if (rawType === 'tuic') {
-    node.uuid = outbound.uuid || '';
-    node.password = outbound.password || '';
-    if (outbound.congestion_control) node['congestion-controller'] = outbound.congestion_control;
-    if (outbound.udp_relay_mode) node['udp-relay-mode'] = outbound.udp_relay_mode;
+    node.uuid = outboundObj.uuid || '';
+    node.password = outboundObj.password || '';
+    if (outboundObj.congestion_control) node['congestion-controller'] = outboundObj.congestion_control;
+    if (outboundObj.udp_relay_mode) node['udp-relay-mode'] = outboundObj.udp_relay_mode;
   } else if (rawType === 'anytls') {
-    node.password = outbound.password || '';
-    if (outbound.idle_session_check_interval) node.idle_session_check_interval = outbound.idle_session_check_interval;
-    if (outbound.idle_session_timeout) node.idle_session_timeout = outbound.idle_session_timeout;
-    if (outbound.min_idle_session != null) node.min_idle_session = outbound.min_idle_session;
+    node.password = outboundObj.password || '';
+    if (outboundObj.idle_session_check_interval) node.idle_session_check_interval = outboundObj.idle_session_check_interval;
+    if (outboundObj.idle_session_timeout) node.idle_session_timeout = outboundObj.idle_session_timeout;
+    if (outboundObj.min_idle_session != null) node.min_idle_session = outboundObj.min_idle_session;
   } else if (rawType === 'wireguard') {
-    node['private-key'] = outbound.private_key || '';
-    node['peer-public-key'] = outbound.peer_public_key || '';
-    node['preshared-key'] = outbound.pre_shared_key || undefined;
-    node.ip = outbound.local_address || outbound.address || '10.0.0.1/24';
-    if (outbound.mtu) node.mtu = outbound.mtu;
-    if (Array.isArray(outbound.reserved)) node.reserved = outbound.reserved;
+    node['private-key'] = outboundObj.private_key || '';
+    node['peer-public-key'] = outboundObj.peer_public_key || '';
+    node['preshared-key'] = outboundObj.pre_shared_key || undefined;
+    node.ip = outboundObj.local_address || outboundObj.address || '10.0.0.1/24';
+    if (outboundObj.mtu) node.mtu = outboundObj.mtu;
+    if (Array.isArray(outboundObj.reserved)) node.reserved = outboundObj.reserved;
   } else {
     return null;
   }
 
-  applySingBoxTls(node, outbound, rawType);
-  applySingBoxTransport(node, outbound);
+  applySingBoxTls(node, outboundObj, rawType);
+  applySingBoxTransport(node, outboundObj);
 
   return coerceProxyNode(node);
 }
 
-function parseSingBoxOutbounds(input: any): LooseProxyNode[] {
-  if (!input || typeof input !== 'object' || !Array.isArray(input.outbounds)) return [];
-  return input.outbounds
-    .map((outbound: any) => parseSingBoxOutbound(outbound))
+function parseSingBoxOutbounds(input: unknown): LooseProxyNode[] {
+  if (!input || typeof input !== 'object' || !Array.isArray((input as Record<string, unknown>).outbounds)) return [];
+  return ((input as Record<string, unknown>).outbounds as unknown[])
+    .map((outbound: unknown) => parseSingBoxOutbound(outbound))
     .filter((item: LooseProxyNode | null): item is LooseProxyNode => Boolean(item));
 }
 

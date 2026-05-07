@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface Props {
   isOpen: boolean;
@@ -38,31 +38,10 @@ export default function NodeModal({ isOpen, onClose, onInject }: Props) {
   const [localIp, setLocalIp] = useState('10.0.0.1/24');
   const [mtu, setMtu] = useState('1420');
 
-  useEffect(() => {
-    if (isOpen) {
-      setProtocol('vless');
-      setHost('');
-      setPort('443');
-      setName('');
-      setUuid('');
-      setPassword('');
-      setSni('');
-      setNetwork('tcp');
-      setEncryption('none');
-      setSecurity('tls');
-      setCipher('aes-256-gcm');
-      setAlpn('h3');
-      setCongestion('bbr');
-      setObfs('none');
-      setObfsPassword('');
-      setPrivateKey('');
-      setPublicKey('');
-      setLocalIp('10.0.0.1/24');
-      setMtu('1420');
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
+  const handleProtocolChange = (val: string) => {
+    setProtocol(val);
+    
+    // Reset fields on protocol change
     setUuid('');
     setPassword('');
     setSni('');
@@ -77,16 +56,16 @@ export default function NodeModal({ isOpen, onClose, onInject }: Props) {
     setMtu('1420');
     setCipher('aes-256-gcm');
 
-    if (protocol === 'vless' || protocol === 'vmess' || protocol === 'trojan') {
+    if (val === 'vless' || val === 'vmess' || val === 'trojan') {
       setSecurity('tls');
       setNetwork('tcp');
-    } else if (protocol === 'hysteria2' || protocol === 'tuic') {
+    } else if (val === 'hysteria2' || val === 'tuic') {
       setSecurity('tls'); 
-    } else if (protocol === 'wireguard' || protocol === 'ss') {
+    } else if (val === 'wireguard' || val === 'ss') {
       setSecurity('none');
       setNetwork('tcp');
     }
-  }, [protocol]);
+  };
 
   if (!isOpen) return null;
 
@@ -183,7 +162,7 @@ export default function NodeModal({ isOpen, onClose, onInject }: Props) {
                 <div className="relative">
                   <select 
                     value={protocol} 
-                    onChange={(e) => setProtocol(e.target.value)}
+                    onChange={(e) => handleProtocolChange(e.target.value)}
                     className="w-full modern-input appearance-none bg-[#111] text-white"
                   >
                     <option value="vless">VLESS (Modern)</option>

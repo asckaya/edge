@@ -1,6 +1,6 @@
 import { AnyProxySchema, ProxyNode } from '../types';
 
-export type LooseProxyNode = ProxyNode & Record<string, any>;
+export type LooseProxyNode = ProxyNode & Record<string, unknown>;
 
 function normalizeType(type: unknown): string {
   const value = String(type || '').toLowerCase();
@@ -18,10 +18,10 @@ function normalizePort(port: unknown): number | string | undefined {
   return undefined;
 }
 
-export function coerceProxyNode(input: any): LooseProxyNode | null {
+export function coerceProxyNode(input: unknown): LooseProxyNode | null {
   if (!input || typeof input !== 'object') return null;
 
-  const node: Record<string, any> = { ...input };
+  const node: Record<string, any> = { ...(input as any) };
 
   if (!node.name && node.tag) node.name = String(node.tag);
   if (node.server_port != null && node.port == null) node.port = node.server_port;
@@ -54,6 +54,6 @@ export function coerceProxyNode(input: any): LooseProxyNode | null {
   };
 }
 
-export function coerceProxyNodes(inputs: any[]): LooseProxyNode[] {
+export function coerceProxyNodes(inputs: unknown[]): LooseProxyNode[] {
   return inputs.map((item) => coerceProxyNode(item)).filter((item): item is LooseProxyNode => Boolean(item));
 }

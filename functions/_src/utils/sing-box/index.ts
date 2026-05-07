@@ -4,7 +4,7 @@ import { buildOutbounds } from './outbounds';
 import { buildDns } from './dns';
 import { buildRoute } from './route';
 
-export async function buildSingBoxConfig(options: BuildSingBoxOptions): Promise<Record<string, any>> {
+export async function buildSingBoxConfig(options: BuildSingBoxOptions): Promise<Record<string, unknown>> {
   const { secret, subscriptions, customNodes, ghProxy, isMini = false, isMicro = false } = options;
   const { taggedNodes, providerSelectors, selfHostedNodeTags } = await buildTaggedNodes(subscriptions, customNodes);
 

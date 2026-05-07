@@ -1,5 +1,5 @@
 import { LooseProxyNode } from '../proxy-node';
-import { TaggedNode, GroupDefinition, MAIN_SELECTOR_TAG, DOWNLOAD_SELECTOR_TAG, SELF_HOSTED_GROUP_TAG, AUTO_SELECT_TAG, DIRECT_TAG, BLOCK_TAG } from './types';
+import { TaggedNode, GroupDefinition, MAIN_SELECTOR_TAG, DOWNLOAD_SELECTOR_TAG, SELF_HOSTED_GROUP_TAG, AUTO_SELECT_TAG, DIRECT_TAG, BLOCK_TAG, ProviderSelector } from './types';
 import { REGION_DEFINITIONS, GROUP_DEFINITIONS } from './definitions';
 import { buildGeoNodeLabel, createUniqueTag, extractCountryCodeFromName, getProviderFallbackCountryCode, normalizeProxyList } from './utils';
 import { ResolvedSubscription } from '../subscription-parser';
@@ -27,14 +27,14 @@ export function buildGroupChoices(providerSelectors: { selectTag: string; autoTa
   };
 }
 
-export function buildSelector(tag: string, outbounds: string[], defaultTag?: string): Record<string, any> {
+export function buildSelector(tag: string, outbounds: string[], defaultTag?: string): Record<string, unknown> {
   const unique = Array.from(new Set(outbounds.filter(Boolean)));
-  const s: Record<string, any> = { type: 'selector', tag, outbounds: unique };
+  const s: any = { type: 'selector', tag, outbounds: unique };
   if (defaultTag && unique.includes(defaultTag)) s.default = defaultTag;
   return s;
 }
 
-export function buildUrlTest(tag: string, outbounds: string[]): Record<string, any> {
+export function buildUrlTest(tag: string, outbounds: string[]): Record<string, unknown> {
   return { type: 'urltest', tag, outbounds, url: 'https://www.gstatic.com/generate_204', interval: '5m', tolerance: 50, idle_timeout: '30m' };
 }
 
@@ -49,7 +49,7 @@ export function buildGroupOutbounds(layout: GroupDefinition['layout'], proxyChoi
 export async function buildTaggedNodes(subscriptions: ResolvedSubscription[], customNodes: LooseProxyNode[]) {
   const usedTags = new Set<string>([MAIN_SELECTOR_TAG, DOWNLOAD_SELECTOR_TAG, SELF_HOSTED_GROUP_TAG, AUTO_SELECT_TAG, ...REGION_DEFINITIONS.map((r) => r.tag), DIRECT_TAG, BLOCK_TAG, 'local-dns', 'remote-dns', ...GROUP_DEFINITIONS.map((g) => g.tag)]);
   const taggedNodes: TaggedNode[] = [];
-  const providerSelectors: any[] = [];
+  const providerSelectors: ProviderSelector[] = [];
   const context = { ipCache: new Map(), countryCache: new Map() };
 
   for (const sub of subscriptions) {

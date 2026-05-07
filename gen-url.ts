@@ -45,12 +45,12 @@ function generateUrl() {
     let parsedYaml;
     try {
         parsedYaml = YAML.parse(yamlContent);
-    } catch (e: any) {
-         console.error(`\x1b[31m✘ Error parsing ${configFile}: ${e.message}\x1b[0m`);
+    } catch (e: unknown) {
+         console.error(`\x1b[31m✘ Error parsing ${configFile}: ${(e as any).message}\x1b[0m`);
          process.exit(1);
     }
 
-    let workerDomain = parsedYaml?.worker || 'https://your-worker.workers.dev/';
+    const workerDomain = parsedYaml?.worker || 'https://your-worker.workers.dev/';
     if (!parsedYaml?.worker) {
         console.warn('\x1b[33m⚠ No "worker:" field found in proxy.yaml, using placeholder URL\x1b[0m');
     }
@@ -63,11 +63,11 @@ function generateUrl() {
     try {
         if (parsedYaml?.proxy && Array.isArray(parsedYaml.proxy)) {
             proxies = parsedYaml.proxy
-              .map((p: any) => coerceProxyNode(p))
-              .filter((p: any) => Boolean(p)) as ProxyNode[];
+              .map((p: unknown) => coerceProxyNode(p))
+              .filter((p: unknown): p is ProxyNode => Boolean(p));
         }
-    } catch (e: any) {
-         console.error(`\x1b[31m✘ Error validating proxies in ${configFile}: ${e.message}\x1b[0m`);
+    } catch (e: unknown) {
+         console.error(`\x1b[31m✘ Error validating proxies in ${configFile}: ${(e as any).message}\x1b[0m`);
          process.exit(1);
     }
 

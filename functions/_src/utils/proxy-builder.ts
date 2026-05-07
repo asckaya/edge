@@ -1,7 +1,8 @@
+import { LooseProxyNode } from './proxy-node';
 import { ProxyNode } from '../types';
 
 export function buildProxyUri(node: ProxyNode): string[] {
-  const p: any = node;
+  const p = node as LooseProxyNode;
   const name = encodeURIComponent(p.name);
   const proto = p.type || '';
 

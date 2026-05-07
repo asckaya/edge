@@ -1,6 +1,6 @@
 import { LOCAL_DNS_TAG, REMOTE_DNS_TAG } from './types';
 
-export function buildDns(): Record<string, any> {
+export function buildDns(): Record<string, unknown> {
   return {
     servers: [
       { type: 'udp', tag: LOCAL_DNS_TAG, server: '223.5.5.5' },

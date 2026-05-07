@@ -113,7 +113,7 @@ export function extractCountryCodeFromName(name: string): string | null {
   return null;
 }
 
-export async function fetchJson(url: string, headers?: Record<string, string>): Promise<any> {
+export async function fetchJson(url: string, headers?: Record<string, string>): Promise<unknown> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 2500);
   try {
@@ -134,7 +134,7 @@ export function getServerIp(server: string, context: GeoLabelContext): Promise<s
       const query = new URL('https://cloudflare-dns.com/dns-query');
       query.searchParams.set('name', hostname);
       query.searchParams.set('type', type);
-      const payload = await fetchJson(query.toString(), { Accept: 'application/dns-json' });
+      const payload = (await fetchJson(query.toString(), { Accept: 'application/dns-json' })) as any;
       const ip = (payload?.Answer || []).map((a: any) => String(a?.data || '').trim()).find((v: string) => v && isIpAddress(v));
       if (ip) return ip;
     }
@@ -152,12 +152,12 @@ export function getCountryCode(ip: string, context: GeoLabelContext): Promise<st
   const promise = (async () => {
     const providers = [
       async () => {
-        const p = await fetchJson(`https://api.country.is/${encodeURIComponent(cacheKey)}`);
+        const p = (await fetchJson(`https://api.country.is/${encodeURIComponent(cacheKey)}`)) as any;
         const c = String(p?.country || '').trim().toUpperCase();
         return /^[A-Z]{2}$/.test(c) ? c : null;
       },
       async () => {
-        const p = await fetchJson(`https://ipwho.is/${encodeURIComponent(cacheKey)}`);
+        const p = (await fetchJson(`https://ipwho.is/${encodeURIComponent(cacheKey)}`)) as any;
         if (!p || p.success === false) return null;
         const c = String(p.country_code || '').trim().toUpperCase();
         return /^[A-Z]{2}$/.test(c) ? c : null;

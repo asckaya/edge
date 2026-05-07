@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import SubscriptionPanel, { Subscription } from '@/components/SubscriptionPanel';
 import NodeModal from '@/components/NodeModal';
 import ActionBox from '@/components/ActionBox';
@@ -7,14 +7,10 @@ import ActionBox from '@/components/ActionBox';
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [proxiesText, setProxiesText] = useState('');
-  const [subs, setSubs] = useState<Subscription[]>([]);
+  const [subs, setSubs] = useState<Subscription[]>(() => [{ id: Date.now(), name: '', url: '' }]);
   const [configType, setConfigType] = useState('mihomo');
   const [secret, setSecret] = useState('edge-default');
   const [ghProxy, setGhProxy] = useState('');
-
-  useEffect(() => {
-    setSubs([{ id: Date.now(), name: '', url: '' }]);
-  }, []);
 
   const handleInjectNode = (uri: string) => {
     setProxiesText(prev => prev ? prev + '\n' + uri : uri);
@@ -190,11 +186,13 @@ export default function Home() {
 
       </main>
 
-      <NodeModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onInject={handleInjectNode} 
-      />
+      {isModalOpen && (
+        <NodeModal 
+          isOpen={isModalOpen} 
+          onClose={() => setIsModalOpen(false)} 
+          onInject={handleInjectNode} 
+        />
+      )}
     </div>
   );
 }

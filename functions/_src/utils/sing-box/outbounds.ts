@@ -1,12 +1,12 @@
 import { LooseProxyNode } from '../proxy-node';
-import { TaggedNode, MAIN_SELECTOR_TAG, DOWNLOAD_SELECTOR_TAG, SELF_HOSTED_GROUP_TAG, DIRECT_TAG, BLOCK_TAG, AUTO_SELECT_TAG } from './types';
+import { TaggedNode, MAIN_SELECTOR_TAG, DOWNLOAD_SELECTOR_TAG, SELF_HOSTED_GROUP_TAG, DIRECT_TAG, BLOCK_TAG, AUTO_SELECT_TAG, ProviderSelector } from './types';
 import { GROUP_DEFINITIONS } from './definitions';
 import { buildGroupChoices, buildGroupOutbounds, buildRegionGroups, buildSelector, buildUrlTest } from './groups';
 
-export function buildTls(node: LooseProxyNode): Record<string, any> | undefined {
+export function buildTls(node: LooseProxyNode): Record<string, unknown> | undefined {
   const enabled = node.tls === true || node.security === 'tls' || node.security === 'reality' || Boolean(node.sni) || Boolean(node.servername) || Boolean(node.alpn);
   if (!enabled) return undefined;
-  const tls: Record<string, any> = { enabled: true };
+  const tls: Record<string, unknown> = { enabled: true };
   if (node['disable-sni']) tls.disable_sni = true;
   if (node.sni || node.servername) tls.server_name = node.sni || node.servername;
   if (node['skip-cert-verify']) tls.insecure = true;
@@ -22,7 +22,7 @@ export function buildTls(node: LooseProxyNode): Record<string, any> | undefined 
   return tls;
 }
 
-export function buildTransport(node: LooseProxyNode): Record<string, any> | undefined {
+export function buildTransport(node: LooseProxyNode): Record<string, unknown> | undefined {
   if (node.network === 'ws') return { type: 'ws', path: node['ws-opts']?.path || '/', ...(node['ws-opts']?.headers ? { headers: node['ws-opts'].headers } : {}) };
   if (node.network === 'grpc') return { type: 'grpc', service_name: node['grpc-opts']?.serviceName || '' };
   if (node.network === 'http') return { type: 'http', path: node['http-opts']?.path || '/', ...(Array.isArray(node['http-opts']?.host) ? { host: node['http-opts'].host } : {}) };
@@ -64,20 +64,20 @@ function buildShadowsocksPluginOpts(plugin: string | undefined, raw: unknown): s
   return parts.length > 0 ? parts.join(';') : undefined;
 }
 
-export function toSingBoxOutbound(node: LooseProxyNode, tag: string): Record<string, any> | null {
+export function toSingBoxOutbound(node: LooseProxyNode, tag: string): Record<string, unknown> | null {
   const server = String(node.server);
   const port = typeof node.port === 'number' ? node.port : parseInt(String(node.port), 10);
   if (!Number.isFinite(port)) return null;
 
   if (node.type === 'hysteria2') {
-    const o: Record<string, any> = { type: 'hysteria2', tag, server, server_port: port, password: node.password, tls: buildTls(node) || { enabled: true } };
+    const o: any = { type: 'hysteria2', tag, server, server_port: port, password: node.password, tls: buildTls(node) || { enabled: true } };
     if (node.ports) o.server_ports = [String(node.ports)];
     if (node.obfs) o.obfs = { type: node.obfs, password: node['obfs-password'] || '' };
     return o;
   }
   if (node.type === 'vless' || node.type === 'vmess') {
     const type = node.type === 'vless' ? 'vless' : 'vmess';
-    const o: Record<string, any> = { type, tag, server, server_port: port, uuid: node.uuid };
+    const o: any = { type, tag, server, server_port: port, uuid: node.uuid };
     if (type === 'vless' && node.flow) o.flow = node.flow;
     if (type === 'vmess') { o.security = node.cipher || 'auto'; o.alter_id = Number(node.alterId || 0); }
     const tls = buildTls(node); if (tls) o.tls = tls;
@@ -85,12 +85,12 @@ export function toSingBoxOutbound(node: LooseProxyNode, tag: string): Record<str
     return o;
   }
   if (node.type === 'trojan') {
-    const o: Record<string, any> = { type: 'trojan', tag, server, server_port: port, password: node.password, tls: buildTls(node) || { enabled: true } };
+    const o: any = { type: 'trojan', tag, server, server_port: port, password: node.password, tls: buildTls(node) || { enabled: true } };
     const transport = buildTransport(node); if (transport) o.transport = transport;
     return o;
   }
   if (node.type === 'ss') {
-    const o: Record<string, any> = { type: 'shadowsocks', tag, server, server_port: port, method: node.cipher, password: node.password };
+    const o: any = { type: 'shadowsocks', tag, server, server_port: port, method: node.cipher, password: node.password };
     const p = normalizeShadowsocksPluginName(node.plugin);
     const po = buildShadowsocksPluginOpts(p, node['plugin-opts'] ?? node.plugin_opts);
     if (p) o.plugin = p; if (po) o.plugin_opts = po;
@@ -98,7 +98,7 @@ export function toSingBoxOutbound(node: LooseProxyNode, tag: string): Record<str
   }
   if (node.type === 'tuic') return { type: 'tuic', tag, server, server_port: port, uuid: node.uuid, password: node.password, congestion_control: node['congestion-controller'] || 'cubic', udp_relay_mode: node['udp-relay-mode'] || 'native', tls: buildTls(node) || { enabled: true } };
   if (node.type === 'anytls') {
-    const o: Record<string, any> = { type: 'anytls', tag, server, server_port: port, password: node.password, tls: buildTls(node) || { enabled: true } };
+    const o: any = { type: 'anytls', tag, server, server_port: port, password: node.password, tls: buildTls(node) || { enabled: true } };
     if (node.idle_session_check_interval) o.idle_session_check_interval = node.idle_session_check_interval;
     if (node.idle_session_timeout) o.idle_session_timeout = node.idle_session_timeout;
     if (node.min_idle_session != null) o.min_idle_session = node.min_idle_session;
@@ -107,7 +107,7 @@ export function toSingBoxOutbound(node: LooseProxyNode, tag: string): Record<str
   return null;
 }
 
-export function buildOutbounds(taggedNodes: TaggedNode[], providerSelectors: any[], selfHostedNodeTags: string[], isMini = false, isMicro = false): Record<string, any>[] {
+export function buildOutbounds(taggedNodes: TaggedNode[], providerSelectors: ProviderSelector[], selfHostedNodeTags: string[], isMini = false, isMicro = false): Record<string, unknown>[] {
   const nodeOutbounds = taggedNodes.map((tn) => toSingBoxOutbound(tn.node, tn.tag)).filter(Boolean);
   const regionGroups = buildRegionGroups(taggedNodes);
   const allNodeTags = taggedNodes.map((tn) => tn.tag);

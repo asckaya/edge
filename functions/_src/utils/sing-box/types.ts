@@ -53,6 +53,13 @@ export interface TaggedNode {
   node: LooseProxyNode;
 }
 
+export interface ProviderSelector {
+  providerName: string;
+  selectTag: string;
+  autoTag: string;
+  nodeTags: string[];
+}
+
 export interface GeoLabelContext {
   ipCache: Map<string, Promise<string | null>>;
   countryCache: Map<string, Promise<string | null>>;
