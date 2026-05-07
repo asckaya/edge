@@ -52,7 +52,6 @@ export const configMihomoRules = `rules:
 
   # AI 服务
   - GEOSITE,category-ai-chat-!cn,💬 AI 服务
-  - GEOSITE,midjourney,💬 AI 服务
   - GEOSITE,jetbrains-ai,💬 AI 服务
 
   # 即时通讯 & 油管 & 流媒体
@@ -76,7 +75,6 @@ export const configMihomoRules = `rules:
   - GEOSITE,category-remote-control,🛠️ 生产力工具
   - GEOSITE,category-password-management,🛠️ 生产力工具
   - GEOSITE,notion,🛠️ 生产力工具
-  - GEOSITE,obsidian,🛠️ 生产力工具
   - GEOSITE,figma,🛠️ 生产力工具
   - GEOSITE,category-cryptocurrency,💰 金融服务
   - GEOSITE,category-finance,💰 金融服务

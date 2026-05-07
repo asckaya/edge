@@ -29,7 +29,6 @@ export const GEOX_REGISTRY = {
     geosite: [
       'category-ai-chat-!cn',
       'category-ai-cn',
-      'midjourney',
       'jetbrains-ai'
     ],
   },
@@ -79,7 +78,6 @@ export const GEOX_REGISTRY = {
       'category-remote-control',
       'category-password-management',
       'notion',
-      'obsidian',
       'figma',
       'adobe',
       'autodesk',
