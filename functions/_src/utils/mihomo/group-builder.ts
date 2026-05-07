@@ -15,9 +15,11 @@ export function renderMihomoGroups(options: GroupOptions, isMinimal = false): st
   // so we shouldn't put them in the 'proxies' list. Instead, we'll use the 'use' field.
   const effectiveProvidersForProxies = isSingleSub ? '' : providersList;
 
+  const scenarioProxies = `[${GROUP_TAGS.PROXY}, ${isStash ? 'DIRECT, REJECT, ♻️ 自动选择' : 'DIRECT, REJECT, ⚡ 自动选择'}, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ${autoGroupsList}, ${effectiveProvidersForProxies}, ${selfHostedGroup}]`;
+
   const defaultProxies = isStash 
-    ? `[DIRECT, REJECT, ♻️ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ${autoGroupsList}, ${effectiveProvidersForProxies}, ${selfHostedGroup}]`
-    : `[DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ${autoGroupsList}, ${effectiveProvidersForProxies}, ${selfHostedGroup}]`;
+    ? `[DIRECT, REJECT, ♻️ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ${autoGroupsList}, ${effectiveProvidersForProxies}, ${selfHostedGroup}]`
+    : `[DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ${autoGroupsList}, ${effectiveProvidersForProxies}, ${selfHostedGroup}]`;
 
   const commonFilter = 'filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"';
   const autoTag = isStash ? '♻️ 自动选择' : '⚡ 自动选择';
@@ -44,11 +46,11 @@ export function renderMihomoGroups(options: GroupOptions, isMinimal = false): st
 
   // Region groups
   const regions = [
-    { name: '🇭🇰 香港节点', filter: '(?i)港|HK|HongKong' },
-    { name: '🇯🇵 日本节点', filter: '(?i)日|JP|Japan' },
-    { name: '🇺🇸 美国节点', filter: '(?i)美|US|USA' },
-    { name: '🇸🇬 新加坡节点', filter: '(?i)新|SG|Singapore' },
-    { name: '🇼🇸 台湾节点', filter: '(?i)台|TW|Taiwan' }
+    { name: '🇭🇰 香港节点', filter: '(?i)港|HK|HongKong|Hong Kong|🇭🇰' },
+    { name: '🇯🇵 日本节点', filter: '(?i)日|JP|Japan|🇯🇵' },
+    { name: '🇺🇸 美国节点', filter: '(?i)美|US|USA|United States|🇺🇸' },
+    { name: '🇸🇬 新加坡节点', filter: '(?i)新|SG|Singapore|🇸🇬' },
+    { name: '🇹🇼 台湾节点', filter: '(?i)台|TW|Taiwan|🇹🇼' }
   ];
 
   regions.forEach(r => {
@@ -72,7 +74,7 @@ export function renderMihomoGroups(options: GroupOptions, isMinimal = false): st
       ...CORE_GROUPS.filter(g => ![GROUP_TAGS.DIRECT, GROUP_TAGS.REJECT, GROUP_TAGS.PROXY].includes(g))
     ];
     allGroups.forEach(name => {
-      let proxies = `[${GROUP_TAGS.PROXY}, ${defaultProxies.substring(1)}`;
+      let proxies = scenarioProxies;
       const type = 'select';
       let filter = commonFilter.split(': ')[1].replace(/"/g, '');
       let use = `[${providersList}]`;

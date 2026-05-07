@@ -92,17 +92,7 @@ export function buildMihomoConfig(options: BuildMihomoOptions): string {
   // Group generation
   let proxyGroupsSection = 'proxy-groups:\n';
   
-  // 1. Add subscription groups FIRST (so they are defined when used)
-  if (!isSingleSub) {
-    proxyGroupsSection += subGroupsSection;
-  }
-
-  // 2. Add Self-Hosted group
-  if (customProxyNames.length > 0) {
-    proxyGroupsSection += `  - name: Self-Hosted\n    type: select\n    proxies: [${customProxyNames.join(', ')}]\n`;
-  }
-
-  // 3. Add scenario/region groups
+  // 1. Add scenario/region groups FIRST (includes 🚀 节点选择)
   const baseGroups = renderMihomoGroups({
     providersList,
     autoGroupsList,
@@ -113,6 +103,16 @@ export function buildMihomoConfig(options: BuildMihomoOptions): string {
   
   // Strip the 'proxy-groups:\n' header from base groups since we added it manually
   proxyGroupsSection += baseGroups.replace('proxy-groups:\n', '');
+
+  // 2. Add Self-Hosted group
+  if (customProxyNames.length > 0) {
+    proxyGroupsSection += `  - name: Self-Hosted\n    type: select\n    proxies: [${customProxyNames.join(', ')}]\n`;
+  }
+
+  // 3. Add subscription groups LAST
+  if (!isSingleSub) {
+    proxyGroupsSection += subGroupsSection;
+  }
 
   // Rule generation logic
   const allowedWhite = new Set(GEOX_ALLOWED_WHITE);

@@ -95,6 +95,185 @@ proxies:
     alpn: [h3]
 
 proxy-groups:
+  - name: 🚀 节点选择
+    type: select
+    proxies: [DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
+  - name: ⚡ 自动选择
+    type: url-test
+    use: [BYG, Kitty, Glados]
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: 🇭🇰 香港节点
+    type: url-test
+    use: [BYG, Kitty, Glados]
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    filter: "(?i)港|HK|HongKong|Hong Kong|🇭🇰"
+  - name: 🇯🇵 日本节点
+    type: url-test
+    use: [BYG, Kitty, Glados]
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    filter: "(?i)日|JP|Japan|🇯🇵"
+  - name: 🇺🇸 美国节点
+    type: url-test
+    use: [BYG, Kitty, Glados]
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    filter: "(?i)美|US|USA|United States|🇺🇸"
+  - name: 🇸🇬 新加坡节点
+    type: url-test
+    use: [BYG, Kitty, Glados]
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    filter: "(?i)新|SG|Singapore|🇸🇬"
+  - name: 🇹🇼 台湾节点
+    type: url-test
+    use: [BYG, Kitty, Glados]
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    filter: "(?i)台|TW|Taiwan|🇹🇼"
+  - name: 🛒 购物网站
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
+    use: [BYG, Kitty, Glados]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: 🐟 漏网之鱼
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
+    use: [BYG, Kitty, Glados]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: 🧪 测速专线
+    type: select
+    proxies: [🚀 节点选择, DIRECT, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择]
+    use: [BYG, Kitty, Glados]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: 💬 AI 服务
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
+    use: [BYG, Kitty, Glados]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: 📹 油管视频
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
+    use: [BYG, Kitty, Glados]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: 🔍 谷歌服务
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
+    use: [BYG, Kitty, Glados]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: 📲 电报消息
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
+    use: [BYG, Kitty, Glados]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: 🐱 开发工具
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
+    use: [BYG, Kitty, Glados]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: Ⓜ️ 微软服务
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
+    use: [BYG, Kitty, Glados]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: 🍏 苹果服务
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
+    use: [BYG, Kitty, Glados]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: 🎬 苹果视频
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
+    use: [BYG, Kitty, Glados]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: 🌐 社交媒体
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
+    use: [BYG, Kitty, Glados]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: 🎬 流媒体
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
+    use: [BYG, Kitty, Glados]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: 🎮 游戏平台
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
+    use: [BYG, Kitty, Glados]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: 🎮 游戏下载
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
+    use: [BYG, Kitty, Glados]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: 📚 教育资源
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
+    use: [BYG, Kitty, Glados]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: 🛠️ 生产力工具
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
+    use: [BYG, Kitty, Glados]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: 💰 金融服务
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
+    use: [BYG, Kitty, Glados]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: 📰 新闻资讯
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
+    use: [BYG, Kitty, Glados]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: 🔞 成人内容
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
+    use: [BYG, Kitty, Glados]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: ☁️ 云服务
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
+    use: [BYG, Kitty, Glados]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: 🌐 非中国
+    type: select
+    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
+    use: [BYG, Kitty, Glados]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: 🧲 BT/PT
+    type: select
+    proxies: [DIRECT, 🚀 节点选择, REJECT, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择]
+    use: [BYG, Kitty, Glados]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: 🏠 私有网络
+    type: select
+    proxies: [DIRECT, REJECT, 🚀 节点选择, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择]
+    use: [BYG, Kitty, Glados]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: 🕓 NTP 服务
+    type: select
+    proxies: [DIRECT, 🚀 节点选择]
+  - name: 🔒 国内服务
+    type: select
+    proxies: [DIRECT, REJECT, 🚀 节点选择, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择]
+    use: [BYG, Kitty, Glados]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: 🛑 广告拦截
+    type: select
+    proxies: [REJECT, DIRECT, 🚀 节点选择, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择]
+  - name: Self-Hosted
+    type: select
+    proxies: [SigHy2]
   - name: BYG
     type: select
     use: [BYG]
@@ -128,185 +307,6 @@ proxy-groups:
     interval: 300
     lazy: false
     filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-  - name: Self-Hosted
-    type: select
-    proxies: [SigHy2]
-  - name: 🚀 节点选择
-    type: select
-    proxies: [DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
-  - name: ⚡ 自动选择
-    type: url-test
-    use: [BYG, Kitty, Glados]
-    url: https://www.gstatic.com/generate_204
-    interval: 300
-    tolerance: 50
-    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-  - name: 🇭🇰 香港节点
-    type: url-test
-    use: [BYG, Kitty, Glados]
-    url: https://www.gstatic.com/generate_204
-    interval: 300
-    tolerance: 50
-    filter: "(?i)港|HK|HongKong"
-  - name: 🇯🇵 日本节点
-    type: url-test
-    use: [BYG, Kitty, Glados]
-    url: https://www.gstatic.com/generate_204
-    interval: 300
-    tolerance: 50
-    filter: "(?i)日|JP|Japan"
-  - name: 🇺🇸 美国节点
-    type: url-test
-    use: [BYG, Kitty, Glados]
-    url: https://www.gstatic.com/generate_204
-    interval: 300
-    tolerance: 50
-    filter: "(?i)美|US|USA"
-  - name: 🇸🇬 新加坡节点
-    type: url-test
-    use: [BYG, Kitty, Glados]
-    url: https://www.gstatic.com/generate_204
-    interval: 300
-    tolerance: 50
-    filter: "(?i)新|SG|Singapore"
-  - name: 🇼🇸 台湾节点
-    type: url-test
-    use: [BYG, Kitty, Glados]
-    url: https://www.gstatic.com/generate_204
-    interval: 300
-    tolerance: 50
-    filter: "(?i)台|TW|Taiwan"
-  - name: 🛒 购物网站
-    type: select
-    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
-    use: [BYG, Kitty, Glados]
-    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-  - name: 🐟 漏网之鱼
-    type: select
-    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
-    use: [BYG, Kitty, Glados]
-    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-  - name: 🧪 测速专线
-    type: select
-    proxies: [🚀 节点选择, DIRECT, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择]
-    use: [BYG, Kitty, Glados]
-    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-  - name: 💬 AI 服务
-    type: select
-    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
-    use: [BYG, Kitty, Glados]
-    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-  - name: 📹 油管视频
-    type: select
-    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
-    use: [BYG, Kitty, Glados]
-    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-  - name: 🔍 谷歌服务
-    type: select
-    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
-    use: [BYG, Kitty, Glados]
-    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-  - name: 📲 电报消息
-    type: select
-    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
-    use: [BYG, Kitty, Glados]
-    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-  - name: 🐱 开发工具
-    type: select
-    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
-    use: [BYG, Kitty, Glados]
-    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-  - name: Ⓜ️ 微软服务
-    type: select
-    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
-    use: [BYG, Kitty, Glados]
-    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-  - name: 🍏 苹果服务
-    type: select
-    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
-    use: [BYG, Kitty, Glados]
-    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-  - name: 🎬 苹果视频
-    type: select
-    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
-    use: [BYG, Kitty, Glados]
-    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-  - name: 🌐 社交媒体
-    type: select
-    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
-    use: [BYG, Kitty, Glados]
-    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-  - name: 🎬 流媒体
-    type: select
-    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
-    use: [BYG, Kitty, Glados]
-    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-  - name: 🎮 游戏平台
-    type: select
-    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
-    use: [BYG, Kitty, Glados]
-    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-  - name: 🎮 游戏下载
-    type: select
-    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
-    use: [BYG, Kitty, Glados]
-    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-  - name: 📚 教育资源
-    type: select
-    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
-    use: [BYG, Kitty, Glados]
-    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-  - name: 🛠️ 生产力工具
-    type: select
-    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
-    use: [BYG, Kitty, Glados]
-    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-  - name: 💰 金融服务
-    type: select
-    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
-    use: [BYG, Kitty, Glados]
-    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-  - name: 📰 新闻资讯
-    type: select
-    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
-    use: [BYG, Kitty, Glados]
-    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-  - name: 🔞 成人内容
-    type: select
-    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
-    use: [BYG, Kitty, Glados]
-    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-  - name: ☁️ 云服务
-    type: select
-    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
-    use: [BYG, Kitty, Glados]
-    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-  - name: 🌐 非中国
-    type: select
-    proxies: [🚀 节点选择, DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择, BYG, Kitty, Glados, Self-Hosted]
-    use: [BYG, Kitty, Glados]
-    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-  - name: 🧲 BT/PT
-    type: select
-    proxies: [DIRECT, 🚀 节点选择, REJECT, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择]
-    use: [BYG, Kitty, Glados]
-    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-  - name: 🏠 私有网络
-    type: select
-    proxies: [DIRECT, REJECT, 🚀 节点选择, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择]
-    use: [BYG, Kitty, Glados]
-    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-  - name: 🕓 NTP 服务
-    type: select
-    proxies: [DIRECT, 🚀 节点选择]
-  - name: 🔒 国内服务
-    type: select
-    proxies: [DIRECT, REJECT, 🚀 节点选择, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择]
-    use: [BYG, Kitty, Glados]
-    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-  - name: 🛑 广告拦截
-    type: select
-    proxies: [REJECT, DIRECT, 🚀 节点选择, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择]
 
 
 mode: rule
