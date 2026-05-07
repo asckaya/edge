@@ -5,14 +5,19 @@ export interface GroupOptions {
   autoGroupsList: string;
   selfHostedGroup: string;
   isStash?: boolean;
+  isSingleSub?: boolean;
 }
 
 export function renderMihomoGroups(options: GroupOptions, isMinimal = false): string {
-  const { providersList, autoGroupsList, selfHostedGroup, isStash } = options;
+  const { providersList, autoGroupsList, selfHostedGroup, isStash, isSingleSub } = options;
+
+  // When it's a single sub, the provider names in providersList are NOT manual groups, 
+  // so we shouldn't put them in the 'proxies' list. Instead, we'll use the 'use' field.
+  const effectiveProvidersForProxies = isSingleSub ? '' : providersList;
 
   const defaultProxies = isStash 
-    ? `[DIRECT, REJECT, ♻️ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ${autoGroupsList}, ${providersList}, ${selfHostedGroup}]`
-    : `[DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ${autoGroupsList}, ${providersList}, ${selfHostedGroup}]`;
+    ? `[DIRECT, REJECT, ♻️ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ${autoGroupsList}, ${effectiveProvidersForProxies}, ${selfHostedGroup}]`
+    : `[DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, ${autoGroupsList}, ${effectiveProvidersForProxies}, ${selfHostedGroup}]`;
 
   const commonFilter = 'filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"';
   const autoTag = isStash ? '♻️ 自动选择' : '⚡ 自动选择';
@@ -22,7 +27,8 @@ export function renderMihomoGroups(options: GroupOptions, isMinimal = false): st
     {
       name: GROUP_TAGS.PROXY,
       type: 'select',
-      proxies: defaultProxies
+      proxies: defaultProxies,
+      use: isSingleSub ? `[${providersList}]` : undefined
     },
     {
       name: autoTag,
