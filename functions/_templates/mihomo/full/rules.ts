@@ -89,7 +89,6 @@ export const configMihomoRules = `rules:
   # 云服务 & 购物 (归类优化)
   - GEOSITE,cloudflare,☁️ 云服务
   - GEOIP,cloudflare,☁️ 云服务,no-resolve
-  - GEOSITE,category-netdisk-!cn,☁️ 云服务
   - GEOSITE,category-android-app-download,☁️ 云服务
   - GEOSITE,dropbox,☁️ 云服务
   - GEOSITE,mega,☁️ 云服务

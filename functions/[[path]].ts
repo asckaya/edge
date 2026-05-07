@@ -4,10 +4,9 @@ import { configMihomoFooter } from './_templates/mihomo/footer';
 import { configStashHeader } from './_templates/stash/header';
 import { configStashGroupsHeader, configStashGroupsMid } from './_templates/stash/full/groups';
 import { configStashFooter } from './_templates/stash/footer';
-import { configMihomoMiniGroupsHeader, configMihomoMiniGroupsMid } from './_templates/mihomo/mini/groups';
-import { configMihomoMiniRuleProviders } from './_templates/mihomo/mini/rule-providers';
-import { configMihomoMiniRules } from './_templates/mihomo/mini/rules';
-import { configMihomoMicroRules } from './_templates/mihomo/micro/rules';
+import { configMihomoMinimalGroupsHeader, configMihomoMinimalGroupsMid } from './_templates/mihomo/minimal/groups';
+import { configMihomoMinimalRuleProviders } from './_templates/mihomo/minimal/rule-providers';
+import { configMihomoMinimalRules } from './_templates/mihomo/minimal/rules';
 import { configMihomoRuleProviders } from './_templates/mihomo/rule-providers';
 import { configMihomoRules } from './_templates/mihomo/full/rules';
 import { GEODATA_URLS, GEODATA_URLS_LITE } from './_templates/shared/geox';
@@ -57,10 +56,9 @@ export const onRequest = async (context: PagesFunctionContext) => {
 
   const { type: configType, secret: providedSecret, proxies: customProxiesRaw, gh_proxy: ghProxy, subscriptions } = parseResult.data;
   
-  const isStash = configType === 'stash' || configType === 'stash-mini' || configType === 'stash-micro' || configType === 'stash-dual';
-  const isSingBox = configType === 'sing-box' || configType === 'sing-box-mini' || configType === 'sing-box-micro' || configType === 'sing-box-dual';
-  const isMini = configType === 'stash-mini' || configType === 'mihomo-mini' || configType === 'sing-box-mini';
-  const isMicro = configType === 'stash-micro' || configType === 'mihomo-micro' || configType === 'sing-box-micro';
+  const isStash = configType === 'stash' || configType === 'stash-minimal' || configType === 'stash-dual';
+  const isSingBox = configType === 'sing-box' || configType === 'sing-box-minimal' || configType === 'sing-box-dual';
+  const isMinimal = configType === 'stash-minimal' || configType === 'mihomo-minimal' || configType === 'sing-box-minimal';
   const isDual = configType === 'stash-dual' || configType === 'mihomo-dual' || configType === 'sing-box-dual';
 
   if (subscriptions.length === 0 && !customProxiesRaw) {
@@ -87,8 +85,7 @@ export const onRequest = async (context: PagesFunctionContext) => {
       subscriptions: resolvedSubscriptions,
       customNodes: customProxyNodes,
       ghProxy,
-      isMini,
-      isMicro,
+      isMinimal,
       isDual,
     });
 
@@ -180,11 +177,11 @@ export const onRequest = async (context: PagesFunctionContext) => {
   const selfHostedPlaceholder = customProxyNames.length > 0 ? 'Self-Hosted' : '';
 
   // Select the right templates based on config type
-  const useMiniTemplates = isMini || isMicro || isDual;
-  let tplGroupsHeader = useMiniTemplates ? configMihomoMiniGroupsHeader : isStash ? configStashGroupsHeader : configMihomoGroupsHeader;
-  let tplGroupsMid = useMiniTemplates ? configMihomoMiniGroupsMid : isStash ? configStashGroupsMid : configMihomoGroupsMid;
+  const useMinimalTemplates = isMinimal || isDual;
+  let tplGroupsHeader = useMinimalTemplates ? configMihomoMinimalGroupsHeader : isStash ? configStashGroupsHeader : configMihomoGroupsHeader;
+  let tplGroupsMid = useMinimalTemplates ? configMihomoMinimalGroupsMid : isStash ? configStashGroupsMid : configMihomoGroupsMid;
   
-  const selectedGeoUrls = (isMini || isMicro) ? GEODATA_URLS_LITE : GEODATA_URLS;
+  const selectedGeoUrls = (isMinimal) ? GEODATA_URLS_LITE : GEODATA_URLS;
   const tplHeader = (isStash ? configStashHeader : configMihomoHeader)
     .replace(/{{SECRET}}/g, providedSecret)
     .replace(/{{GEOIP_URL}}/g, selectedGeoUrls.geoip)
@@ -193,8 +190,8 @@ export const onRequest = async (context: PagesFunctionContext) => {
     .replace(/{{ASN_URL}}/g, selectedGeoUrls.asn);
 
   const tplFooter = isStash ? configStashFooter : configMihomoFooter;
-  const tplRuleProviders = useMiniTemplates ? configMihomoMiniRuleProviders : configMihomoRuleProviders;
-  let tplRules = isMicro ? configMihomoMicroRules : isMini ? configMihomoMiniRules : configMihomoRules;
+  const tplRuleProviders = (useMinimalTemplates && !isDual) ? configMihomoMinimalRuleProviders : configMihomoRuleProviders;
+  let tplRules = isMinimal ? configMihomoMinimalRules : configMihomoRules;
 
   // Dual mode: Redirect all scenario groups to the main proxy group
   if (isDual) {
@@ -220,20 +217,35 @@ export const onRequest = async (context: PagesFunctionContext) => {
             parts[2] = groupPart.replace(groupName, '🚀 节点选择');
             return parts.join(',');
           }
+        } else if (parts.length === 2 && parts[0].trim() === '- MATCH') {
+          const groupName = parts[1].trim();
+          const coreGroups = ['DIRECT', 'REJECT', '🚀 节点选择'];
+          if (!coreGroups.includes(groupName)) {
+            parts[1] = parts[1].replace(groupName, '🚀 节点选择');
+            return parts.join(',');
+          }
         }
       }
       return line;
     });
     tplRules = transformedLines.join('\n');
+  }
 
-    // 2. Group Purification: Remove groups that are no longer referenced by rules.
-    const groupsToRemove = ['🛒 购物网站', '🐟 漏网之鱼', '🧪 测速专线', '💬 AI 服务', '📹 油管视频', '🔍 谷歌服务', '📲 电报消息', '🐱 开发工具', 'Ⓜ️ 微软服务', '🍏 苹果服务', '🎬 苹果视频', '🌐 社交媒体', '🎬 流媒体', '🎮 游戏平台', '🎮 游戏下载', '📚 教育资源', '🛠️ 生产力工具', '💰 金融服务', '📰 新闻资讯', '🔞 成人内容', '☁️ 云服务', '🌐 非中国'];
+  // 2. Group Purification: Remove groups that are no longer referenced by rules.
+  const scenarioGroups = ['🛒 购物网站', '🐟 漏网之鱼', '🧪 测速专线', '💬 AI 服务', '📹 油管视频', '🔍 谷歌服务', '📲 电报消息', '🐱 开发工具', 'Ⓜ️ 微软服务', '🍏 苹果服务', '🎬 苹果视频', '🌐 社交媒体', '🎬 流媒体', '🎮 游戏平台', '🎮 游戏下载', '📚 教育资源', '🛠️ 生产力工具', '💰 金融服务', '📰 新闻资讯', '🔞 成人内容', '☁️ 云服务', '🌐 非中国'];
+  const groupsToRemove = [...scenarioGroups];
+  if (isMinimal) {
+    groupsToRemove.push('🔒 国内服务');
+  }
+
+  if (isDual || isMinimal) {
     for (const groupName of groupsToRemove) {
       const groupRegex = new RegExp(`\\s+-\\s+name:\\s+${groupName}[^]*?(?=\\s+-\\s+name:|$)`, 'g');
       tplGroupsHeader = tplGroupsHeader.replace(groupRegex, '');
       tplGroupsMid = tplGroupsMid.replace(groupRegex, '');
     }
   }
+
 
   const fillPlaceholders = (s: string) => s
     .replace(/{{PROVIDERS_LIST}}/g, providersList)

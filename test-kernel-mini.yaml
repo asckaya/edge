@@ -1,0 +1,353 @@
+tun:
+  enable: false
+  stack: mixed
+  auto-route: true
+  auto-redirect: true
+  auto-detect-interface: true
+  endpoint-independent-nat: true
+  inet4-route-address-exclude:
+    - 10.0.0.0/8
+    - 100.64.0.0/10
+    - 100.100.100.101/32
+    - 172.16.0.0/12
+    - 192.168.0.0/16
+  dns-hijack:
+    - any:53
+    - tcp://any:53
+    - any:1053
+    - tcp://any:1053
+  loopback-address:
+    - 10.7.0.1
+
+ipv6: false
+log-level: info
+mixed-port: 7897
+allow-lan: true
+unified-delay: true
+tcp-concurrent: true
+geodata-mode: true
+
+
+external-controller: 0.0.0.0:9090
+external-controller-cors:
+  allow-origins:
+    - "*"
+  allow-private-network: true
+secret: "ascka0410"
+external-ui: ./ui
+external-ui-url: "https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip"
+
+geox-url:
+  geoip: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip-lite.dat"
+  geosite: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite-lite.dat"
+  mmdb: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/Country-lite.mmdb"
+  asn: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/GeoLite2-ASN.mmdb"
+
+proxy-providers:
+  BYG:
+    type: http
+    url: "https://xraguhtfe6.todust.cc/d66f9a949f40e2fb43af11bda9082e51"
+    path: ./providers/byg.yaml
+    interval: 3600
+    health-check:
+      enable: true
+      url: "https://www.gstatic.com/generate_204"
+      interval: 300
+      lazy: true
+    header:
+      User-Agent:
+        - "clash.meta"
+  Kitty:
+    type: http
+    url: "https://conf1.hokkaido-toyoni.com/oosaka/918bcf56a2342ecec74fc2464850a46a"
+    path: ./providers/kitty.yaml
+    interval: 3600
+    health-check:
+      enable: true
+      url: "https://www.gstatic.com/generate_204"
+      interval: 300
+      lazy: true
+    header:
+      User-Agent:
+        - "clash.meta"
+  Glados:
+    type: http
+    url: "https://update.glados-config.com/mihomo/492724/1b90b54/100266/glados.yaml"
+    path: ./providers/glados.yaml
+    interval: 3600
+    health-check:
+      enable: true
+      url: "https://www.gstatic.com/generate_204"
+      interval: 300
+      lazy: true
+    header:
+      User-Agent:
+        - "clash.meta"
+
+proxies:
+  - name: SigHy2
+    type: hysteria2
+    server: edge.ascka.qzz.io
+    port: 443
+    udp: true
+    password: ascka0410
+    sni: edge.ascka.qzz.io
+    skip-cert-verify: false
+    alpn:
+      - h3
+
+proxy-groups:
+  - name: 🚀 节点选择
+    type: select
+    proxies: [⚡ 自动选择, 🇭🇰 香港节点, 🇯🇵 日本节点, 🇰🇷 韩国节点, 🇸🇬 新加坡节点, 🇺🇸 美国节点, 🇹🇼 台湾节点, Self-Hosted, DIRECT]
+
+  - name: 🔒 国内服务
+    type: select
+    proxies: [DIRECT, REJECT, 🚀 节点选择, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择]
+    include-all-proxies: true
+    use: [BYG, Kitty, Glados]
+
+  - name: 🛒 购物网站
+    type: select
+    proxies: [🚀 节点选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇼🇸 台湾节点, DIRECT, REJECT, ⚡ BYG 自动选择, ⚡ Kitty 自动选择, ⚡ Glados 自动选择]
+    include-all-proxies: true
+    use: [BYG, Kitty, Glados]
+
+  - name: 🛑 广告拦截
+    type: select
+    proxies:
+      - REJECT
+      - DIRECT
+      - 🚀 节点选择
+
+  - name: 🐟 漏网之鱼
+    type: select
+    proxies:
+      - 🚀 节点选择
+      - 🇭🇰 香港节点
+      - 🇯🇵 日本节点
+      - 🇰🇷 韩国节点
+      - 🇸🇬 新加坡节点
+      - 🇺🇸 美国节点
+      - 🇹🇼 台湾节点
+      - DIRECT
+
+  - name: Self-Hosted
+    type: select
+    proxies: [SigHy2]
+
+  - name: BYG
+    type: select
+    use: [BYG]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: ⚡ BYG 自动选择
+    type: url-test
+    use: [BYG]
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    lazy: false
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: Kitty
+    type: select
+    use: [Kitty]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: ⚡ Kitty 自动选择
+    type: url-test
+    use: [Kitty]
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    lazy: false
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: Glados
+    type: select
+    use: [Glados]
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+  - name: ⚡ Glados 自动选择
+    type: url-test
+    use: [Glados]
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    lazy: false
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
+
+
+  - name: ⚡ 自动选择
+    type: url-test
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    use: [BYG, Kitty, Glados]
+
+  - name: 🇭🇰 香港节点
+    type: url-test
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    use: [BYG, Kitty, Glados]
+    filter: "(?i)港|HK|HongKong"
+
+  - name: 🇯🇵 日本节点
+    type: url-test
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    use: [BYG, Kitty, Glados]
+    filter: "(?i)日|JP|Japan"
+
+  - name: 🇰🇷 韩国节点
+    type: url-test
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    use: [BYG, Kitty, Glados]
+    filter: "(?i)韩|KR|Korea"
+
+  - name: 🇸🇬 新加坡节点
+    type: url-test
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    use: [BYG, Kitty, Glados]
+    filter: "(?i)新|SG|Singapore"
+
+  - name: 🇺🇸 美国节点
+    type: url-test
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    use: [BYG, Kitty, Glados]
+    filter: "(?i)美|US|USA|UnitedStates"
+
+  - name: 🇹🇼 台湾节点
+    type: url-test
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    use: [BYG, Kitty, Glados]
+    filter: "(?i)台|TW|Taiwan"
+
+
+mode: rule
+find-process-mode: strict
+
+dns:
+  enable: true
+  listen: 0.0.0.0:1053
+  ipv6: false
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+  nameserver:
+    - https://doh.pub/dns-query
+    - https://dns.alidns.com/dns-query
+  proxy-server-nameserver:
+    - https://doh.pub/dns-query
+  nameserver-policy:
+    "geosite:cn,private,apple,microsoft@cn,steam@cn,onedrive":
+      - https://doh.pub/dns-query
+      - https://dns.alidns.com/dns-query
+    "geosite:category-ads-all": rcode://success
+  fallback:
+    - 8.8.8.8
+    - 114.114.114.114
+  fallback-filter:
+    geoip: true
+    ipcidr: [240.0.0.0/4, 0.0.0.0/32, 127.0.0.1/32]
+    domain:
+      - +.google.com
+      - +.facebook.com
+      - +.twitter.com
+      - +.youtube.com
+      - +.google.cn
+      - +.googleapis.cn
+      - +.googleapis.com
+  fake-ip-filter:
+    - "*"
+    - "+.lan"
+    - "+.local"
+    - "+.market.xiaomi.com"
+    - "*.localdomain"
+    - "*.example"
+    - "*.invalid"
+    - "*.localhost"
+    - "*.test"
+    - "*.home.arpa"
+    - "+.tailscale.net"
+    - "+.ts.net"
+    - "+.et.net"
+    - "+.easytier.cn"
+    - "+.easytier.top"
+    - "localhost.ptlogin2.qq.com"
+    - "localhost.sec.qq.com"
+    - "geosite:cn"
+
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+sniffer:
+  enable: true
+  override-destination: true
+  parse-pure-ip: true
+  force-dns-mapping: true
+  sniff:
+    TLS: { ports: [443, 8443] }
+    HTTP: { ports: [80, 8080-8880], override-destination: true }
+    QUIC: { ports: [443, 8443] }
+  force-domain:
+    - "+.netflix.com"
+    - "+.nflxvideo.net"
+    - "+.amazonaws.com"
+    - "+.media.dssott.com"
+  skip-domain:
+    - "+.apple.com"
+    - "Mijia Cloud"
+    - "dlg.io.mi.com"
+    - "+.oray.com"
+    - "+.sunlogin.net"
+    - "+.push.apple.com"
+
+geo-auto-update: true
+geo-update-interval: 24
+
+
+rules:
+  # 广告拦截
+  - GEOSITE,category-ads-all,🛑 广告拦截
+
+  # SSH 直连
+  - DST-PORT,22,DIRECT
+
+  # P2P 直连
+  - DST-PORT,11010,DIRECT
+
+  # 局域网 & 私有网络
+  - GEOIP,private,DIRECT,no-resolve
+  - GEOSITE,private,DIRECT
+  - DOMAIN-SUFFIX,et.net,DIRECT
+  - DOMAIN-SUFFIX,ts.net,DIRECT
+
+  # 国内直连 (White-list: CN services go DIRECT)
+  - GEOSITE,google-cn,🔒 国内服务
+  - GEOSITE,apple-cn,🔒 国内服务
+  - GEOSITE,microsoft@cn,🔒 国内服务
+  - GEOSITE,steam@cn,🔒 国内服务
+  - GEOSITE,onedrive,🔒 国内服务
+  - GEOSITE,category-ai-cn,🔒 国内服务
+  - GEOSITE,category-games@cn,🔒 国内服务
+  - GEOSITE,category-netdisk-cn,🔒 国内服务
+  - GEOSITE,category-ecommerce@cn,🔒 国内服务
+  - GEOSITE,category-collaborate-cn,🔒 国内服务
+  - GEOSITE,category-scholar-cn,🔒 国内服务
+  - GEOSITE,category-bank-cn,🔒 国内服务
+  - GEOSITE,geolocation-cn,🔒 国内服务
+  - GEOSITE,cn,🔒 国内服务
+  - GEOIP,cn,🔒 国内服务,no-resolve
+
+  # 非中国兜底（代理）
+  - GEOSITE,geolocation-!cn,🐟 漏网之鱼
+
+  # 漏网之鱼
+  - MATCH,🐟 漏网之鱼

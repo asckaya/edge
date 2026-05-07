@@ -43,8 +43,7 @@ export interface BuildSingBoxOptions {
   subscriptions: ResolvedSubscription[];
   customNodes: LooseProxyNode[];
   ghProxy?: string | null;
-  isMini?: boolean;
-  isMicro?: boolean;
+  isMinimal?: boolean;
   isDual?: boolean;
 }
 

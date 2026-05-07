@@ -107,7 +107,7 @@ export function toSingBoxOutbound(node: LooseProxyNode, tag: string): Record<str
   return null;
 }
 
-export function buildOutbounds(taggedNodes: TaggedNode[], providerSelectors: ProviderSelector[], selfHostedNodeTags: string[], isMini = false, isMicro = false, isDual = false): Record<string, unknown>[] {
+export function buildOutbounds(taggedNodes: TaggedNode[], providerSelectors: ProviderSelector[], selfHostedNodeTags: string[], isMinimal = false, isDual = false): Record<string, unknown>[] {
   const nodeOutbounds = taggedNodes.map((tn) => toSingBoxOutbound(tn.node, tn.tag)).filter(Boolean);
   const regionGroups = buildRegionGroups(taggedNodes);
   const allNodeTags = taggedNodes.map((tn) => tn.tag);
@@ -120,12 +120,11 @@ export function buildOutbounds(taggedNodes: TaggedNode[], providerSelectors: Pro
     ...regionGroups.map((r) => buildUrlTest(r.tag, r.nodeTags)),
   ];
 
-  const useMini = isMini || isMicro;
   let groups = GROUP_DEFINITIONS;
   if (isDual) {
     groups = GROUP_DEFINITIONS.filter((g) => ['🛑 广告拦截', '🔒 国内服务'].includes(g.tag));
-  } else if (useMini) {
-    groups = GROUP_DEFINITIONS.filter((g) => ['🛑 广告拦截', '🔒 国内服务', '🐟 漏网之鱼'].includes(g.tag));
+  } else if (isMinimal) {
+    groups = GROUP_DEFINITIONS.filter((g) => ['🛑 广告拦截'].includes(g.tag));
   }
 
   for (const g of groups) {

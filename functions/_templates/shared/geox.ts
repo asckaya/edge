@@ -143,7 +143,6 @@ export const GEOX_REGISTRY = {
       'category-httpdns-cn',
       'category-ip-geo-detect',
       'category-android-app-download',
-      'category-netdisk-!cn',
       'category-ecommerce'
     ],
     geoip: ['cloudflare', 'google', 'fastly', 'cloudfront'],

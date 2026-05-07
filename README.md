@@ -4,9 +4,9 @@
 
 ## 🌟 核心特性
 
-- **十二种编排模式**：Mihomo / Stash / sing-box，每种内核均支持 **Full (完整)**、**Dual (双模)**、**Mini (白名单)**、**Micro (黑名单)** 四种规则深度。
+- **九种编排模式**：Mihomo / Stash / sing-box，每种内核均支持 **Full (完整)**、**Dual (双模)**、**Minimal (极简)** 三种规则深度。
 - **Native GeoX 优先**：弃用传统的外部 `rule-provider` YAML，完全基于 `GEOSITE` 和 `GEOIP` 匹配，大幅降低内存占用，启动速度提升 80%。
-- **极致内存优化**：针对 iOS Stash 的 50MB 内存限制，提供 Mini/Micro 版本，防止 Network Extension 崩溃。
+- **极致内存优化**：针对 iOS Stash 的 50MB 内存限制，提供 Minimal 版本，防止 Network Extension 崩溃。
 - **节点自动重命名**：订阅节点自动按国家/地区图标 + 机场名 + 序号进行重命名，确保 UI 整洁。
 - **Web UI & API 一体化**：部署在根路径的 Next.js 图形界面，支持可视化节点构建与订阅生成。
 
@@ -36,7 +36,7 @@
 
 **示例 API：**
 ```text
-https://your-edge.pages.dev/?type=mihomo-mini&secret=xxx&MySub=https://机场链接
+https://your-edge.pages.dev/?type=mihomo-dual&secret=xxx&MySub=https://机场链接
 ```
 
 ## 📊 配置模式对比
@@ -44,14 +44,13 @@ https://your-edge.pages.dev/?type=mihomo-mini&secret=xxx&MySub=https://机场链
 | 模式 | 路由逻辑 | 适用场景 |
 |---|---|---|
 | `*-full` | **精细化分流** | 全量 60+ 规则组，覆盖 AI/媒体/开发/金融等细分领域。 |
-| `*-dual` | **双模分流 (推荐)** | 全量规则，但合并所有国外场景为统一的“节点选择”，简单直接。 |
-| `*-mini` | **白名单 (代理优先)** | 全局代理，仅 CN 内容直连。iOS 内存受限设备首选。 |
-| `*-micro` | **黑名单 (直连优先)** | 全局直连，仅规则匹配内容代理。极致省流/低功耗。 |
+| `*-dual` | **双模分流 (推荐)** | 全量规则，但合并所有国外场景为统一的"节点选择"，BT/PT 强制直连防封号。 |
+| `*-minimal` | **黑名单 (极简)** | 全局直连，仅核心国外服务规则走代理。极致省流/低内存/低功耗。 |
 
 ### 支持内核：
-- `mihomo`, `mihomo-dual`, `mihomo-mini`, `mihomo-micro`
-- `stash`, `stash-dual`, `stash-mini`, `stash-micro`
-- `sing-box`, `sing-box-dual`, `sing-box-mini`, `sing-box-micro`
+- `mihomo`, `mihomo-dual`, `mihomo-minimal`
+- `stash`, `stash-dual`, `stash-minimal`
+- `sing-box`, `sing-box-dual`, `sing-box-minimal`
 
 ## 🛠️ 项目结构
 
@@ -62,9 +61,8 @@ https://your-edge.pages.dev/?type=mihomo-mini&secret=xxx&MySub=https://机场链
 │   ├── _src/                # 核心逻辑 (解析器、构建器)
 │   └── _templates/          # 配置模板
 │       ├── mihomo/          # Mihomo/Stash 核心模板
-│       │   ├── full/        # 完整版/双模版规则与分组
-│       │   ├── mini/        # 精简版规则与分组
-│       │   └── micro/       # 极简版规则
+│       │   ├── full/        # 完整版规则与分组
+│       │   └── minimal/     # 极简版规则与分组
 │       ├── stash/           # Stash 特化模板
 │       └── shared/          # 跨内核共用资源 (GeoX 注册中心)
 ├── src/

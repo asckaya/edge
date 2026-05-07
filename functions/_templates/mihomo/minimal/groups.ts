@@ -1,7 +1,7 @@
 // Mihomo/Stash Mini/Micro Proxy Groups.
 // Simplified 4-group structure for memory efficiency.
 
-export const configMihomoMiniGroupsHeader = `proxy-groups:
+export const configMihomoMinimalGroupsHeader = `proxy-groups:
   - name: 🚀 节点选择
     type: select
     proxies:
@@ -47,7 +47,7 @@ export const configMihomoMiniGroupsHeader = `proxy-groups:
       - DIRECT
 `;
 
-export const configMihomoMiniGroupsMid = `
+export const configMihomoMinimalGroupsMid = `
   - name: ⚡ 自动选择
     type: url-test
     url: https://www.gstatic.com/generate_204

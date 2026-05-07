@@ -30,15 +30,10 @@ describe("Stash Kernel", () => {
     expect(yaml.rules.some((r: string) => r.includes("🚀 节点选择") && r.includes("youtube"))).toBe(true);
   });
 
-  test("Mini Edition", async () => {
-    const res = await callWorker("http://localhost/?type=stash-mini&Airport=http://sub.com");
-    const yaml = YAML.parse(await res.text());
-    expect(yaml["proxy-groups"].length).toBe(14);
-  });
-
-  test("Micro Edition", async () => {
-    const res = await callWorker("http://localhost/?type=stash-micro&Airport=http://sub.com");
+  test("Minimal Edition", async () => {
+    const res = await callWorker("http://localhost/?type=stash-minimal&Airport=http://sub.com");
     const yaml = YAML.parse(await res.text());
     expect(yaml.rules.some((r: string) => r.includes("MATCH,DIRECT"))).toBe(true);
+    expect(yaml["proxy-groups"].some((g: { name: string }) => g.name === "🔒 国内服务")).toBe(false);
   });
 });

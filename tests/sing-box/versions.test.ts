@@ -49,24 +49,15 @@ describe("Sing-box Kernel - Versions", () => {
     }
   });
 
-  test("Mini Edition", async () => {
+  test("Minimal Edition", async () => {
     globalThis.fetch = mockFetch;
     try {
-      const res = await callWorker("http://localhost/?type=sing-box-mini&Sub=http://sub.com");
+      const res = await callWorker("http://localhost/?type=sing-box-minimal&Sub=http://sub.com");
       const json = await res.json() as any;
-      expect(json.route.rule_set.length).toBe(20);
-      expect(json.outbounds.some((item: any) => item.tag === "🎬 流媒体")).toBe(false);
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
-  });
-
-  test("Micro Edition", async () => {
-    globalThis.fetch = mockFetch;
-    try {
-      const res = await callWorker("http://localhost/?type=sing-box-micro&Sub=http://sub.com");
-      const json = await res.json() as any;
+      // Blacklist mode: final route should be direct
       expect(json.route.final).toBe("direct");
+      // No CN group
+      expect(json.outbounds.some((item: any) => item.tag === "🔒 国内服务")).toBe(false);
     } finally {
       globalThis.fetch = originalFetch;
     }

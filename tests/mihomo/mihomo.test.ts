@@ -34,18 +34,12 @@ describe("Mihomo Kernel", () => {
     expect(yaml["proxy-groups"].some((g: any) => g.name === "📹 油管视频")).toBe(false);
   });
 
-  test("Mini Edition", async () => {
-    const res = await callWorker("http://localhost/?type=mihomo-mini&Airport=http://sub.com");
+  test("Minimal Edition", async () => {
+    const res = await callWorker("http://localhost/?type=mihomo-minimal&Airport=http://sub.com");
     const yaml = YAML.parse(await res.text());
-    expect(yaml.rules.some((r: string) => r.includes("GEOSITE,category-ads-all"))).toBe(true);
-    // 5 base groups + 7 regional/auto groups + 2 for "Airport" sub = 14
-    expect(yaml["proxy-groups"].length).toBe(14);
-  });
-
-  test("Micro Edition", async () => {
-    const res = await callWorker("http://localhost/?type=mihomo-micro&Airport=http://sub.com");
-    const yaml = YAML.parse(await res.text());
+    // Blacklist mode: MATCH should fall through to DIRECT
     expect(yaml.rules.some((r: string) => r.includes("MATCH,DIRECT"))).toBe(true);
-    expect(yaml["proxy-groups"].length).toBe(14);
+    // Only 🚀 节点选择 + ⚡ 自动 + 7 regional + 2 Airport groups (no scenario or CN groups)
+    expect(yaml["proxy-groups"].some((g: { name: string }) => g.name === "🔒 国内服务")).toBe(false);
   });
 });

@@ -47,8 +47,8 @@ async function main() {
 
     if (parsedYaml.proxy) {
         const proxies = parsedYaml.proxy
-            .map((p: any) => coerceProxyNode(p))
-            .filter((p: any): p is ProxyNode => Boolean(p));
+            .map((p: Record<string, unknown>) => coerceProxyNode(p))
+            .filter((p: ReturnType<typeof coerceProxyNode>): p is ProxyNode => Boolean(p));
         const uris = proxies.flatMap(p => buildProxyUri(p)).filter(Boolean);
         if (uris.length > 0) params.set('proxies', uris.join('\n'));
     }
@@ -58,7 +58,7 @@ async function main() {
     const request = new Request(url);
 
     // Mock Context
-    const context: any = {
+    const context: { request: Request; env: Record<string, unknown>; params: Record<string, string>; waitUntil: () => void; next: () => Promise<Response> } = {
         request,
         env: {},
         params: {},
