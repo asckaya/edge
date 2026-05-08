@@ -39,7 +39,6 @@ dns:
       - +.googleapis.cn
       - +.googleapis.com
   fake-ip-filter:
-    - "*"
     - "+.lan"
     - "+.local"
     - "+.market.xiaomi.com"
@@ -57,6 +56,7 @@ dns:
     - "localhost.ptlogin2.qq.com"
     - "localhost.sec.qq.com"
     - "geosite:cn"
+    - "+.deepseek.com"
 
 profile:
   store-selected: true

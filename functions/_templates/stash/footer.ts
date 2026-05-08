@@ -95,6 +95,7 @@ dns:
     - "+.sourceforge.net"
     - "+.launchpad.net"
     - "+.codeberg.org"
+    - "+.deepseek.com"
 
 profile:
   store-selected: true
