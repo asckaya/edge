@@ -149,6 +149,9 @@ export const GEOX_CATEGORIES = {
       'category-ecommerce'
     ],
     geoip: ['cloudflare'],
+  },
+  CLOUD: {
+    geosite: ['dropbox', 'mega'],
   }
 };
 
@@ -181,17 +184,10 @@ export const GEOX_ALLOWED_BLACK = [
   ...GEOX_CATEGORIES.GAMES.geosite,
   ...GEOX_CATEGORIES.SCHOLAR.geosite,
   ...GEOX_CATEGORIES.PRODUCTIVITY.geosite,
+  ...GEOX_CATEGORIES.CLOUD.geosite,
   ...GEOX_CATEGORIES.NON_CN.geosite
 ];
 
-export const GEOX_ALLOWED_DUAL = [
-  ...GEOX_CATEGORIES.ADVERTISING.geosite.map(t => t === 'category-ads-all' ? 'advertising' : t),
-  ...GEOX_CATEGORIES.PRIVATE.geosite,
-  ...GEOX_CATEGORIES.PRIVATE.geoip.map(t => `${t}-ip`),
-  'google', 'youtube', 'telegram', 'category-ai-chat-!cn',
-  'geolocation-cn', 'cn', 'cn-ip', 'geolocation-!cn',
-  'category-ecommerce', 'category-social-media-!cn', 'category-entertainment@!cn', 'category-games-!cn'
-];
 
 /**
  * RULE_SET_DEFINITIONS: Source of truth for sing-box and mihomo rule sets.

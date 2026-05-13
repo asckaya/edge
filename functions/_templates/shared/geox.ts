@@ -1,4 +1,4 @@
-import { GEOX_CATEGORIES, GEOX_ALLOWED_WHITE, GEOX_ALLOWED_BLACK, GEOX_ALLOWED_DUAL } from '../../_src/utils/rules-registry';
+import { GEOX_CATEGORIES, GEOX_ALLOWED_WHITE, GEOX_ALLOWED_BLACK } from '../../_src/utils/rules-registry';
 
 /**
  * Central registry for all GeoX (GEOSITE / GEOIP) tags used in the project.
@@ -23,6 +23,5 @@ export const GEOX_REGISTRY = GEOX_CATEGORIES;
 
 export { 
   GEOX_ALLOWED_WHITE, 
-  GEOX_ALLOWED_BLACK, 
-  GEOX_ALLOWED_DUAL 
+  GEOX_ALLOWED_BLACK
 };

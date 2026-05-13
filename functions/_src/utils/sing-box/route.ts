@@ -1,4 +1,4 @@
-import { GEODATA_URLS, GEODATA_URLS_LITE, GEOX_ALLOWED_WHITE, GEOX_ALLOWED_BLACK, GEOX_ALLOWED_DUAL } from '../../../_templates/shared/geox';
+import { GEODATA_URLS, GEODATA_URLS_LITE, GEOX_ALLOWED_WHITE, GEOX_ALLOWED_BLACK } from '../../../_templates/shared/geox';
 import { RULE_SET_DEFINITIONS, ROUTE_RULES } from './definitions';
 import { DIRECT_TAG, PROXY_SELECTOR_TAG, GROUP_TAGS } from '../shared-constants';
 import { buildRuleSetUrl } from './utils';
@@ -7,10 +7,9 @@ export function buildRoute(ruleSets: Record<string, unknown>[], isWhite = false,
   const selectedGeoUrls = (isWhite || isBlack) ? GEODATA_URLS_LITE : GEODATA_URLS;
   const allowedWhite = new Set(GEOX_ALLOWED_WHITE);
   const allowedBlack = new Set(GEOX_ALLOWED_BLACK);
-  const allowedDual = new Set(GEOX_ALLOWED_DUAL);
 
   const filteredDefinitions = RULE_SET_DEFINITIONS.filter((d) => 
-    isDual ? allowedDual.has(d.tag) : isWhite ? allowedWhite.has(d.tag) : isBlack ? allowedBlack.has(d.tag) : true
+    isWhite ? allowedWhite.has(d.tag) : isBlack ? allowedBlack.has(d.tag) : true
   );
 
   const remoteRuleSets = filteredDefinitions.map((d) => {
