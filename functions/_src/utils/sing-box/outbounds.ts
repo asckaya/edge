@@ -116,7 +116,7 @@ export function buildOutbounds(taggedNodes: TaggedNode[], providerSelectors: Pro
   const downloadDefault = downloadChoices.find((t) => t !== DIRECT_TAG) || DIRECT_TAG;
 
   const selectorOutbounds: any[] = [
-    buildSelector(PROXY_SELECTOR_TAG, mainChoices, DOWNLOAD_SELECTOR_TAG),
+    buildSelector(PROXY_SELECTOR_TAG, mainChoices, AUTO_SELECT_TAG),
     buildUrlTest(AUTO_SELECT_TAG, allNodeTags),
     ...regionGroups.map((r) => buildUrlTest(r.tag, r.nodeTags)),
   ];

@@ -19,10 +19,13 @@ export function buildGroupChoices(providerSelectors: { selectTag: string; autoTa
   const selectTags = providerSelectors.map((p) => p.selectTag).filter(Boolean);
   const regionTags = regionGroups.map((g) => g.tag);
   const selfHostedTags = selfHostedNodeTags.length > 0 ? [SELF_HOSTED_GROUP_TAG] : [];
-  const baseChoices = [AUTO_SELECT_TAG, ...regionTags, ...autoTags, ...selectTags, ...selfHostedTags, ...allNodeTags];
+  
+  const groupChoices = [AUTO_SELECT_TAG, ...regionTags, ...autoTags, ...selectTags, ...selfHostedTags];
+  const allChoices = [...groupChoices, ...allNodeTags];
+
   return {
-    mainChoices: [DOWNLOAD_SELECTOR_TAG, DIRECT_TAG, BLOCK_TAG, ...baseChoices],
-    proxyChoices: [MAIN_SELECTOR_TAG, DIRECT_TAG, BLOCK_TAG, ...baseChoices],
+    mainChoices: [DOWNLOAD_SELECTOR_TAG, DIRECT_TAG, BLOCK_TAG, ...allChoices],
+    proxyChoices: [MAIN_SELECTOR_TAG, DIRECT_TAG, BLOCK_TAG, ...groupChoices],
     downloadChoices: [...autoTags, ...selectTags, ...selfHostedTags, DIRECT_TAG],
   };
 }
