@@ -4,7 +4,7 @@ export function buildDns(): Record<string, unknown> {
   return {
     servers: [
       { type: 'udp', tag: LOCAL_DNS_TAG, server: '223.5.5.5' },
-      { type: 'https', tag: REMOTE_DNS_TAG, server: '223.5.5.5' },
+      { type: 'https', tag: REMOTE_DNS_TAG, server: '1.12.12.12' },
     ],
     rules: [
       { rule_set: ['private', 'geolocation-cn', 'cn'], action: 'route', server: LOCAL_DNS_TAG },

@@ -15,7 +15,7 @@ dns:
     - 223.5.5.5
   nameserver:
     - 223.5.5.5
-    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
   nameserver-policy:
     "geosite:category-ads-all": rcode://success
   fake-ip-filter:
