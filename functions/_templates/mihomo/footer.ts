@@ -13,31 +13,11 @@ dns:
   fake-ip-range: 198.18.0.1/16
   default-nameserver:
     - 223.5.5.5
-    - 119.29.29.29
   nameserver:
-    - https://doh.pub/dns-query
+    - 223.5.5.5
     - https://dns.alidns.com/dns-query
-  proxy-server-nameserver:
-    - https://doh.pub/dns-query
   nameserver-policy:
-    "geosite:cn,private,apple,microsoft@cn,steam@cn,onedrive":
-      - https://doh.pub/dns-query
-      - https://dns.alidns.com/dns-query
     "geosite:category-ads-all": rcode://success
-  fallback:
-    - 8.8.8.8
-    - 114.114.114.114
-  fallback-filter:
-    geoip: true
-    ipcidr: [240.0.0.0/4, 0.0.0.0/32, 127.0.0.1/32]
-    domain:
-      - +.google.com
-      - +.facebook.com
-      - +.twitter.com
-      - +.youtube.com
-      - +.google.cn
-      - +.googleapis.cn
-      - +.googleapis.com
   fake-ip-filter:
     - "+.lan"
     - "+.local"
