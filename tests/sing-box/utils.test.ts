@@ -86,7 +86,7 @@ describe("Sing-box Kernel - Utils", () => {
   });
 
   test("Tailscale Endpoint Integration", async () => {
-    const res = await callWorker("http://localhost/?type=sing-box&proxies=tailscale://tskey-auth-xxxx@controlplane.tailscale.com?hostname=mihomo%26state-dir=.%2Fstate%26accept-routes=true%26exit-node=100.88.0.1%26udp=true%23Tailscale-Node");
+    const res = await callWorker("http://localhost/?type=sing-box&proxies=tailscale://tskey-auth-xxxx@controlplane.tailscale.com?hostname=mihomo%26state-dir=.%2Fstate%26accept-routes=true%26exit-node=100.88.0.1%26ephemeral=true%26udp=true%23Tailscale-Node");
     const json = await res.json() as any;
     
     expect(json.endpoints).toHaveLength(1);
@@ -98,7 +98,8 @@ describe("Sing-box Kernel - Utils", () => {
       control_url: "https://controlplane.tailscale.com",
       state_directory: "./state",
       accept_routes: true,
-      exit_node: "100.88.0.1"
+      exit_node: "100.88.0.1",
+      ephemeral: true
     });
 
     const routeRule = json.route.rules.find((r: any) => r.outbound === "Tailscale-Node");

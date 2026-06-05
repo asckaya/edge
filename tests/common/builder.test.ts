@@ -123,6 +123,7 @@ describe("buildProxyUri", () => {
       "state-dir": "./state",
       "accept-routes": true,
       "exit-node": "100.88.0.1",
+      ephemeral: true,
       udp: true
     } as any;
 
@@ -136,6 +137,7 @@ describe("buildProxyUri", () => {
     expect(uri).toContain("state-dir=.%2Fstate");
     expect(uri).toContain("accept-routes=true");
     expect(uri).toContain("exit-node=100.88.0.1");
+    expect(uri).toContain("ephemeral=true");
     expect(uri).toContain("udp=true");
     expect(uri).toContain("#Tailscale-Node");
   });

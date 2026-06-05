@@ -79,6 +79,7 @@ export async function buildSingBoxConfig(options: BuildSingBoxOptions): Promise<
       if (node['state-dir']) ep.state_directory = node['state-dir'];
       if (node['accept-routes'] !== undefined) ep.accept_routes = node['accept-routes'];
       if (node['exit-node']) ep.exit_node = node['exit-node'];
+      if (node.ephemeral !== undefined) ep.ephemeral = node.ephemeral;
       endpoints.push(ep);
     });
     config.endpoints = endpoints;

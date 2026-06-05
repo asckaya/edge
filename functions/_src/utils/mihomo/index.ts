@@ -214,10 +214,25 @@ export function buildMihomoConfig(options: BuildMihomoOptions): string {
 
   const finalGroups = fillPlaceholders(proxyGroupsSection);
 
+  let finalCustomProxies = customProxies;
+  if (isStash && customProxies) {
+    try {
+      const parsedYaml = YAML.parse(customProxies);
+      if (parsedYaml && typeof parsedYaml === 'object' && Array.isArray(parsedYaml.proxies)) {
+        const filtered = parsedYaml.proxies.filter((p: any) => p && p.type !== 'tailscale');
+        finalCustomProxies = filtered.length > 0 
+          ? 'proxies:\n' + YAML.stringify(filtered).split('\n').map((line) => line ? `  ${line}` : line).join('\n') 
+          : '';
+      }
+    } catch (e) {
+      console.error('Error filtering out Tailscale proxies for Stash:', e);
+    }
+  }
+
   let finalYaml = [
     tplHeader,
     subscriptions.length > 0 ? proxyProvidersSection : '',
-    customProxies ? customProxies + '\n' : '',
+    finalCustomProxies ? finalCustomProxies + '\n' : '',
     finalGroups,
     tplFooter,
     tplRuleProviders,

@@ -112,9 +112,10 @@ export function buildProxyUri(node: ProxyNode): string[] {
     if (p['state-dir']) q.set('state-dir', p['state-dir']);
     if (p['accept-routes'] !== undefined) q.set('accept-routes', String(p['accept-routes']));
     if (p['exit-node']) q.set('exit-node', p['exit-node']);
+    if (p.ephemeral !== undefined) q.set('ephemeral', String(p.ephemeral));
     q.set('udp', p.udp !== false ? 'true' : 'false');
 
-    let host = '';
+    let host = 'controlplane.tailscale.com';
     if (p['control-url']) {
       try {
         const u = new URL(p['control-url']);

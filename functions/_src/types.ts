@@ -99,11 +99,12 @@ export const TailscaleSchema = z.object({
   type: z.literal("tailscale"),
   hostname: z.string().optional(),
   "auth-key": z.string(),
-  "control-url": z.string().optional(),
+  "control-url": z.string().default("https://controlplane.tailscale.com").optional(),
   "state-dir": z.string().optional(),
   udp: z.boolean().default(true).optional(),
   "accept-routes": z.boolean().optional(),
   "exit-node": z.string().optional(),
+  ephemeral: z.boolean().optional(),
 });
 
 export const AnyProxySchema = z.discriminatedUnion("type", [

@@ -53,7 +53,7 @@ describe("Stash Bare Kernel Validation", () => {
     if (parsedYaml.proxy) {
         const proxies = parsedYaml.proxy
             .map((p: any) => coerceProxyNode(p))
-            .filter((p: any): p is any => Boolean(p));
+            .filter((p: any): p is any => Boolean(p) && p.type !== 'tailscale');
         const uris = proxies.flatMap((p: any) => buildProxyUri(p)).filter(Boolean);
         if (uris.length > 0) params.set('proxies', uris.join('\n'));
     }

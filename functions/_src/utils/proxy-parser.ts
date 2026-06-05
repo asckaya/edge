@@ -61,12 +61,10 @@ export function parseProxyLine(line: string): { node?: LooseProxyNode; rawLine?:
           name,
           type: 'tailscale',
           'auth-key': url.username || password,
+          'control-url': url.searchParams.get('control-url') || 'https://controlplane.tailscale.com',
         };
         const hostnameParam = url.searchParams.get('hostname');
         if (hostnameParam) node.hostname = hostnameParam;
-        
-        const controlUrl = url.searchParams.get('control-url') || (hostname && hostname !== 'localhost' ? `https://${hostname}` : undefined);
-        if (controlUrl) node['control-url'] = controlUrl;
         
         const stateDir = url.searchParams.get('state-dir');
         if (stateDir) node['state-dir'] = stateDir;
@@ -77,6 +75,9 @@ export function parseProxyLine(line: string): { node?: LooseProxyNode; rawLine?:
         const exitNode = url.searchParams.get('exit-node');
         if (exitNode) node['exit-node'] = exitNode;
         
+        const ephemeral = url.searchParams.get('ephemeral');
+        if (ephemeral) node.ephemeral = ephemeral === 'true';
+
         node.udp = url.searchParams.get('udp') !== 'false';
       } else {
         node = {
