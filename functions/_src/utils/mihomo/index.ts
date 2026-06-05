@@ -119,48 +119,11 @@ export function buildMihomoConfig(options: BuildMihomoOptions): string {
 
   let activeRules = ROUTE_RULES;
   if (isWhite) {
-    activeRules = ROUTE_RULES
-      .filter((r) => !r.rule_set || (typeof r.rule_set === 'string' ? allowedWhite.has(r.rule_set) : r.rule_set.some((s) => allowedWhite.has(s))))
-      .map((r) => {
-        if (r.action === 'route' && r.outbound) {
-          const outbound = r.outbound;
-          if ([GROUP_TAGS.BT_PT, GROUP_TAGS.PRIVATE_NET, GROUP_TAGS.NTP_SERVICES].includes(outbound)) {
-            return { ...r, outbound: DIRECT_TAG };
-          }
-          if (!coreOutbounds.has(outbound)) {
-             return { ...r, outbound: DIRECT_TAG };
-          }
-        }
-        return r;
-      });
+    activeRules = filterAndMapRules(ROUTE_RULES, allowedWhite, DIRECT_TAG, coreOutbounds);
   } else if (isBlack) {
-    activeRules = ROUTE_RULES
-      .filter((r) => !r.rule_set || (typeof r.rule_set === 'string' ? allowedBlack.has(r.rule_set) : r.rule_set.some((s) => allowedBlack.has(s))))
-      .map((r) => {
-        if (r.action === 'route' && r.outbound) {
-          const outbound = r.outbound;
-          if ([GROUP_TAGS.BT_PT, GROUP_TAGS.PRIVATE_NET, GROUP_TAGS.NTP_SERVICES].includes(outbound)) {
-            return { ...r, outbound: DIRECT_TAG };
-          }
-          if (!coreOutbounds.has(outbound)) {
-            return { ...r, outbound: PROXY_SELECTOR_TAG };
-          }
-        }
-        return r;
-      });
+    activeRules = filterAndMapRules(ROUTE_RULES, allowedBlack, PROXY_SELECTOR_TAG, coreOutbounds);
   } else if (isDual) {
-    activeRules = ROUTE_RULES.map((r) => {
-      if (r.action === 'route' && r.outbound) {
-        const outbound = r.outbound;
-        if ([GROUP_TAGS.BT_PT, GROUP_TAGS.PRIVATE_NET, GROUP_TAGS.NTP_SERVICES].includes(outbound)) {
-          return { ...r, outbound: DIRECT_TAG };
-        }
-        if (!coreOutbounds.has(outbound)) {
-          return { ...r, outbound: PROXY_SELECTOR_TAG };
-        }
-      }
-      return r;
-    });
+    activeRules = filterAndMapRules(ROUTE_RULES, null, PROXY_SELECTOR_TAG, coreOutbounds);
   }
 
   let tailscaleProxyNames: string[] = [];
@@ -245,4 +208,31 @@ export function buildMihomoConfig(options: BuildMihomoOptions): string {
   }
 
   return finalYaml;
+}
+
+function filterAndMapRules(
+  rules: typeof ROUTE_RULES,
+  allowedRuleSets: Set<string> | null,
+  fallbackOutbound: string,
+  coreOutbounds: Set<string>
+) {
+  let filtered = rules;
+  if (allowedRuleSets) {
+    filtered = rules.filter((r) =>
+      !r.rule_set ||
+      (typeof r.rule_set === 'string' ? allowedRuleSets.has(r.rule_set) : r.rule_set.some((s) => allowedRuleSets.has(s)))
+    );
+  }
+  return filtered.map((r) => {
+    if (r.action === 'route' && r.outbound) {
+      const outbound = r.outbound;
+      if ([GROUP_TAGS.BT_PT, GROUP_TAGS.PRIVATE_NET, GROUP_TAGS.NTP_SERVICES].includes(outbound)) {
+        return { ...r, outbound: DIRECT_TAG };
+      }
+      if (!coreOutbounds.has(outbound)) {
+        return { ...r, outbound: fallbackOutbound };
+      }
+    }
+    return r;
+  });
 }

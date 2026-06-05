@@ -1,12 +1,10 @@
 import { LooseProxyNode } from './proxy-node';
 import { ProxyNode } from '../types';
 
-export function buildProxyUri(node: ProxyNode): string[] {
-  const p = node as LooseProxyNode;
-  const name = encodeURIComponent(p.name);
-  const proto = p.type || '';
+type ProtocolBuilder = (p: LooseProxyNode, name: string) => string[];
 
-  if (proto === 'hysteria2') {
+const PROTOCOL_BUILDERS: Record<string, ProtocolBuilder> = {
+  hysteria2: (p, name) => {
     const auth = p.password || p.auth || '';
     const server = p.server || '';
     const port = p.port || p.ports?.split('-')[0] || '443';
@@ -18,9 +16,8 @@ export function buildProxyUri(node: ProxyNode): string[] {
     if (portRange) q.set('mport', portRange);
     q.set('udp', 'true');
     return [`hysteria2://${auth}@${server}:${port}?${q.toString()}#${name}`];
-  }
-
-  if (proto === 'vless') {
+  },
+  vless: (p, name) => {
     const uuid = p.uuid || '';
     const server = p.server || '';
     const port = p.port || '443';
@@ -41,26 +38,23 @@ export function buildProxyUri(node: ProxyNode): string[] {
     if (p['ws-opts']?.path) q.set('path', p['ws-opts'].path);
     if (p['grpc-opts']?.serviceName) q.set('serviceName', p['grpc-opts'].serviceName);
     return [`vless://${uuid}@${server}:${port}?${q.toString()}#${name}`];
-  }
-
-  if (proto === 'trojan') {
+  },
+  trojan: (p, name) => {
     const pw = p.password || '';
     const server = p.server || '';
     const port = p.port || '443';
     const q = new URLSearchParams();
     if (p.sni) q.set('sni', p.sni);
     return [`trojan://${pw}@${server}:${port}?${q.toString()}#${name}`];
-  }
-
-  if (proto === 'ss' || proto === 'shadowsocks') {
+  },
+  ss: (p, name) => {
     const cipher = p.cipher || 'aes-256-gcm';
     const pw = p.password || '';
     const server = p.server || '';
     const port = p.port || '443';
     return [`ss://${btoa(`${cipher}:${pw}`)}@${server}:${port}#${name}`];
-  }
-
-  if (proto === 'vmess') {
+  },
+  vmess: (p, name) => {
     const obj = {
       v: '2', ps: p.name,
       add: p.server, port: p.port,
@@ -73,9 +67,8 @@ export function buildProxyUri(node: ProxyNode): string[] {
       host: p['ws-opts']?.headers?.Host || p.host || '',
     };
     return [`vmess://${btoa(JSON.stringify(obj))}`];
-  }
-
-  if (proto === 'tuic') {
+  },
+  tuic: (p, name) => {
     const uuid = p.uuid || '';
     const pw = p.password || '';
     const server = p.server || '';
@@ -88,9 +81,8 @@ export function buildProxyUri(node: ProxyNode): string[] {
     if (p.ip) q.set('ip', p.ip);
     if (p['skip-cert-verify']) q.set('insecure', '1');
     return [`tuic://${uuid}:${pw}@${server}:${port}?${q.toString()}#${name}`];
-  }
-
-  if (proto === 'wireguard' || proto === 'wg') {
+  },
+  wireguard: (p, name) => {
     const privateKey = p['private-key'] || '';
     const server = p.server || '';
     const port = p.port || '443';
@@ -100,11 +92,9 @@ export function buildProxyUri(node: ProxyNode): string[] {
     if (p.mtu) q.set('mtu', String(p.mtu));
     if (p.reserved) q.set('reserved', Array.isArray(p.reserved) ? p.reserved.join(',') : p.reserved);
     if (p.ip) q.set('ip', Array.isArray(p.ip) ? p.ip.join(',') : p.ip);
-    
     return [`wireguard://${privateKey}@${server}:${port}?${q.toString()}#${name}`];
-  }
-
-  if (proto === 'tailscale') {
+  },
+  tailscale: (p, name) => {
     const authKey = p['auth-key'] || '';
     const q = new URLSearchParams();
     if (p.hostname) q.set('hostname', p.hostname);
@@ -123,6 +113,21 @@ export function buildProxyUri(node: ProxyNode): string[] {
       } catch {}
     }
     return [`tailscale://${authKey}@${host}?${q.toString()}#${name}`];
+  },
+};
+
+// Aliases
+PROTOCOL_BUILDERS.wg = PROTOCOL_BUILDERS.wireguard;
+PROTOCOL_BUILDERS.shadowsocks = PROTOCOL_BUILDERS.ss;
+
+export function buildProxyUri(node: ProxyNode): string[] {
+  const p = node as LooseProxyNode;
+  const name = encodeURIComponent(p.name);
+  const proto = p.type || '';
+
+  const builder = PROTOCOL_BUILDERS[proto];
+  if (builder) {
+    return builder(p, name);
   }
 
   console.warn(`\x1b[33m⚠ Unknown protocol "${proto}" for proxy "${p.name}", skipping\x1b[0m`);
