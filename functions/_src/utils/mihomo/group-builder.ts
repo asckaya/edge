@@ -4,6 +4,7 @@ export interface GroupOptions {
   providersList: string;
   autoGroupsList: string;
   selfHostedGroup: string;
+  tailscaleGroup?: string;
   isStash?: boolean;
   isSingleSub?: boolean;
 }
@@ -28,16 +29,18 @@ function convertGroupsToYaml(groups: any[]): string {
 }
 
 export function renderMihomoGroups(options: GroupOptions, airportGroupsYaml: string = '', isMinimal = false): string {
-  const { providersList, autoGroupsList, selfHostedGroup, isStash, isSingleSub } = options;
+  const { providersList, autoGroupsList, selfHostedGroup, tailscaleGroup, isStash, isSingleSub } = options;
   const effectiveProvidersForProxies = isSingleSub ? '' : providersList;
   const autoTag = isStash ? '♻️ 自动选择' : '⚡ 自动选择';
   const commonFilter = getCommonFilter();
 
-  const scenarioProxies = `[${GROUP_TAGS.PROXY}, ${isStash ? 'DIRECT, REJECT, ♻️ 自动选择' : 'DIRECT, REJECT, ⚡ 自动选择'}, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ${autoGroupsList}, ${effectiveProvidersForProxies}, ${selfHostedGroup}]`;
+  const additionalGroups = [selfHostedGroup, tailscaleGroup].filter(Boolean).join(', ');
+
+  const scenarioProxies = `[${GROUP_TAGS.PROXY}, ${isStash ? 'DIRECT, REJECT, ♻️ 自动选择' : 'DIRECT, REJECT, ⚡ 自动选择'}, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ${autoGroupsList}, ${effectiveProvidersForProxies}${additionalGroups ? ', ' + additionalGroups : ''}]`;
 
   const defaultProxies = isStash 
-    ? `[DIRECT, REJECT, ♻️ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ${autoGroupsList}, ${effectiveProvidersForProxies}, ${selfHostedGroup}]`
-    : `[DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ${autoGroupsList}, ${effectiveProvidersForProxies}, ${selfHostedGroup}]`;
+    ? `[DIRECT, REJECT, ♻️ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ${autoGroupsList}, ${effectiveProvidersForProxies}${additionalGroups ? ', ' + additionalGroups : ''}]`
+    : `[DIRECT, REJECT, ⚡ 自动选择, 🇭🇰 香港节点, 🇺🇸 美国节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, ${autoGroupsList}, ${effectiveProvidersForProxies}${additionalGroups ? ', ' + additionalGroups : ''}]`;
 
   // 1. Core Top Groups
   const topGroups = [

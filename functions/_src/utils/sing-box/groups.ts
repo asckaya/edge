@@ -1,5 +1,5 @@
 import { LooseProxyNode } from '../proxy-node';
-import { TaggedNode, GroupDefinition, MAIN_SELECTOR_TAG, DOWNLOAD_SELECTOR_TAG, SELF_HOSTED_GROUP_TAG, AUTO_SELECT_TAG, DIRECT_TAG, BLOCK_TAG, ProviderSelector } from './types';
+import { TaggedNode, GroupDefinition, MAIN_SELECTOR_TAG, DOWNLOAD_SELECTOR_TAG, SELF_HOSTED_GROUP_TAG, TAILSCALE_GROUP_TAG, AUTO_SELECT_TAG, DIRECT_TAG, BLOCK_TAG, ProviderSelector } from './types';
 import { REGION_DEFINITIONS, GROUP_DEFINITIONS } from './definitions';
 import { buildGeoNodeLabel, createUniqueTag, extractCountryCodeFromName, getProviderFallbackCountryCode, normalizeProxyList } from './utils';
 import { ResolvedSubscription } from '../subscription-parser';
@@ -14,19 +14,20 @@ export function buildRegionGroups(taggedNodes: TaggedNode[]): { tag: string; nod
   return REGION_DEFINITIONS.map((r) => ({ tag: r.tag, nodeTags: regionMap.get(r.code) || [] })).filter((g) => g.nodeTags.length > 0);
 }
 
-export function buildGroupChoices(providerSelectors: { selectTag: string; autoTag: string }[], regionGroups: { tag: string }[], selfHostedNodeTags: string[], allNodeTags: string[]) {
+export function buildGroupChoices(providerSelectors: { selectTag: string; autoTag: string }[], regionGroups: { tag: string }[], selfHostedNodeTags: string[], tailscaleNodeTags: string[], allNodeTags: string[]) {
   const autoTags = providerSelectors.map((p) => p.autoTag).filter(Boolean);
   const selectTags = providerSelectors.map((p) => p.selectTag).filter(Boolean);
   const regionTags = regionGroups.map((g) => g.tag);
   const selfHostedTags = selfHostedNodeTags.length > 0 ? [SELF_HOSTED_GROUP_TAG] : [];
+  const tailscaleTags = tailscaleNodeTags.length > 0 ? [TAILSCALE_GROUP_TAG] : [];
   
-  const groupChoices = [AUTO_SELECT_TAG, ...regionTags, ...autoTags, ...selectTags, ...selfHostedTags];
+  const groupChoices = [AUTO_SELECT_TAG, ...regionTags, ...autoTags, ...selectTags, ...selfHostedTags, ...tailscaleTags];
   const allChoices = [...groupChoices, ...allNodeTags];
 
   return {
     mainChoices: [DOWNLOAD_SELECTOR_TAG, DIRECT_TAG, BLOCK_TAG, ...allChoices],
     proxyChoices: [MAIN_SELECTOR_TAG, DIRECT_TAG, BLOCK_TAG, ...groupChoices],
-    downloadChoices: [...autoTags, ...selectTags, ...selfHostedTags, DIRECT_TAG],
+    downloadChoices: [...autoTags, ...selectTags, ...selfHostedTags, ...tailscaleTags, DIRECT_TAG],
   };
 }
 
@@ -49,8 +50,8 @@ export function buildGroupOutbounds(layout: GroupDefinition['layout'], proxyChoi
   return proxyChoices;
 }
 
-export async function buildTaggedNodes(subscriptions: ResolvedSubscription[], customNodes: LooseProxyNode[]) {
-  const usedTags = new Set<string>([MAIN_SELECTOR_TAG, DOWNLOAD_SELECTOR_TAG, SELF_HOSTED_GROUP_TAG, AUTO_SELECT_TAG, ...REGION_DEFINITIONS.map((r) => r.tag), DIRECT_TAG, BLOCK_TAG, 'local-dns', 'remote-dns', ...GROUP_DEFINITIONS.map((g) => g.tag)]);
+export async function buildTaggedNodes(subscriptions: ResolvedSubscription[], customNodes: LooseProxyNode[], tailscaleNodes: LooseProxyNode[] = []) {
+  const usedTags = new Set<string>([MAIN_SELECTOR_TAG, DOWNLOAD_SELECTOR_TAG, SELF_HOSTED_GROUP_TAG, TAILSCALE_GROUP_TAG, AUTO_SELECT_TAG, ...REGION_DEFINITIONS.map((r) => r.tag), DIRECT_TAG, BLOCK_TAG, 'local-dns', 'remote-dns', ...GROUP_DEFINITIONS.map((g) => g.tag)]);
   const taggedNodes: TaggedNode[] = [];
   const providerSelectors: ProviderSelector[] = [];
   const context = { ipCache: new Map(), countryCache: new Map() };
@@ -77,5 +78,12 @@ export async function buildTaggedNodes(subscriptions: ResolvedSubscription[], cu
     return t;
   });
 
-  return { taggedNodes, providerSelectors, selfHostedNodeTags };
+  const tailscaleNodeTags = normalizeProxyList(tailscaleNodes).map((n) => {
+    const t = createUniqueTag(String(n.name), usedTags);
+    // Note: We don't push Tailscale node to taggedNodes because toSingBoxOutbound returns null for tailscale type.
+    // Instead, it is defined in config.endpoints at root level.
+    return t;
+  });
+
+  return { taggedNodes, providerSelectors, selfHostedNodeTags, tailscaleNodeTags };
 }

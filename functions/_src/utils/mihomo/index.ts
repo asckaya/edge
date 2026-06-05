@@ -24,6 +24,26 @@ export function buildMihomoConfig(options: BuildMihomoOptions): string {
     isDual
   } = options;
 
+  // Extract Tailscale proxy names early
+  let tailscaleProxyNames: string[] = [];
+  try {
+    if (customProxies) {
+      const parsedYaml = YAML.parse(customProxies);
+      if (parsedYaml && typeof parsedYaml === 'object' && Array.isArray(parsedYaml.proxies)) {
+        for (const proxy of parsedYaml.proxies) {
+          if (proxy && proxy.type === 'tailscale' && proxy.name) {
+            tailscaleProxyNames.push(proxy.name);
+          }
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Error parsing custom proxies for Tailscale early:', e);
+  }
+
+  // Filter custom proxy names to exclude Tailscale nodes
+  const filteredCustomProxyNames = customProxyNames.filter(name => !tailscaleProxyNames.includes(name));
+
   // Build proxy-providers and subscription-specific groups
   let proxyProvidersSection = 'proxy-providers:\n';
   let subGroupsSection = '';
@@ -76,7 +96,8 @@ export function buildMihomoConfig(options: BuildMihomoOptions): string {
 
   const providersList = providerNames.join(', ');
   const autoGroupsList = autoGroupNames.join(', ');
-  const selfHostedPlaceholder = customProxyNames.length > 0 ? 'Self-Hosted' : '';
+  const selfHostedPlaceholder = filteredCustomProxyNames.length > 0 ? 'Self-Hosted' : '';
+  const tailscalePlaceholder = (tailscaleProxyNames.length > 0 && !isStash) ? 'Tailscale' : '';
 
   const useMinimalTemplates = isWhite || isBlack || isDual;
   const selectedGeoUrls = (isWhite || isBlack) ? GEODATA_URLS_LITE : GEODATA_URLS;
@@ -94,8 +115,13 @@ export function buildMihomoConfig(options: BuildMihomoOptions): string {
   let airportAndSelfHostedYaml = '';
   
   // Add Self-Hosted group first in this sub-section
-  if (customProxyNames.length > 0) {
-    airportAndSelfHostedYaml += `  - name: Self-Hosted\n    type: select\n    proxies: [${customProxyNames.join(', ')}]\n`;
+  if (filteredCustomProxyNames.length > 0) {
+    airportAndSelfHostedYaml += `  - name: Self-Hosted\n    type: select\n    proxies: [${filteredCustomProxyNames.join(', ')}]\n`;
+  }
+
+  // Add Tailscale group next in this sub-section
+  if (tailscaleProxyNames.length > 0 && !isStash) {
+    airportAndSelfHostedYaml += `  - name: Tailscale\n    type: select\n    proxies: [${tailscaleProxyNames.join(', ')}]\n`;
   }
   
   // Add subscription groups
@@ -108,6 +134,7 @@ export function buildMihomoConfig(options: BuildMihomoOptions): string {
     providersList,
     autoGroupsList,
     selfHostedGroup: selfHostedPlaceholder,
+    tailscaleGroup: tailscalePlaceholder,
     isStash,
     isSingleSub
   }, airportAndSelfHostedYaml, useMinimalTemplates);
@@ -124,22 +151,6 @@ export function buildMihomoConfig(options: BuildMihomoOptions): string {
     activeRules = filterAndMapRules(ROUTE_RULES, allowedBlack, PROXY_SELECTOR_TAG, coreOutbounds);
   } else if (isDual) {
     activeRules = filterAndMapRules(ROUTE_RULES, null, PROXY_SELECTOR_TAG, coreOutbounds);
-  }
-
-  let tailscaleProxyNames: string[] = [];
-  try {
-    if (customProxies) {
-      const parsedYaml = YAML.parse(customProxies);
-      if (parsedYaml && typeof parsedYaml === 'object' && Array.isArray(parsedYaml.proxies)) {
-        for (const proxy of parsedYaml.proxies) {
-          if (proxy && proxy.type === 'tailscale' && proxy.name) {
-            tailscaleProxyNames.push(proxy.name);
-          }
-        }
-      }
-    }
-  } catch (e) {
-    console.error('Error parsing custom proxies for Tailscale rules:', e);
   }
 
   if (tailscaleProxyNames.length > 0) {

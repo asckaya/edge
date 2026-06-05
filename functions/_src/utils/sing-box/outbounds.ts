@@ -1,5 +1,4 @@
-import { LooseProxyNode } from '../proxy-node';
-import { TaggedNode, DOWNLOAD_SELECTOR_TAG, SELF_HOSTED_GROUP_TAG, DIRECT_TAG, BLOCK_TAG, AUTO_SELECT_TAG, ProviderSelector } from './types';
+import { TaggedNode, DOWNLOAD_SELECTOR_TAG, SELF_HOSTED_GROUP_TAG, TAILSCALE_GROUP_TAG, DIRECT_TAG, BLOCK_TAG, AUTO_SELECT_TAG, ProviderSelector } from './types';
 import { GROUP_DEFINITIONS } from './definitions';
 import { buildGroupChoices, buildGroupOutbounds, buildRegionGroups, buildSelector, buildUrlTest } from './groups';
 import { SCENARIO_GROUPS, PROXY_SELECTOR_TAG, GROUP_TAGS } from '../shared-constants';
@@ -108,11 +107,11 @@ export function toSingBoxOutbound(node: LooseProxyNode, tag: string): Record<str
   return null;
 }
 
-export function buildOutbounds(taggedNodes: TaggedNode[], providerSelectors: ProviderSelector[], selfHostedNodeTags: string[], isWhite = false, isBlack = false, isDual = false): Record<string, unknown>[] {
+export function buildOutbounds(taggedNodes: TaggedNode[], providerSelectors: ProviderSelector[], selfHostedNodeTags: string[], tailscaleNodeTags: string[], isWhite = false, isBlack = false, isDual = false): Record<string, unknown>[] {
   const nodeOutbounds = taggedNodes.map((tn) => toSingBoxOutbound(tn.node, tn.tag)).filter(Boolean);
   const regionGroups = buildRegionGroups(taggedNodes);
   const allNodeTags = taggedNodes.map((tn) => tn.tag);
-  const { mainChoices, proxyChoices, downloadChoices } = buildGroupChoices(providerSelectors, regionGroups, selfHostedNodeTags, allNodeTags);
+  const { mainChoices, proxyChoices, downloadChoices } = buildGroupChoices(providerSelectors, regionGroups, selfHostedNodeTags, tailscaleNodeTags, allNodeTags);
   const downloadDefault = downloadChoices.find((t) => t !== DIRECT_TAG) || DIRECT_TAG;
 
   const selectorOutbounds: any[] = [
@@ -140,6 +139,7 @@ export function buildOutbounds(taggedNodes: TaggedNode[], providerSelectors: Pro
 
   selectorOutbounds.push(buildSelector(DOWNLOAD_SELECTOR_TAG, downloadChoices, downloadDefault));
   if (selfHostedNodeTags.length > 0) selectorOutbounds.push(buildSelector(SELF_HOSTED_GROUP_TAG, selfHostedNodeTags, selfHostedNodeTags[0]));
+  if (tailscaleNodeTags.length > 0) selectorOutbounds.push(buildSelector(TAILSCALE_GROUP_TAG, tailscaleNodeTags, tailscaleNodeTags[0]));
 
   return [{ type: 'direct', tag: DIRECT_TAG }, { type: 'block', tag: BLOCK_TAG }, ...selectorOutbounds, ...nodeOutbounds];
 }

@@ -9,13 +9,13 @@ export async function buildSingBoxConfig(options: BuildSingBoxOptions): Promise<
   const tailscaleNodes = customNodes.filter(n => n.type === 'tailscale');
   const otherCustomNodes = customNodes.filter(n => n.type !== 'tailscale');
 
-  const { taggedNodes, providerSelectors, selfHostedNodeTags } = await buildTaggedNodes(subscriptions, otherCustomNodes);
+  const { taggedNodes, providerSelectors, selfHostedNodeTags, tailscaleNodeTags } = await buildTaggedNodes(subscriptions, otherCustomNodes, tailscaleNodes);
 
   if (taggedNodes.length === 0 && tailscaleNodes.length === 0) {
     throw new Error('No supported sing-box nodes were produced from the provided subscriptions or proxies.');
   }
 
-  const outbounds = buildOutbounds(taggedNodes, providerSelectors, selfHostedNodeTags, isWhite, isBlack, isDual);
+  const outbounds = buildOutbounds(taggedNodes, providerSelectors, selfHostedNodeTags, tailscaleNodeTags, isWhite, isBlack, isDual);
   const dns = buildDns();
   const route = buildRoute([], isWhite, isBlack, ghProxy, isDual); // Note: ruleSets param is empty as buildRoute handles definitions internally
 
