@@ -27,6 +27,16 @@ export function coerceProxyNode(input: unknown): LooseProxyNode | null {
   if (node.server_port != null && node.port == null) node.port = node.server_port;
   if (node['peer_public_key'] && !node['peer-public-key']) node['peer-public-key'] = node['peer_public_key'];
   if (node['pre_shared_key'] && !node['preshared-key']) node['preshared-key'] = node['pre_shared_key'];
+  if (node['auth_key'] && !node['auth-key']) node['auth-key'] = node['auth_key'];
+  if (node['authKey'] && !node['auth-key']) node['auth-key'] = node['authKey'];
+  if (node['control_url'] && !node['control-url']) node['control-url'] = node['control_url'];
+  if (node['controlUrl'] && !node['control-url']) node['control-url'] = node['controlUrl'];
+  if (node['state_dir'] && !node['state-dir']) node['state-dir'] = node['state_dir'];
+  if (node['stateDir'] && !node['state-dir']) node['state-dir'] = node['stateDir'];
+  if (node['accept_routes'] !== undefined && node['accept-routes'] === undefined) node['accept-routes'] = node['accept_routes'];
+  if (node['acceptRoutes'] !== undefined && node['accept-routes'] === undefined) node['accept-routes'] = node['acceptRoutes'];
+  if (node['exit_node'] && !node['exit-node']) node['exit-node'] = node['exit_node'];
+  if (node['exitNode'] && !node['exit-node']) node['exit-node'] = node['exitNode'];
 
   node.type = normalizeType(node.type);
   node.port = normalizePort(node.port);

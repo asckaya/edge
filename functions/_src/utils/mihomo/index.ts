@@ -9,6 +9,7 @@ import { PROXY_SELECTOR_TAG, DIRECT_TAG, GROUP_TAGS } from '../shared-constants'
 import { RULE_SET_DEFINITIONS, ROUTE_RULES } from '../rules-registry';
 import { renderMihomoRules } from './rules-builder';
 import { renderMihomoGroups } from './group-builder';
+import YAML from 'yaml';
 
 export function buildMihomoConfig(options: BuildMihomoOptions): string {
   const {
@@ -160,6 +161,46 @@ export function buildMihomoConfig(options: BuildMihomoOptions): string {
       }
       return r;
     });
+  }
+
+  let tailscaleProxyNames: string[] = [];
+  try {
+    if (customProxies) {
+      const parsedYaml = YAML.parse(customProxies);
+      if (parsedYaml && typeof parsedYaml === 'object' && Array.isArray(parsedYaml.proxies)) {
+        for (const proxy of parsedYaml.proxies) {
+          if (proxy && proxy.type === 'tailscale' && proxy.name) {
+            tailscaleProxyNames.push(proxy.name);
+          }
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Error parsing custom proxies for Tailscale rules:', e);
+  }
+
+  if (tailscaleProxyNames.length > 0) {
+    const tailscaleOutbound = tailscaleProxyNames[0];
+    activeRules = activeRules.flatMap(r => {
+      if (r.domain_suffix) {
+        const suffixes = Array.isArray(r.domain_suffix) ? r.domain_suffix : [r.domain_suffix];
+        if (suffixes.includes('ts.net')) {
+          const tailscaleSuffixes = suffixes.filter(s => s === 'ts.net');
+          const otherSuffixes = suffixes.filter(s => s !== 'ts.net');
+          const rules = [];
+          if (otherSuffixes.length > 0) {
+            rules.push({ ...r, domain_suffix: otherSuffixes });
+          }
+          rules.push({ ...r, domain_suffix: tailscaleSuffixes, outbound: tailscaleOutbound });
+          return rules;
+        }
+      }
+      return [r];
+    });
+    activeRules = [
+      { ip_cidr: ['100.64.0.0/10', 'fd7a:115c:a1e0::/48'], action: 'route', outbound: tailscaleOutbound } as any,
+      ...activeRules
+    ];
   }
 
   const finalMatch = isBlack ? DIRECT_TAG : ((isWhite || isDual) ? PROXY_SELECTOR_TAG : GROUP_TAGS.FINAL);

@@ -71,6 +71,7 @@
    - Mihomo/Stash 修改 `mihomo/group-builder.ts`。
    - Sing-box 修改 `sing-box/groups.ts` 和 `outbounds.ts`。
 4. **验证**: 修改后务必运行 `pnpm test` 确保 12 种模式均未损坏。
+5. **Tailscale 协议支持**: Mihomo 支持通过 `tailscale` outbound 协议接入 Tailnet，已在 `types.ts` (TailscaleSchema) 与 parser/builder 中实现完整支持。
 
 
 ---

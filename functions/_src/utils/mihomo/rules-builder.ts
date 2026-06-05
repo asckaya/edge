@@ -25,6 +25,11 @@ export function renderMihomoRules(rules: RouteRuleDefinition[], definitions: Rul
       return suffixes.map(s => `  - DOMAIN-SUFFIX,${s},${outbound}`).join('\n');
     }
 
+    if (r.ip_cidr) {
+      const cidrs = Array.isArray(r.ip_cidr) ? r.ip_cidr : [r.ip_cidr];
+      return cidrs.map(c => `  - IP-CIDR,${c},${outbound}`).join('\n');
+    }
+
     if (r.port) {
       const ports = Array.isArray(r.port) ? r.port : [r.port];
       return ports.map(p => `  - DST-PORT,${p},${outbound}`).join('\n');

@@ -80,6 +80,17 @@ proxy:
     cipher: aes-256-gcm   # 常用: aes-256-gcm / chacha20-ietf-poly1305
     password: your-ss-password
 
+  # --- Tailscale 示例 ---
+  - name: "My-Tailscale"
+    type: tailscale
+    hostname: mihomo
+    auth-key: tskey-auth-xxxxxxxxxxxx
+    control-url: https://controlplane.tailscale.com # 可选，默认为官方控制面
+    state-dir: ./tailscale                         # 可选，状态目录
+    udp: true                                      # 可选，是否启用 UDP
+    accept-routes: true                            # 可选，是否接受路由
+    exit-node: 100.88.0.1                          # 可选，指定出口节点
+
 # ============================================================
 # 配置模式对比 (Type 参数)
 #

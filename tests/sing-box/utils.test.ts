@@ -84,4 +84,26 @@ describe("Sing-box Kernel - Utils", () => {
       globalThis.fetch = originalFetch;
     }
   });
+
+  test("Tailscale Endpoint Integration", async () => {
+    const res = await callWorker("http://localhost/?type=sing-box&proxies=tailscale://tskey-auth-xxxx@controlplane.tailscale.com?hostname=mihomo%26state-dir=.%2Fstate%26accept-routes=true%26exit-node=100.88.0.1%26udp=true%23Tailscale-Node");
+    const json = await res.json() as any;
+    
+    expect(json.endpoints).toHaveLength(1);
+    expect(json.endpoints[0]).toMatchObject({
+      type: "tailscale",
+      tag: "Tailscale-Node",
+      auth_key: "tskey-auth-xxxx",
+      hostname: "mihomo",
+      control_url: "https://controlplane.tailscale.com",
+      state_directory: "./state",
+      accept_routes: true,
+      exit_node: "100.88.0.1"
+    });
+
+    const routeRule = json.route.rules.find((r: any) => r.outbound === "Tailscale-Node");
+    expect(routeRule).toBeDefined();
+    expect(routeRule.ip_cidr).toContain("100.64.0.0/10");
+    expect(routeRule.ip_cidr).toContain("fd7a:115c:a1e0::/48");
+  });
 });

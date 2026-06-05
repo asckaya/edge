@@ -94,6 +94,18 @@ export const WireguardSchema = BaseProxySchema.extend({
   mtu: z.union([z.number(), z.string()]).optional(),
 });
 
+export const TailscaleSchema = z.object({
+  name: z.string(),
+  type: z.literal("tailscale"),
+  hostname: z.string().optional(),
+  "auth-key": z.string(),
+  "control-url": z.string().optional(),
+  "state-dir": z.string().optional(),
+  udp: z.boolean().default(true).optional(),
+  "accept-routes": z.boolean().optional(),
+  "exit-node": z.string().optional(),
+});
+
 export const AnyProxySchema = z.discriminatedUnion("type", [
   Hysteria2Schema,
   VlessSchema,
@@ -103,6 +115,7 @@ export const AnyProxySchema = z.discriminatedUnion("type", [
   TuicSchema,
   AnyTlsSchema,
   WireguardSchema,
+  TailscaleSchema,
 ]);
 
 export type ProxyNode = z.infer<typeof AnyProxySchema>;

@@ -86,6 +86,24 @@ describe("parseProxyUri", () => {
     });
   });
 
+  test("parses tailscale protocol", () => {
+    const uri = "tailscale://tskey-auth-xxxx@controlplane.tailscale.com?hostname=mihomo&state-dir=.%2Fstate&accept-routes=true&exit-node=100.88.0.1&udp=true#Tailscale-Node";
+    const yamlString = parseProxyUri(uri);
+    const parsed = YAML.parse(yamlString);
+
+    expect(parsed.proxies[0]).toMatchObject({
+      name: "Tailscale-Node",
+      type: "tailscale",
+      "auth-key": "tskey-auth-xxxx",
+      hostname: "mihomo",
+      "control-url": "https://controlplane.tailscale.com",
+      "state-dir": "./state",
+      "accept-routes": true,
+      "exit-node": "100.88.0.1",
+      udp: true
+    });
+  });
+
   test("handles invalid protocol gracefully by appending as-is", () => {
     const uri = "invalid://something?foo=bar#Node";
     const yamlString = parseProxyUri(uri);

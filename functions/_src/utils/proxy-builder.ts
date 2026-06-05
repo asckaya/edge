@@ -104,6 +104,26 @@ export function buildProxyUri(node: ProxyNode): string[] {
     return [`wireguard://${privateKey}@${server}:${port}?${q.toString()}#${name}`];
   }
 
+  if (proto === 'tailscale') {
+    const authKey = p['auth-key'] || '';
+    const q = new URLSearchParams();
+    if (p.hostname) q.set('hostname', p.hostname);
+    if (p['control-url']) q.set('control-url', p['control-url']);
+    if (p['state-dir']) q.set('state-dir', p['state-dir']);
+    if (p['accept-routes'] !== undefined) q.set('accept-routes', String(p['accept-routes']));
+    if (p['exit-node']) q.set('exit-node', p['exit-node']);
+    q.set('udp', p.udp !== false ? 'true' : 'false');
+
+    let host = '';
+    if (p['control-url']) {
+      try {
+        const u = new URL(p['control-url']);
+        host = u.host;
+      } catch {}
+    }
+    return [`tailscale://${authKey}@${host}?${q.toString()}#${name}`];
+  }
+
   console.warn(`\x1b[33m⚠ Unknown protocol "${proto}" for proxy "${p.name}", skipping\x1b[0m`);
   return [];
 }

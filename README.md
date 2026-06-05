@@ -31,7 +31,7 @@
 |---|---|---|
 | `type` | 否 | 见下表 [配置模式对比](#-配置模式对比) (默认 `mihomo`) |
 | `secret` | 否 | 控制面板/API 访问密码 (默认 `edge-default`) |
-| `proxies` | 否 | 自建节点 URI (支持 vless/vmess/ss/trojan/wireguard/hysteria2/tuic) |
+| `proxies` | 否 | 自建节点 URI (支持 vless/vmess/ss/trojan/wireguard/hysteria2/tuic/tailscale) |
 | `gh_proxy` | 否 | GitHub 规则源加速前缀 (例如 `https://mirror.ghproxy.com/`) |
 | `[SubName]` | 至少一个 | 机场订阅，例如 `Airport1=https://sub.url` |
 

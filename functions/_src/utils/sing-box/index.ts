@@ -6,9 +6,12 @@ import { buildRoute } from './route';
 
 export async function buildSingBoxConfig(options: BuildSingBoxOptions): Promise<Record<string, unknown>> {
   const { secret, subscriptions, customNodes, ghProxy, isWhite = false, isBlack = false, isDual = false } = options;
-  const { taggedNodes, providerSelectors, selfHostedNodeTags } = await buildTaggedNodes(subscriptions, customNodes);
+  const tailscaleNodes = customNodes.filter(n => n.type === 'tailscale');
+  const otherCustomNodes = customNodes.filter(n => n.type !== 'tailscale');
 
-  if (taggedNodes.length === 0) {
+  const { taggedNodes, providerSelectors, selfHostedNodeTags } = await buildTaggedNodes(subscriptions, otherCustomNodes);
+
+  if (taggedNodes.length === 0 && tailscaleNodes.length === 0) {
     throw new Error('No supported sing-box nodes were produced from the provided subscriptions or proxies.');
   }
 
@@ -16,7 +19,33 @@ export async function buildSingBoxConfig(options: BuildSingBoxOptions): Promise<
   const dns = buildDns();
   const route = buildRoute([], isWhite, isBlack, ghProxy, isDual); // Note: ruleSets param is empty as buildRoute handles definitions internally
 
-  return {
+  if (tailscaleNodes.length > 0) {
+    const tailscaleOutbound = tailscaleNodes[0].name;
+    const activeRules = route.rules as any[];
+    const updatedRules = activeRules.flatMap(r => {
+      if (r.domain_suffix) {
+        const suffixes = Array.isArray(r.domain_suffix) ? r.domain_suffix : [r.domain_suffix];
+        if (suffixes.includes('ts.net')) {
+          const tailscaleSuffixes = suffixes.filter(s => s === 'ts.net');
+          const otherSuffixes = suffixes.filter(s => s !== 'ts.net');
+          const rules = [];
+          if (otherSuffixes.length > 0) {
+            rules.push({ ...r, domain_suffix: otherSuffixes });
+          }
+          rules.push({ ...r, domain_suffix: tailscaleSuffixes, action: 'route', outbound: tailscaleOutbound });
+          return rules;
+        }
+      }
+      return [r];
+    });
+
+    route.rules = [
+      { ip_cidr: ['100.64.0.0/10', 'fd7a:115c:a1e0::/48'], action: 'route', outbound: tailscaleOutbound },
+      ...updatedRules
+    ];
+  }
+
+  const config: Record<string, unknown> = {
     log: { level: 'info', timestamp: true },
     experimental: {
       clash_api: {
@@ -36,4 +65,24 @@ export async function buildSingBoxConfig(options: BuildSingBoxOptions): Promise<
     outbounds,
     route,
   };
+
+  if (tailscaleNodes.length > 0) {
+    const endpoints: any[] = [];
+    tailscaleNodes.forEach(node => {
+      const ep: any = {
+        type: 'tailscale',
+        tag: node.name,
+        auth_key: node['auth-key'],
+      };
+      if (node.hostname) ep.hostname = node.hostname;
+      if (node['control-url']) ep.control_url = node['control-url'];
+      if (node['state-dir']) ep.state_directory = node['state-dir'];
+      if (node['accept-routes'] !== undefined) ep.accept_routes = node['accept-routes'];
+      if (node['exit-node']) ep.exit_node = node['exit-node'];
+      endpoints.push(ep);
+    });
+    config.endpoints = endpoints;
+  }
+
+  return config;
 }

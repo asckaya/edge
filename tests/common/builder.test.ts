@@ -112,4 +112,31 @@ describe("buildProxyUri", () => {
     expect(uri).toContain("reserved=1%2C2%2C3");
     expect(uri).toContain("#WG-Node");
   });
+
+  test("builds tailscale protocol", () => {
+    const node = {
+      name: "Tailscale-Node",
+      type: "tailscale",
+      "auth-key": "tskey-auth-xxxx",
+      hostname: "mihomo",
+      "control-url": "https://controlplane.tailscale.com",
+      "state-dir": "./state",
+      "accept-routes": true,
+      "exit-node": "100.88.0.1",
+      udp: true
+    } as any;
+
+    const uris = buildProxyUri(node);
+    expect(uris).toHaveLength(1);
+    const uri = uris[0];
+
+    expect(uri).toContain("tailscale://tskey-auth-xxxx@controlplane.tailscale.com");
+    expect(uri).toContain("hostname=mihomo");
+    expect(uri).toContain("control-url=https%3A%2F%2Fcontrolplane.tailscale.com");
+    expect(uri).toContain("state-dir=.%2Fstate");
+    expect(uri).toContain("accept-routes=true");
+    expect(uri).toContain("exit-node=100.88.0.1");
+    expect(uri).toContain("udp=true");
+    expect(uri).toContain("#Tailscale-Node");
+  });
 });
