@@ -1,3 +1,4 @@
+import { ofetch } from 'ofetch';
 import { RuleSetDefinition, GeoLabelContext } from './types';
 import { LooseProxyNode, coerceProxyNodes } from '../proxy-node';
 
@@ -109,10 +110,14 @@ export function extractCountryCodeFromName(name: string): string | null {
 
 export async function fetchJson(url: string, headers?: Record<string, string>): Promise<unknown> {
   try {
-    const response = await fetch(url, { headers, signal: AbortSignal.timeout(2500) });
-    if (!response.ok) return null;
-    return await response.json();
-  } catch { return null; }
+    return await ofetch(url, {
+      headers,
+      timeout: 2500,
+      retry: 1,
+    });
+  } catch {
+    return null;
+  }
 }
 
 export function getServerIp(server: string, context: GeoLabelContext): Promise<string | null> {

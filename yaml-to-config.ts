@@ -1,5 +1,7 @@
 import fs from 'fs';
 import YAML from 'yaml';
+import { cac } from 'cac';
+import pc from 'picocolors';
 import { onRequest } from './functions/[[path]]';
 import { buildProxyUri } from './functions/_src/utils/proxy-builder';
 import { coerceProxyNode } from './functions/_src/utils/proxy-node';
@@ -8,33 +10,48 @@ import { ProxyNode } from './functions/_src/types';
 /**
  * Local Config Generator
  * Directly converts a local YAML config to a final proxy configuration.
- *
- * Usage: pnpm tsx yaml-to-config.ts [--type <config-type>] [--output <file>]
- *   Types: mihomo, mihomo-dual, mihomo-white, mihomo-black
- *          stash, stash-dual, stash-white, stash-black
- *          sing-box, sing-box-dual, sing-box-white, sing-box-black
  */
 
-async function main() {
-    const typeIdx = process.argv.indexOf('--type');
-    const configType = typeIdx !== -1 ? (process.argv[typeIdx + 1] ?? 'mihomo') : 'mihomo';
+const cli = cac('yaml-to-config');
+
+cli
+  .command('', 'Local Config Generator')
+  .option('--type <type>', 'Target config type (mihomo, sing-box, stash, etc.)', { default: 'mihomo' })
+  .option('--output <file>', 'Output file path')
+  .action(async (options) => {
+    const configType = options.type;
+    const outputFile = options.output;
+
+    const validTypes = [
+      'mihomo', 'mihomo-dual', 'mihomo-white', 'mihomo-black',
+      'stash', 'stash-dual', 'stash-white', 'stash-black',
+      'sing-box', 'sing-box-dual', 'sing-box-white', 'sing-box-black'
+    ];
     
-    const outputIdx = process.argv.indexOf('--output');
-    const outputFile = outputIdx !== -1 ? process.argv[outputIdx + 1] : null;
+    if (!validTypes.includes(configType)) {
+      console.error(pc.red(`\n✘ Unknown --type "${configType}". Valid values: ${validTypes.join(', ')}`));
+      process.exit(1);
+    }
 
     let configFile = 'proxy.yaml';
     if (!fs.existsSync(configFile)) {
-        configFile = 'example.yaml';
+      configFile = 'example.yaml';
     }
 
     if (!fs.existsSync(configFile)) {
-        console.error('✘ No configuration file found!');
-        process.exit(1);
+      console.error(pc.red(`✘ No configuration file found!`));
+      process.exit(1);
     }
 
-    console.log(`ℹ Reading from ${configFile} (Mode: ${configType})`);
+    console.log(pc.blue(`ℹ Reading from ${configFile} (Mode: ${configType})`));
     const yamlContent = fs.readFileSync(configFile, 'utf-8');
-    const parsedYaml = YAML.parse(yamlContent);
+    let parsedYaml;
+    try {
+      parsedYaml = YAML.parse(yamlContent);
+    } catch (e: unknown) {
+      console.error(pc.red(`✘ Error parsing ${configFile}: ${e instanceof Error ? e.message : String(e)}`));
+      process.exit(1);
+    }
 
     // Build URL with parameters
     const params = new URLSearchParams();
@@ -43,17 +60,17 @@ async function main() {
     if (parsedYaml.gh_proxy) params.set('gh_proxy', parsedYaml.gh_proxy);
     
     if (parsedYaml.provider) {
-        for (const p of parsedYaml.provider) {
-            params.set(p.name, p.url);
-        }
+      for (const p of parsedYaml.provider) {
+        params.set(p.name, p.url);
+      }
     }
 
     if (parsedYaml.proxy) {
-        const proxies = parsedYaml.proxy
-            .map((p: Record<string, unknown>) => coerceProxyNode(p))
-            .filter((p: ReturnType<typeof coerceProxyNode>): p is ProxyNode => Boolean(p));
-        const uris = proxies.flatMap(p => buildProxyUri(p)).filter(Boolean);
-        if (uris.length > 0) params.set('proxies', uris.join('\n'));
+      const proxies = parsedYaml.proxy
+        .map((p: unknown) => coerceProxyNode(p))
+        .filter((p: unknown): p is ProxyNode => Boolean(p));
+      const uris = proxies.flatMap(p => buildProxyUri(p)).filter(Boolean);
+      if (uris.length > 0) params.set('proxies', uris.join('\n'));
     }
 
     // Mock Cloudflare Pages Request
@@ -61,29 +78,38 @@ async function main() {
     const request = new Request(url);
 
     // Mock Context
-    const context: { request: Request; env: Record<string, unknown>; params: Record<string, string>; waitUntil: () => void; next: () => Promise<Response> } = {
-        request,
-        env: {},
-        params: {},
-        waitUntil: () => {},
-        next: () => new Response('Fallback'),
+    const context = {
+      request,
+      env: {},
+      params: {},
+      waitUntil: () => {},
+      next: () => Promise.resolve(new Response('Fallback')),
     };
 
-    console.log('⏳ Generating configuration...');
-    const response = await onRequest(context);
-    const result = await response.text();
+    console.log(pc.yellow('⏳ Generating configuration...'));
+    try {
+      const response = await onRequest(context);
+      const result = await response.text();
 
-    if (outputFile) {
+      if (outputFile) {
         fs.writeFileSync(outputFile, result);
-        console.log(`✔ Configuration saved to ${outputFile}`);
-    } else {
-        console.log('\n--- BEGIN CONFIG ---\n');
+        console.log(pc.green(`✔ Configuration saved to ${outputFile}`));
+      } else {
+        console.log(pc.gray('\n--- BEGIN CONFIG ---\n'));
         console.log(result);
-        console.log('\n--- END CONFIG ---\n');
+        console.log(pc.gray('\n--- END CONFIG ---\n'));
+      }
+    } catch (err: unknown) {
+      console.error(pc.red(`✘ Error generating config: ${err instanceof Error ? err.message : String(err)}`));
+      process.exit(1);
     }
-}
+  });
 
-main().catch(err => {
-    console.error('✘ Unexpected error:', err);
-    process.exit(1);
-});
+cli.help();
+
+try {
+  cli.parse();
+} catch (e: unknown) {
+  console.error(pc.red(`✘ Command-line parser error: ${e instanceof Error ? e.message : String(e)}`));
+  process.exit(1);
+}

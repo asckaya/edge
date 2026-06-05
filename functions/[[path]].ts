@@ -1,12 +1,20 @@
 import { Hono } from 'hono';
 import { handle } from 'hono/cloudflare-pages';
+import { logger } from 'hono/logger';
+import { cors } from 'hono/cors';
+import { prettyJSON } from 'hono/pretty-json';
+import * as v from 'valibot';
 import { parseProxyTextToNodes, parseProxyUri } from './_src/utils/proxy-parser';
 import { buildSingBoxConfig } from './_src/utils/sing-box';
 import { buildMihomoConfig } from './_src/utils/mihomo';
 import { fetchSubscriptionNodes, parseSubscriptionContent } from './_src/utils/subscription-parser';
-import { Subscription, RequestParamsSchema } from './_src/types';
+import { RequestParamsSchema } from './_src/types';
 
 const app = new Hono();
+
+app.use('*', logger());
+app.use('*', cors());
+app.use('*', prettyJSON());
 
 app.get('*', async (c) => {
   const url = new URL(c.req.url);
@@ -19,12 +27,13 @@ app.get('*', async (c) => {
       .map(([name, url]) => ({ name, url }))
   };
 
-  const parseResult = RequestParamsSchema.safeParse(paramsObj);
+  const parseResult = v.safeParse(RequestParamsSchema, paramsObj);
   if (!parseResult.success) {
-    return c.text(`Invalid parameters: ${parseResult.error.message}`, 400);
+    const errorMsg = parseResult.issues.map(issue => `${issue.path?.[0]?.key || ''}: ${issue.message}`).join(', ');
+    return c.text(`Invalid parameters: ${errorMsg}`, 400);
   }
 
-  const { type: configType, secret: providedSecret, proxies: customProxiesRaw, gh_proxy: ghProxy, subscriptions } = parseResult.data;
+  const { type: configType, secret: providedSecret, proxies: customProxiesRaw, gh_proxy: ghProxy, subscriptions } = parseResult.output;
   
   const isStash = configType.startsWith('stash');
   const isSingBox = configType.startsWith('sing-box');
@@ -86,7 +95,7 @@ app.get('*', async (c) => {
   });
 });
 
-export const onRequest = async (context: any) => {
+export const onRequest = async (context: { request: Request; next: () => Promise<Response> }) => {
   const url = new URL(context.request.url);
   if (url.searchParams.toString() === '') {
     return context.next();

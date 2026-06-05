@@ -1,37 +1,30 @@
 import fs from 'fs';
 import YAML from 'yaml';
+import { cac } from 'cac';
+import pc from 'picocolors';
 import { buildProxyUri } from './functions/_src/utils/proxy-builder';
 import { ProxyNode } from './functions/_src/types';
 import { coerceProxyNode } from './functions/_src/utils/proxy-node';
 
-/**
- * URL Generation Utility
- * Reads proxy.yaml and generates a Cloudflare Pages subscription URL.
- *
- * Usage: pnpm gen [--type <config-type>]
- *   Mihomo:   mihomo, mihomo-mini, mihomo-micro
- *   Stash:    stash, stash-mini, stash-micro
- *   sing-box: sing-box, sing-box-mini, sing-box-micro
- */
+const cli = cac('gen-url');
 
-function generateUrl() {
-    // Parse --type <value>
-    const typeIdx = process.argv.indexOf('--type');
-    const configType = typeIdx !== -1 ? (process.argv[typeIdx + 1] ?? 'mihomo') : 'mihomo';
+cli
+  .command('', 'Generate Worker URL')
+  .option('--type <type>', 'Target config type (mihomo, sing-box, stash, etc.)', { default: 'mihomo' })
+  .option('--gh-proxy <url>', 'GitHub proxy URL')
+  .action((options) => {
+    const configType = options.type;
+    const cliGhProxy = options.ghProxy;
+    
     const validTypes = [
         'mihomo', 'mihomo-dual', 'mihomo-white', 'mihomo-black',
         'stash', 'stash-dual', 'stash-white', 'stash-black',
         'sing-box', 'sing-box-dual', 'sing-box-white', 'sing-box-black'
     ];
     if (!validTypes.includes(configType)) {
-        console.error(`\x1b[31m✘ Unknown --type "${configType}". Valid values: ${validTypes.join(', ')}\x1b[0m`);
+        console.error(pc.red(`\n✘ Unknown --type "${configType}". Valid values: ${validTypes.join(', ')}`));
         process.exit(1);
     }
-
-
-    // Parse --gh-proxy <value>
-    const ghProxyIdx = process.argv.indexOf('--gh-proxy');
-    const cliGhProxy = ghProxyIdx !== -1 ? process.argv[ghProxyIdx + 1] : null;
 
     let configFile = 'proxy.yaml';
     if (!fs.existsSync(configFile)) {
@@ -39,25 +32,25 @@ function generateUrl() {
     }
 
     if (!fs.existsSync(configFile)) {
-        console.error(`\x1b[31m✘ No configuration file found!\x1b[0m`);
+        console.error(pc.red(`✘ No configuration file found!`));
         console.error('Create proxy.yaml or use example.yaml.');
         process.exit(1);
     }
 
-    console.log(`\x1b[34mℹ Reading configuration from ${configFile}\x1b[0m`);
+    console.log(pc.blue(`ℹ Reading configuration from ${configFile}`));
 
     const yamlContent = fs.readFileSync(configFile, 'utf-8');
     let parsedYaml;
     try {
         parsedYaml = YAML.parse(yamlContent);
     } catch (e: unknown) {
-         console.error(`\x1b[31m✘ Error parsing ${configFile}: ${(e as any).message}\x1b[0m`);
+         console.error(pc.red(`✘ Error parsing ${configFile}: ${(e as any).message}`));
          process.exit(1);
     }
 
     const workerDomain = parsedYaml?.worker || 'https://your-worker.workers.dev/';
     if (!parsedYaml?.worker) {
-        console.warn('\x1b[33m⚠ No "worker:" field found in proxy.yaml, using placeholder URL\x1b[0m');
+        console.warn(pc.yellow('⚠ No "worker:" field found in proxy.yaml, using placeholder URL'));
     }
     const secret = parsedYaml?.secret || '';
     const providers = parsedYaml?.provider || [];
@@ -72,7 +65,7 @@ function generateUrl() {
               .filter((p: unknown): p is ProxyNode => Boolean(p));
         }
     } catch (e: unknown) {
-         console.error(`\x1b[31m✘ Error validating proxies in ${configFile}: ${(e as any).message}\x1b[0m`);
+         console.error(pc.red(`✘ Error validating proxies in ${configFile}: ${(e as any).message}`));
          process.exit(1);
     }
 
@@ -107,9 +100,10 @@ function generateUrl() {
         'sing-box-black': 'sing-box Black (Overseas-Proxy)',
     };
     
-    console.log('\n\x1b[32m✔ Worker URL Generated Successfully!\x1b[0m');
-    console.log(`\x1b[35m  Mode: ${modeLabels[configType]}\x1b[0m`);
-    console.log('\x1b[36m' + finalUrl + '\x1b[0m\n');
-}
+    console.log(pc.green('\n✔ Worker URL Generated Successfully!'));
+    console.log(pc.magenta(`  Mode: ${modeLabels[configType]}`));
+    console.log(pc.cyan(finalUrl) + '\n');
+  });
 
-generateUrl();
+cli.help();
+cli.parse();

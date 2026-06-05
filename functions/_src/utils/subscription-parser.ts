@@ -1,4 +1,5 @@
 import YAML from 'yaml';
+import { ofetch } from 'ofetch';
 import { Subscription } from '../types';
 import { coerceProxyNode, coerceProxyNodes, LooseProxyNode } from './proxy-node';
 import { parseProxyTextToNodes } from './proxy-parser';
@@ -262,25 +263,26 @@ export async function fetchSubscriptionNodes(
 ): Promise<ResolvedSubscription[]> {
   return Promise.all(
     subscriptions.map(async (sub) => {
-      const response = await fetch(sub.url, {
-        headers: {
-          'User-Agent': userAgent,
-          Accept: '*/*',
-        },
-        signal: AbortSignal.timeout(10000),
-      });
+      try {
+        const body = await ofetch<string>(sub.url, {
+          headers: {
+            'User-Agent': userAgent,
+            Accept: '*/*',
+          },
+          retry: 2,
+          retryDelay: 1000,
+          timeout: 8000,
+          parseResponse: (txt) => txt,
+        });
+        const nodes = collapseAlertSubscription(sub, parseSubscriptionContent(body));
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch "${sub.name}" (${response.status})`);
+        return {
+          ...sub,
+          nodes,
+        };
+      } catch (e: any) {
+        throw new Error(`Failed to fetch "${sub.name}": ${e.message}`);
       }
-
-      const body = await response.text();
-      const nodes = collapseAlertSubscription(sub, parseSubscriptionContent(body));
-
-      return {
-        ...sub,
-        nodes,
-      };
     }),
   );
 }

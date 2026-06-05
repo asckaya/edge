@@ -15,13 +15,16 @@
   },
   "private": true,
   "dependencies": {
+    "cac": "^7.0.0",
     "hono": "^4.12.23",
     "next": "16.2.4",
+    "ofetch": "^1.5.1",
+    "picocolors": "^1.1.1",
     "react": "19.2.5",
     "react-dom": "19.2.5",
+    "valibot": "^1.4.1",
     "wrangler": "^4.88.0",
-    "yaml": "^2.8.4",
-    "zod": "^4.4.3"
+    "yaml": "^2.8.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.4",

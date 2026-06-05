@@ -19,16 +19,16 @@ describe("Sing-box Kernel - Utils", () => {
 
   test("Node Renaming", async () => {
     const mockFetch = (async (input: RequestInfo | URL) => {
-      const url = String(input);
+      const url = typeof input === "string" ? input : (input instanceof URL ? input.toString() : (input as Request).url);
       const parsedUrl = new URL(url);
       if (url === "http://sub.com") {
         return new Response(JSON.stringify({
           outbounds: [{ type: "trojan", tag: "node-1", server: "jp.real.site", server_port: 443, password: "pw1", tls: { enabled: true, server_name: "jp.real.site" } }]
-        }), { status: 200 });
+        }), { status: 200, headers: { "Content-Type": "application/json" } });
       }
-      if (parsedUrl.hostname === "cloudflare-dns.com") return new Response(JSON.stringify({ Answer: [{ data: "1.1.1.1" }] }), { status: 200 });
-      if (url === "https://ipwho.is/1.1.1.1") return new Response(JSON.stringify({ success: true, country_code: "JP" }), { status: 200 });
-      if (url === "https://api.country.is/1.1.1.1") return new Response(JSON.stringify({ country: "JP" }), { status: 200 });
+      if (parsedUrl.hostname === "cloudflare-dns.com") return new Response(JSON.stringify({ Answer: [{ data: "1.1.1.1" }] }), { status: 200, headers: { "Content-Type": "application/json" } });
+      if (url === "https://ipwho.is/1.1.1.1") return new Response(JSON.stringify({ success: true, country_code: "JP" }), { status: 200, headers: { "Content-Type": "application/json" } });
+      if (url === "https://api.country.is/1.1.1.1") return new Response(JSON.stringify({ country: "JP" }), { status: 200, headers: { "Content-Type": "application/json" } });
       return originalFetch(input);
     }) as unknown as typeof fetch;
     globalThis.fetch = mockFetch;
@@ -47,7 +47,7 @@ describe("Sing-box Kernel - Utils", () => {
       if (url === "http://sub.com") {
         return new Response(JSON.stringify({
           outbounds: [{ type: "trojan", tag: "TW-X1-1", server: "unknown.net", server_port: 443, password: "pw2" }]
-        }), { status: 200 });
+        }), { status: 200, headers: { "Content-Type": "application/json" } });
       }
       return originalFetch(input);
     }) as unknown as typeof fetch;
@@ -70,7 +70,7 @@ describe("Sing-box Kernel - Utils", () => {
             { type: "vless", tag: "剩余流量：463.56 GB", server: "i.net", server_port: 443, uuid: "u1" },
             { type: "vless", tag: "🇯🇵Japan 01", server: "j.net", server_port: 443, uuid: "u2" }
           ]
-        }), { status: 200 });
+        }), { status: 200, headers: { "Content-Type": "application/json" } });
       }
       return originalFetch(input);
     }) as unknown as typeof fetch;

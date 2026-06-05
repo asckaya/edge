@@ -1,3 +1,4 @@
+import * as v from 'valibot';
 import { AnyProxySchema, ProxyNode } from '../types';
 
 export type LooseProxyNode = ProxyNode & Record<string, unknown>;
@@ -64,12 +65,12 @@ export function coerceProxyNode(input: unknown): LooseProxyNode | null {
     node.tls = true;
   }
 
-  const parsed = AnyProxySchema.safeParse(node);
+  const parsed = v.safeParse(AnyProxySchema, node);
   if (!parsed.success) return null;
 
   return {
     ...node,
-    ...parsed.data,
+    ...parsed.output,
   };
 }
 

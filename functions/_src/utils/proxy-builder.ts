@@ -55,7 +55,7 @@ const PROTOCOL_BUILDERS: Record<string, ProtocolBuilder> = {
     const base64Auth = Buffer.from(`${cipher}:${pw}`).toString('base64');
     return [`ss://${base64Auth}@${server}:${port}#${name}`];
   },
-  vmess: (p, name) => {
+  vmess: (p) => {
     const obj = {
       v: '2', ps: p.name,
       add: p.server, port: p.port,

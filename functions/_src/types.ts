@@ -1,113 +1,121 @@
-import { z } from 'zod';
+import * as v from 'valibot';
 
-export const BaseProxySchema = z.object({
-  name: z.string(),
-  type: z.string(),
-  server: z.string(),
-  port: z.union([z.number(), z.string()]),
-  udp: z.boolean().default(true).optional(),
+export const BaseProxySchema = v.object({
+  name: v.string(),
+  type: v.string(),
+  server: v.string(),
+  port: v.union([v.number(), v.string()]),
+  udp: v.optional(v.boolean(), true),
 });
 
-export const Hysteria2Schema = BaseProxySchema.extend({
-  type: z.literal("hysteria2"),
-  password: z.string(),
-  sni: z.string().optional(),
-  "skip-cert-verify": z.boolean().optional(),
-  alpn: z.array(z.string()).optional(),
-  ports: z.string().optional(),
-  obfs: z.string().optional(),
-  "obfs-password": z.string().optional(),
+export const Hysteria2Schema = v.object({
+  ...BaseProxySchema.entries,
+  type: v.literal("hysteria2"),
+  password: v.string(),
+  sni: v.optional(v.string()),
+  "skip-cert-verify": v.optional(v.boolean()),
+  alpn: v.optional(v.array(v.string())),
+  ports: v.optional(v.string()),
+  obfs: v.optional(v.string()),
+  "obfs-password": v.optional(v.string()),
 });
 
-export const VlessSchema = BaseProxySchema.extend({
-  type: z.literal("vless"),
-  uuid: z.string(),
-  tls: z.boolean().optional(),
-  "skip-cert-verify": z.boolean().optional(),
-  flow: z.string().optional(),
-  network: z.string().optional(),
-  "ws-opts": z.any().optional(),
-  "grpc-opts": z.any().optional(),
-  "reality-opts": z.any().optional(),
-  servername: z.string().optional(),
+export const VlessSchema = v.object({
+  ...BaseProxySchema.entries,
+  type: v.literal("vless"),
+  uuid: v.string(),
+  tls: v.optional(v.boolean()),
+  "skip-cert-verify": v.optional(v.boolean()),
+  flow: v.optional(v.string()),
+  network: v.optional(v.string()),
+  "ws-opts": v.optional(v.any()),
+  "grpc-opts": v.optional(v.any()),
+  "reality-opts": v.optional(v.any()),
+  servername: v.optional(v.string()),
 });
 
-export const TrojanSchema = BaseProxySchema.extend({
-  type: z.literal("trojan"),
-  password: z.string(),
-  "skip-cert-verify": z.boolean().optional(),
-  sni: z.string().optional(),
+export const TrojanSchema = v.object({
+  ...BaseProxySchema.entries,
+  type: v.literal("trojan"),
+  password: v.string(),
+  "skip-cert-verify": v.optional(v.boolean()),
+  sni: v.optional(v.string()),
 });
 
-export const SsSchema = BaseProxySchema.extend({
-  type: z.literal("ss"),
-  cipher: z.string(),
-  password: z.string(),
+export const SsSchema = v.object({
+  ...BaseProxySchema.entries,
+  type: v.literal("ss"),
+  cipher: v.string(),
+  password: v.string(),
 });
 
-export const VmessSchema = BaseProxySchema.extend({
-  type: z.literal("vmess"),
-  uuid: z.string(),
-  alterId: z.union([z.number(), z.string()]).optional(),
-  cipher: z.string().optional(),
-  tls: z.boolean().optional(),
-  "skip-cert-verify": z.boolean().optional(),
-  network: z.string().optional(),
-  "ws-opts": z.any().optional(),
-  "grpc-opts": z.any().optional(),
-  servername: z.string().optional(),
+export const VmessSchema = v.object({
+  ...BaseProxySchema.entries,
+  type: v.literal("vmess"),
+  uuid: v.string(),
+  alterId: v.optional(v.union([v.number(), v.string()])),
+  cipher: v.optional(v.string()),
+  tls: v.optional(v.boolean()),
+  "skip-cert-verify": v.optional(v.boolean()),
+  network: v.optional(v.string()),
+  "ws-opts": v.optional(v.any()),
+  "grpc-opts": v.optional(v.any()),
+  servername: v.optional(v.string()),
 });
 
-export const TuicSchema = BaseProxySchema.extend({
-  type: z.literal("tuic"),
-  uuid: z.string(),
-  password: z.string(),
-  sni: z.string().optional(),
-  alpn: z.array(z.string()).optional(),
-  "disable-sni": z.boolean().optional(),
-  "reduce-rtt": z.boolean().optional(),
-  "fast-open": z.boolean().optional(),
-  "udp-relay-mode": z.string().optional(),
-  "congestion-controller": z.string().optional(),
-  "skip-cert-verify": z.boolean().optional(),
-  ip: z.union([z.string(), z.array(z.string())]).optional(),
+export const TuicSchema = v.object({
+  ...BaseProxySchema.entries,
+  type: v.literal("tuic"),
+  uuid: v.string(),
+  password: v.string(),
+  sni: v.optional(v.string()),
+  alpn: v.optional(v.array(v.string())),
+  "disable-sni": v.optional(v.boolean()),
+  "reduce-rtt": v.optional(v.boolean()),
+  "fast-open": v.optional(v.boolean()),
+  "udp-relay-mode": v.optional(v.string()),
+  "congestion-controller": v.optional(v.string()),
+  "skip-cert-verify": v.optional(v.boolean()),
+  ip: v.optional(v.union([v.string(), v.array(v.string())])),
 });
 
-export const AnyTlsSchema = BaseProxySchema.extend({
-  type: z.literal("anytls"),
-  password: z.string(),
-  "skip-cert-verify": z.boolean().optional(),
-  sni: z.string().optional(),
-  idle_session_check_interval: z.string().optional(),
-  idle_session_timeout: z.string().optional(),
-  min_idle_session: z.union([z.number(), z.string()]).optional(),
+export const AnyTlsSchema = v.object({
+  ...BaseProxySchema.entries,
+  type: v.literal("anytls"),
+  password: v.string(),
+  "skip-cert-verify": v.optional(v.boolean()),
+  sni: v.optional(v.string()),
+  idle_session_check_interval: v.optional(v.string()),
+  idle_session_timeout: v.optional(v.string()),
+  min_idle_session: v.optional(v.union([v.number(), v.string()])),
 });
 
-export const WireguardSchema = BaseProxySchema.extend({
-  type: z.literal("wireguard"),
-  ip: z.union([z.string(), z.array(z.string())]),
-  "public-key": z.string(),
-  "private-key": z.string(),
-  "peer-public-key": z.string().optional(),
-  "preshared-key": z.string().optional(),
-  reserved: z.array(z.number()).optional(),
-  mtu: z.union([z.number(), z.string()]).optional(),
+export const WireguardSchema = v.object({
+  ...BaseProxySchema.entries,
+  type: v.literal("wireguard"),
+  ip: v.union([v.string(), v.array(v.string())]),
+  "public-key": v.string(),
+  "private-key": v.string(),
+  "peer-public-key": v.optional(v.string()),
+  "preshared-key": v.optional(v.string()),
+  reserved: v.optional(v.array(v.number())),
+  mtu: v.optional(v.union([v.number(), v.string()])),
 });
 
-export const TailscaleSchema = z.object({
-  name: z.string(),
-  type: z.literal("tailscale"),
-  hostname: z.string().optional(),
-  "auth-key": z.string(),
-  "control-url": z.string().default("https://controlplane.tailscale.com").optional(),
-  "state-dir": z.string().optional(),
-  udp: z.boolean().default(true).optional(),
-  "accept-routes": z.boolean().optional(),
-  "exit-node": z.string().optional(),
-  ephemeral: z.boolean().optional(),
+export const TailscaleSchema = v.object({
+  name: v.string(),
+  type: v.literal("tailscale"),
+  hostname: v.optional(v.string()),
+  "auth-key": v.string(),
+  "control-url": v.optional(v.string(), "https://controlplane.tailscale.com"),
+  "state-dir": v.optional(v.string()),
+  udp: v.optional(v.boolean(), true),
+  "accept-routes": v.optional(v.boolean()),
+  "exit-node": v.optional(v.string()),
+  ephemeral: v.optional(v.boolean()),
 });
 
-export const AnyProxySchema = z.discriminatedUnion("type", [
+export const AnyProxySchema = v.variant("type", [
   Hysteria2Schema,
   VlessSchema,
   TrojanSchema,
@@ -119,25 +127,29 @@ export const AnyProxySchema = z.discriminatedUnion("type", [
   TailscaleSchema,
 ]);
 
-export type ProxyNode = z.infer<typeof AnyProxySchema>;
+export type ProxyNode = v.InferOutput<typeof AnyProxySchema>;
 
-export const ConfigTypeSchema = z.enum(['mihomo', 'mihomo-white', 'mihomo-black', 'mihomo-dual', 'stash', 'stash-white', 'stash-black', 'stash-dual', 'sing-box', 'sing-box-white', 'sing-box-black', 'sing-box-dual']);
-export type ConfigType = z.infer<typeof ConfigTypeSchema>;
+export const ConfigTypeSchema = v.picklist([
+  'mihomo', 'mihomo-white', 'mihomo-black', 'mihomo-dual',
+  'stash', 'stash-white', 'stash-black', 'stash-dual',
+  'sing-box', 'sing-box-white', 'sing-box-black', 'sing-box-dual'
+]);
+export type ConfigType = v.InferOutput<typeof ConfigTypeSchema>;
 
 export interface Subscription {
   name: string;
   url: string;
 }
 
-export const RequestParamsSchema = z.object({
-  type: ConfigTypeSchema.default('mihomo'),
-  secret: z.string().default('edge-default'),
-  proxies: z.string().default(''),
-  gh_proxy: z.url().optional(),
-  subscriptions: z.array(z.object({
-    name: z.string(),
-    url: z.url(),
-  })).default([]),
+export const RequestParamsSchema = v.object({
+  type: v.optional(ConfigTypeSchema, 'mihomo'),
+  secret: v.optional(v.string(), 'edge-default'),
+  proxies: v.optional(v.string(), ''),
+  gh_proxy: v.optional(v.pipe(v.string(), v.url())),
+  subscriptions: v.optional(v.array(v.object({
+    name: v.string(),
+    url: v.pipe(v.string(), v.url()),
+  })), []),
 });
 
-export type RequestParams = z.infer<typeof RequestParamsSchema>;
+export type RequestParams = v.InferOutput<typeof RequestParamsSchema>;
