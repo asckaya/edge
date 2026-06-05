@@ -16,7 +16,7 @@ export async function buildSingBoxConfig(options: BuildSingBoxOptions): Promise<
   }
 
   const outbounds = buildOutbounds(taggedNodes, providerSelectors, selfHostedNodeTags, tailscaleNodeTags, isWhite, isBlack, isDual);
-  const dns = buildDns();
+  const dns = buildDns(tailscaleNodes[0]?.name);
   const route = buildRoute([], isWhite, isBlack, ghProxy, isDual); // Note: ruleSets param is empty as buildRoute handles definitions internally
 
   if (tailscaleNodes.length > 0) {

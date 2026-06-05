@@ -18,6 +18,7 @@ dns:
     - https://doh.pub/dns-query
   nameserver-policy:
     "geosite:category-ads-all": rcode://success
+    "+.ts.net": "100.100.100.100"
   fake-ip-filter:
     - "+.lan"
     - "+.local"

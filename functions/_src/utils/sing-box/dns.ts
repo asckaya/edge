@@ -1,7 +1,7 @@
 import { LOCAL_DNS_TAG, REMOTE_DNS_TAG } from './types';
 
-export function buildDns(): Record<string, unknown> {
-  return {
+export function buildDns(tailscaleNodeName?: string): Record<string, unknown> {
+  const dns: any = {
     servers: [
       { type: 'udp', tag: LOCAL_DNS_TAG, server: '223.5.5.5' },
       { type: 'https', tag: REMOTE_DNS_TAG, server: '1.12.12.12' },
@@ -18,4 +18,19 @@ export function buildDns(): Record<string, unknown> {
     strategy: 'prefer_ipv4',
     reverse_mapping: true,
   };
+
+  if (tailscaleNodeName) {
+    dns.servers.push({
+      type: 'tailscale',
+      tag: 'tailscale-dns',
+      endpoint: tailscaleNodeName,
+    });
+    dns.rules.unshift({
+      domain_suffix: ['.ts.net'],
+      action: 'route',
+      server: 'tailscale-dns',
+    });
+  }
+
+  return dns;
 }
