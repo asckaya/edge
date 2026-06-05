@@ -6,7 +6,7 @@ import { configMihomoRuleProviders } from '../../../_templates/mihomo/rule-provi
 import { GEODATA_URLS, GEODATA_URLS_LITE, GEOX_ALLOWED_WHITE, GEOX_ALLOWED_BLACK } from '../../../_templates/shared/geox';
 import { BuildMihomoOptions } from './types';
 import { PROXY_SELECTOR_TAG, DIRECT_TAG, GROUP_TAGS } from '../shared-constants';
-import { RULE_SET_DEFINITIONS, ROUTE_RULES } from '../rules-registry';
+import { RULE_SET_DEFINITIONS, ROUTE_RULES, filterAndMapRouteRules } from '../rules-registry';
 import { renderMihomoRules } from './rules-builder';
 import { renderMihomoGroups } from './group-builder';
 import YAML from 'yaml';
@@ -24,45 +24,42 @@ export function buildMihomoConfig(options: BuildMihomoOptions): string {
     isDual
   } = options;
 
-  // Extract Tailscale proxy names early
-  let tailscaleProxyNames: string[] = [];
-  try {
-    if (customProxies) {
-      const parsedYaml = YAML.parse(customProxies);
-      if (parsedYaml && typeof parsedYaml === 'object' && Array.isArray(parsedYaml.proxies)) {
-        for (const proxy of parsedYaml.proxies) {
-          if (proxy && proxy.type === 'tailscale' && proxy.name) {
-            tailscaleProxyNames.push(proxy.name);
-          }
-        }
+  // Parse custom proxies once if present
+  let customProxiesObj: any = null;
+  let customProxiesList: any[] = [];
+  if (customProxies) {
+    try {
+      customProxiesObj = YAML.parse(customProxies);
+      if (customProxiesObj && typeof customProxiesObj === 'object' && Array.isArray(customProxiesObj.proxies)) {
+        customProxiesList = customProxiesObj.proxies;
       }
+    } catch (e) {
+      console.error('Error parsing custom proxies YAML:', e);
     }
-  } catch (e) {
-    console.error('Error parsing custom proxies for Tailscale early:', e);
   }
+
+  // Extract Tailscale proxy names early
+  const tailscaleProxyNames = customProxiesList
+    .filter((proxy: any) => proxy && proxy.type === 'tailscale' && proxy.name)
+    .map((proxy: any) => proxy.name);
 
   // Filter custom proxy names to exclude Tailscale nodes
   const filteredCustomProxyNames = customProxyNames.filter(name => !tailscaleProxyNames.includes(name));
 
   // Build proxy-providers and subscription-specific groups
-  let proxyProvidersSection = 'proxy-providers:\n';
-  let subGroupsSection = '';
-  const providerNames: string[] = [];
-  const autoGroupNames: string[] = [];
-
   const userAgent = isStash ? 'Stash' : 'clash.meta';
-
   const isSingleSub = subscriptions.length === 1;
 
-  subscriptions.forEach((sub) => {
-    const { name, url: subUrl } = sub;
-    const safeName = name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-    
-    providerNames.push(name);
-    
-    proxyProvidersSection += `  ${name}:
+  const providerNames = subscriptions.map((sub) => sub.name);
+  const autoGroupNames = isSingleSub ? [] : subscriptions.map((sub) => `⚡ ${sub.name} 自动选择`);
+
+  const proxyProvidersSection = subscriptions.length === 0
+    ? 'proxy-providers:\n'
+    : 'proxy-providers:\n' + subscriptions.map((sub) => {
+        const safeName = sub.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        return `  ${sub.name}:
     type: http
-    url: "${subUrl}"
+    url: "${sub.url}"
     path: ./providers/${safeName}.yaml
     interval: 3600
     health-check:
@@ -72,27 +69,25 @@ export function buildMihomoConfig(options: BuildMihomoOptions): string {
       lazy: true
     header:
       User-Agent:
-        - "${userAgent}"
-`;
+        - "${userAgent}"`;
+      }).join('\n') + '\n';
 
-    if (!isSingleSub) {
-      const autoGroupName = `⚡ ${name} 自动选择`;
-      autoGroupNames.push(autoGroupName);
-      
-      subGroupsSection += `  - name: ${name}
+  const subGroupsSection = isSingleSub
+    ? ''
+    : subscriptions.map((sub) => {
+        const autoGroupName = `⚡ ${sub.name} 自动选择`;
+        return `  - name: ${sub.name}
     type: select
-    use: [${name}]
+    use: [${sub.name}]
     filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
   - name: ${autoGroupName}
     type: url-test
-    use: [${name}]
+    use: [${sub.name}]
     url: https://www.gstatic.com/generate_204
     interval: 300
     lazy: false
-    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"
-`;
-    }
-  });
+    filter: "^(?!.*(DIRECT|直接连接|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Traffic|GB|Expire)).*$"`;
+      }).join('\n') + '\n';
 
   const providersList = providerNames.join(', ');
   const autoGroupsList = autoGroupNames.join(', ');
@@ -146,11 +141,11 @@ export function buildMihomoConfig(options: BuildMihomoOptions): string {
 
   let activeRules = ROUTE_RULES;
   if (isWhite) {
-    activeRules = filterAndMapRules(ROUTE_RULES, allowedWhite, DIRECT_TAG, coreOutbounds);
+    activeRules = filterAndMapRouteRules(ROUTE_RULES, allowedWhite, DIRECT_TAG, coreOutbounds);
   } else if (isBlack) {
-    activeRules = filterAndMapRules(ROUTE_RULES, allowedBlack, PROXY_SELECTOR_TAG, coreOutbounds);
+    activeRules = filterAndMapRouteRules(ROUTE_RULES, allowedBlack, PROXY_SELECTOR_TAG, coreOutbounds);
   } else if (isDual) {
-    activeRules = filterAndMapRules(ROUTE_RULES, null, PROXY_SELECTOR_TAG, coreOutbounds);
+    activeRules = filterAndMapRouteRules(ROUTE_RULES, null, PROXY_SELECTOR_TAG, coreOutbounds);
   }
 
   if (tailscaleProxyNames.length > 0) {
@@ -189,18 +184,11 @@ export function buildMihomoConfig(options: BuildMihomoOptions): string {
   const finalGroups = fillPlaceholders(proxyGroupsSection);
 
   let finalCustomProxies = customProxies;
-  if (isStash && customProxies) {
-    try {
-      const parsedYaml = YAML.parse(customProxies);
-      if (parsedYaml && typeof parsedYaml === 'object' && Array.isArray(parsedYaml.proxies)) {
-        const filtered = parsedYaml.proxies.filter((p: any) => p && p.type !== 'tailscale');
-        finalCustomProxies = filtered.length > 0 
-          ? 'proxies:\n' + YAML.stringify(filtered).split('\n').map((line) => line ? `  ${line}` : line).join('\n') 
-          : '';
-      }
-    } catch (e) {
-      console.error('Error filtering out Tailscale proxies for Stash:', e);
-    }
+  if (isStash && customProxiesList.length > 0) {
+    const filtered = customProxiesList.filter((p: any) => p && p.type !== 'tailscale');
+    finalCustomProxies = filtered.length > 0 
+      ? 'proxies:\n' + YAML.stringify(filtered).split('\n').map((line) => line ? `  ${line}` : line).join('\n') 
+      : '';
   }
 
   let finalYaml = [
@@ -219,31 +207,4 @@ export function buildMihomoConfig(options: BuildMihomoOptions): string {
   }
 
   return finalYaml;
-}
-
-function filterAndMapRules(
-  rules: typeof ROUTE_RULES,
-  allowedRuleSets: Set<string> | null,
-  fallbackOutbound: string,
-  coreOutbounds: Set<string>
-) {
-  let filtered = rules;
-  if (allowedRuleSets) {
-    filtered = rules.filter((r) =>
-      !r.rule_set ||
-      (typeof r.rule_set === 'string' ? allowedRuleSets.has(r.rule_set) : r.rule_set.some((s) => allowedRuleSets.has(s)))
-    );
-  }
-  return filtered.map((r) => {
-    if (r.action === 'route' && r.outbound) {
-      const outbound = r.outbound;
-      if ([GROUP_TAGS.BT_PT, GROUP_TAGS.PRIVATE_NET, GROUP_TAGS.NTP_SERVICES].includes(outbound)) {
-        return { ...r, outbound: DIRECT_TAG };
-      }
-      if (!coreOutbounds.has(outbound)) {
-        return { ...r, outbound: fallbackOutbound };
-      }
-    }
-    return r;
-  });
 }

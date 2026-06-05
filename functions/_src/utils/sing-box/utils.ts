@@ -85,16 +85,10 @@ export function toFlagEmoji(countryCode?: string | null): string {
 }
 
 export function extractCountryCodeFromFlag(name: string): string | null {
-  const chars = Array.from(String(name || '').trim());
-  for (let index = 0; index < chars.length - 1; index += 1) {
-    const first = chars[index].codePointAt(0) || 0;
-    const second = chars[index + 1].codePointAt(0) || 0;
-    const isRegionalIndicator = (value: number) => value >= 0x1f1e6 && value <= 0x1f1ff;
-    if (isRegionalIndicator(first) && isRegionalIndicator(second)) {
-      return String.fromCharCode(65 + first - 0x1f1e6, 65 + second - 0x1f1e6);
-    }
-  }
-  return null;
+  const match = String(name || '').match(/\p{Regional_Indicator}{2}/u);
+  if (!match) return null;
+  const [first, second] = [...match[0]].map(c => c.codePointAt(0) || 0);
+  return String.fromCharCode(first - 0x1f1e6 + 65, second - 0x1f1e6 + 65);
 }
 
 export function extractCountryCodeFromName(name: string): string | null {
@@ -114,13 +108,11 @@ export function extractCountryCodeFromName(name: string): string | null {
 }
 
 export async function fetchJson(url: string, headers?: Record<string, string>): Promise<unknown> {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 2500);
   try {
-    const response = await fetch(url, { headers, signal: controller.signal });
+    const response = await fetch(url, { headers, signal: AbortSignal.timeout(2500) });
     if (!response.ok) return null;
     return await response.json();
-  } catch { return null; } finally { clearTimeout(timeout); }
+  } catch { return null; }
 }
 
 export function getServerIp(server: string, context: GeoLabelContext): Promise<string | null> {

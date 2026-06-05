@@ -52,7 +52,8 @@ const PROTOCOL_BUILDERS: Record<string, ProtocolBuilder> = {
     const pw = p.password || '';
     const server = p.server || '';
     const port = p.port || '443';
-    return [`ss://${btoa(`${cipher}:${pw}`)}@${server}:${port}#${name}`];
+    const base64Auth = Buffer.from(`${cipher}:${pw}`).toString('base64');
+    return [`ss://${base64Auth}@${server}:${port}#${name}`];
   },
   vmess: (p, name) => {
     const obj = {
@@ -66,7 +67,8 @@ const PROTOCOL_BUILDERS: Record<string, ProtocolBuilder> = {
       path: p['ws-opts']?.path || p.path || '',
       host: p['ws-opts']?.headers?.Host || p.host || '',
     };
-    return [`vmess://${btoa(JSON.stringify(obj))}`];
+    const base64Obj = Buffer.from(JSON.stringify(obj)).toString('base64');
+    return [`vmess://${base64Obj}`];
   },
   tuic: (p, name) => {
     const uuid = p.uuid || '';

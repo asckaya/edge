@@ -14,18 +14,20 @@ function getCommonFilter() {
 }
 
 function convertGroupsToYaml(groups: any[]): string {
-  let yaml = '';
-  groups.forEach(g => {
-    yaml += `  - name: ${g.name}\n    type: ${g.type}\n`;
-    if (g.proxies) yaml += `    proxies: ${g.proxies}\n`;
-    if (g.use) yaml += `    use: ${g.use}\n`;
-    if (g.url) yaml += `    url: ${g.url}\n`;
-    if (g.interval) yaml += `    interval: ${g.interval}\n`;
-    if (g.tolerance) yaml += `    tolerance: ${g.tolerance}\n`;
-    if (g.filter) yaml += `    filter: "${g.filter}"\n`;
-    if (g['include-all-proxies']) yaml += `    include-all-proxies: true\n`;
-  });
-  return yaml;
+  return groups.map(g => {
+    const parts = [
+      `  - name: ${g.name}`,
+      `    type: ${g.type}`,
+      g.proxies ? `    proxies: ${g.proxies}` : '',
+      g.use ? `    use: ${g.use}` : '',
+      g.url ? `    url: ${g.url}` : '',
+      g.interval ? `    interval: ${g.interval}` : '',
+      g.tolerance ? `    tolerance: ${g.tolerance}` : '',
+      g.filter ? `    filter: "${g.filter}"` : '',
+      g['include-all-proxies'] ? '    include-all-proxies: true' : '',
+    ];
+    return parts.filter(Boolean).join('\n');
+  }).join('\n') + '\n';
 }
 
 export function renderMihomoGroups(options: GroupOptions, airportGroupsYaml: string = '', isMinimal = false): string {
@@ -71,63 +73,57 @@ export function renderMihomoGroups(options: GroupOptions, airportGroupsYaml: str
     { name: '🇹🇼 台湾节点', filter: '(?i)台|TW|Taiwan|🇹🇼' }
   ];
 
-  const regionGroups: any[] = [];
-  regions.forEach(r => {
-    regionGroups.push({
-      name: r.name,
-      type: 'url-test',
-      url: 'https://www.gstatic.com/generate_204',
-      interval: 300,
-      tolerance: 50,
-      use: `[${providersList}]`,
-      filter: r.filter,
-      'include-all-proxies': isStash ? true : undefined
-    });
-  });
+  const regionGroups = regions.map(r => ({
+    name: r.name,
+    type: 'url-test',
+    url: 'https://www.gstatic.com/generate_204',
+    interval: 300,
+    tolerance: 50,
+    use: `[${providersList}]`,
+    filter: r.filter,
+    'include-all-proxies': isStash ? true : undefined
+  }));
 
-  // 3. Scenario groups
-  const scenarioGroups: any[] = [];
-  if (!isMinimal) {
-    const allGroups = [
-      ...SCENARIO_GROUPS, 
-      ...DIRECT_REDIRECT_GROUPS, 
-      ...CORE_GROUPS.filter(g => ![GROUP_TAGS.DIRECT, GROUP_TAGS.REJECT, GROUP_TAGS.PROXY].includes(g))
-    ];
-    allGroups.forEach(name => {
-      let proxies = scenarioProxies;
-      let filter = commonFilter.split(': ')[1].replace(/"/g, '');
-      let use = `[${providersList}]`;
+  const scenarioGroups = !isMinimal
+    ? [
+        ...SCENARIO_GROUPS, 
+        ...DIRECT_REDIRECT_GROUPS, 
+        ...CORE_GROUPS.filter(g => ![GROUP_TAGS.DIRECT, GROUP_TAGS.REJECT, GROUP_TAGS.PROXY].includes(g))
+      ].map(name => {
+        let proxies = scenarioProxies;
+        let filter = commonFilter.split(': ')[1].replace(/"/g, '');
+        let use = `[${providersList}]`;
 
-      if (name === GROUP_TAGS.AD_BLOCK) {
-        proxies = `[REJECT, DIRECT, ${GROUP_TAGS.PROXY}, ${autoGroupsList}]`;
-        use = '';
-        filter = '';
-      } else if (name === GROUP_TAGS.CN_SERVICES || name === GROUP_TAGS.PRIVATE_NET) {
-        proxies = `[DIRECT, REJECT, ${GROUP_TAGS.PROXY}, ${autoGroupsList}]`;
-      } else if (name === GROUP_TAGS.NTP_SERVICES) {
-        proxies = `[DIRECT, ${GROUP_TAGS.PROXY}]`;
-        use = '';
-        filter = '';
-      } else if (name === GROUP_TAGS.BT_PT) {
-        proxies = `[DIRECT, ${GROUP_TAGS.PROXY}, REJECT, ${autoGroupsList}]`;
-      } else if (name === GROUP_TAGS.SPEEDTEST) {
-        proxies = `[${GROUP_TAGS.PROXY}, DIRECT, ${autoGroupsList}]`;
-      }
+        if (name === GROUP_TAGS.AD_BLOCK) {
+          proxies = `[REJECT, DIRECT, ${GROUP_TAGS.PROXY}, ${autoGroupsList}]`;
+          use = '';
+          filter = '';
+        } else if (name === GROUP_TAGS.CN_SERVICES || name === GROUP_TAGS.PRIVATE_NET) {
+          proxies = `[DIRECT, REJECT, ${GROUP_TAGS.PROXY}, ${autoGroupsList}]`;
+        } else if (name === GROUP_TAGS.NTP_SERVICES) {
+          proxies = `[DIRECT, ${GROUP_TAGS.PROXY}]`;
+          use = '';
+          filter = '';
+        } else if (name === GROUP_TAGS.BT_PT) {
+          proxies = `[DIRECT, ${GROUP_TAGS.PROXY}, REJECT, ${autoGroupsList}]`;
+        } else if (name === GROUP_TAGS.SPEEDTEST) {
+          proxies = `[${GROUP_TAGS.PROXY}, DIRECT, ${autoGroupsList}]`;
+        }
 
-      scenarioGroups.push({
-        name,
-        type: 'select',
-        proxies,
-        use: use || undefined,
-        filter: filter || undefined,
-        'include-all-proxies': (isStash && use) ? true : undefined
-      });
-    });
-  } else {
-    scenarioGroups.push({ name: GROUP_TAGS.CN_SERVICES, type: 'select', proxies: `[DIRECT, REJECT, ${GROUP_TAGS.PROXY}, ${autoGroupsList}]`, use: `[${providersList}]`, 'include-all-proxies': isStash ? true : undefined });
-    scenarioGroups.push({ name: GROUP_TAGS.AD_BLOCK, type: 'select', proxies: `[REJECT, DIRECT, ${GROUP_TAGS.PROXY}]` });
-    scenarioGroups.push({ name: GROUP_TAGS.FINAL, type: 'select', proxies: `[${GROUP_TAGS.PROXY}, ${defaultProxies.substring(1)}`, use: `[${providersList}]`, 'include-all-proxies': isStash ? true : undefined });
-  }
+        return {
+          name,
+          type: 'select',
+          proxies,
+          use: use || undefined,
+          filter: filter || undefined,
+          'include-all-proxies': (isStash && use) ? true : undefined
+        };
+      })
+    : [
+        { name: GROUP_TAGS.CN_SERVICES, type: 'select', proxies: `[DIRECT, REJECT, ${GROUP_TAGS.PROXY}, ${autoGroupsList}]`, use: `[${providersList}]`, 'include-all-proxies': isStash ? true : undefined },
+        { name: GROUP_TAGS.AD_BLOCK, type: 'select', proxies: `[REJECT, DIRECT, ${GROUP_TAGS.PROXY}]` },
+        { name: GROUP_TAGS.FINAL, type: 'select', proxies: `[${GROUP_TAGS.PROXY}, ${defaultProxies.substring(1)}`, use: `[${providersList}]`, 'include-all-proxies': isStash ? true : undefined }
+      ];
 
   // Combine in requested order: Top -> Airport -> Regions -> Scenarios
   let finalYaml = 'proxy-groups:\n';

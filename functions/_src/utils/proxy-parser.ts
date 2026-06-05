@@ -117,7 +117,7 @@ const PROTOCOL_PARSERS: Record<string, ProtocolParser> = {
 
     if (!userPass.includes(':') && !ssPassword) {
       try {
-        const decoded = atob(userPass);
+        const decoded = Buffer.from(userPass, 'base64').toString('utf-8');
         if (decoded.includes(':')) {
           const parts = decoded.split(':');
           method = parts[0];
@@ -216,7 +216,7 @@ export function parseProxyLine(line: string): { node?: LooseProxyNode; rawLine?:
   const trimmedUri = line.trim();
   if (!trimmedUri) return {};
 
-  if (!trimmedUri.includes('://') && !trimmedUri.startsWith('vmess://')) {
+  if (!trimmedUri.includes('://')) {
     return { rawLine: formatRawLine(trimmedUri) };
   }
 
@@ -224,7 +224,8 @@ export function parseProxyLine(line: string): { node?: LooseProxyNode; rawLine?:
     let node: Record<string, unknown> = {};
 
     if (trimmedUri.startsWith('vmess://')) {
-      const vmessData = JSON.parse(atob(trimmedUri.replace('vmess://', '')));
+      const base64Data = trimmedUri.replace('vmess://', '').trim();
+      const vmessData = JSON.parse(Buffer.from(base64Data, 'base64').toString('utf-8'));
       node = {
         name: vmessData.ps || 'VMess-Proxy',
         type: 'vmess',

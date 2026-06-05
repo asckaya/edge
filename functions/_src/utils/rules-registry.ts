@@ -329,3 +329,33 @@ export const ROUTE_RULES: RouteRuleDefinition[] = [
   { rule_set: 'category-ip-geo-detect', action: 'route', outbound: GROUP_TAGS.SPEEDTEST },
   { rule_set: 'geolocation-!cn', action: 'route', outbound: GROUP_TAGS.NON_CN },
 ];
+
+export function filterAndMapRouteRules(
+  rules: RouteRuleDefinition[],
+  allowedRuleSets: Set<string> | null,
+  fallbackOutbound: string,
+  coreOutbounds: Set<string>
+): RouteRuleDefinition[] {
+  let filtered = rules;
+  if (allowedRuleSets) {
+    filtered = rules.filter((r) =>
+      !r.rule_set ||
+      (typeof r.rule_set === 'string'
+        ? allowedRuleSets.has(r.rule_set)
+        : r.rule_set.some((s) => allowedRuleSets.has(s)))
+    );
+  }
+  return filtered.map((r) => {
+    if (r.action === 'route' && r.outbound) {
+      const outbound = r.outbound;
+      if ([GROUP_TAGS.BT_PT, GROUP_TAGS.PRIVATE_NET, GROUP_TAGS.NTP_SERVICES].includes(outbound)) {
+        return { ...r, outbound: DIRECT_TAG };
+      }
+      if (!coreOutbounds.has(outbound)) {
+        return { ...r, outbound: fallbackOutbound };
+      }
+    }
+    return r;
+  });
+}
+

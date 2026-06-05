@@ -32,13 +32,8 @@ function decodeBase64Text(input: string): string | null {
   const collapsed = input.replace(/\s+/g, '');
   if (!collapsed || collapsed.length < 16 || !BASE64_PATTERN.test(collapsed)) return null;
 
-  const normalized = collapsed.replace(/-/g, '+').replace(/_/g, '/');
-  const padding = normalized.length % 4 === 0 ? '' : '='.repeat(4 - (normalized.length % 4));
-
   try {
-    const binary = atob(normalized + padding);
-    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
-    return new TextDecoder().decode(bytes);
+    return Buffer.from(collapsed, 'base64').toString('utf-8');
   } catch {
     return null;
   }
@@ -212,20 +207,23 @@ export function parseSubscriptionContent(input: string): LooseProxyNode[] {
   const raw = stripBom(input);
   if (!raw) return [];
 
-  const structured = parseStructuredProxyList(raw);
-  if (structured.length > 0) return structured;
+  const collapsed = raw.replace(/\s+/g, '');
+  if (collapsed.length >= 16 && BASE64_PATTERN.test(collapsed)) {
+    const decoded = decodeBase64Text(raw);
+    if (decoded) {
+      const decodedRaw = stripBom(decoded);
+      if (decodedRaw) {
+        const decodedStructured = parseStructuredProxyList(decodedRaw);
+        if (decodedStructured.length > 0) return decodedStructured;
 
-  const decoded = decodeBase64Text(raw);
-  if (decoded) {
-    const decodedRaw = stripBom(decoded);
-    if (decodedRaw) {
-      const decodedStructured = parseStructuredProxyList(decodedRaw);
-      if (decodedStructured.length > 0) return decodedStructured;
-
-      const parsedText = parseProxyTextToNodes(decodedRaw);
-      if (parsedText.nodes.length > 0) return parsedText.nodes;
+        const parsedText = parseProxyTextToNodes(decodedRaw);
+        if (parsedText.nodes.length > 0) return parsedText.nodes;
+      }
     }
   }
+
+  const structured = parseStructuredProxyList(raw);
+  if (structured.length > 0) return structured;
 
   return parseProxyTextToNodes(raw).nodes;
 }
@@ -269,6 +267,7 @@ export async function fetchSubscriptionNodes(
           'User-Agent': userAgent,
           Accept: '*/*',
         },
+        signal: AbortSignal.timeout(10000),
       });
 
       if (!response.ok) {

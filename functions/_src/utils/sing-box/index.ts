@@ -67,22 +67,17 @@ export async function buildSingBoxConfig(options: BuildSingBoxOptions): Promise<
   };
 
   if (tailscaleNodes.length > 0) {
-    const endpoints: any[] = [];
-    tailscaleNodes.forEach(node => {
-      const ep: any = {
-        type: 'tailscale',
-        tag: node.name,
-        auth_key: node['auth-key'],
-      };
-      if (node.hostname) ep.hostname = node.hostname;
-      if (node['control-url']) ep.control_url = node['control-url'];
-      if (node['state-dir']) ep.state_directory = node['state-dir'];
-      if (node['accept-routes'] !== undefined) ep.accept_routes = node['accept-routes'];
-      if (node['exit-node']) ep.exit_node = node['exit-node'];
-      if (node.ephemeral !== undefined) ep.ephemeral = node.ephemeral;
-      endpoints.push(ep);
-    });
-    config.endpoints = endpoints;
+    config.endpoints = tailscaleNodes.map(node => ({
+      type: 'tailscale',
+      tag: node.name,
+      auth_key: node['auth-key'],
+      ...(node.hostname && { hostname: node.hostname }),
+      ...(node['control-url'] && { control_url: node['control-url'] }),
+      ...(node['state-dir'] && { state_directory: node['state-dir'] }),
+      ...(node['accept-routes'] !== undefined && { accept_routes: node['accept-routes'] }),
+      ...(node['exit-node'] && { exit_node: node['exit-node'] }),
+      ...(node.ephemeral !== undefined && { ephemeral: node.ephemeral }),
+    }));
   }
 
   return config;

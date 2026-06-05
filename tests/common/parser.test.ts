@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { parseProxyUri } from "../../functions/_src/utils/proxy-parser";
+import { buildProxyUri } from "../../functions/_src/utils/proxy-builder";
 import YAML from "yaml";
 
 describe("parseProxyUri", () => {
@@ -109,5 +110,32 @@ describe("parseProxyUri", () => {
     const uri = "invalid://something?foo=bar#Node";
     const yamlString = parseProxyUri(uri);
     expect(yamlString).toContain("- invalid://something?foo=bar#Node");
+  });
+
+  test("parses and builds vmess protocol with non-ASCII and emojis (UTF-8 safety test)", () => {
+    const rawVmessJson = JSON.stringify({
+      v: "2", ps: "🇺🇸 美国 01", add: "server.com", port: 443, id: "uuid-1234", aid: 0, scy: "auto", net: "tcp", tls: ""
+    });
+    const base64Vmess = Buffer.from(rawVmessJson).toString("base64");
+    const uri = `vmess://${base64Vmess}`;
+
+    const yamlString = parseProxyUri(uri);
+    const parsed = YAML.parse(yamlString);
+    expect(parsed.proxies[0]).toMatchObject({
+      name: "🇺🇸 美国 01",
+      type: "vmess",
+      server: "server.com",
+      port: 443,
+      uuid: "uuid-1234",
+    });
+
+    const rebuiltUris = buildProxyUri(parsed.proxies[0]);
+    expect(rebuiltUris).toHaveLength(1);
+    const rebuiltUri = rebuiltUris[0];
+    expect(rebuiltUri).toContain("vmess://");
+
+    const rebuiltBase64 = rebuiltUri.replace("vmess://", "");
+    const decodedRebuilt = JSON.parse(Buffer.from(rebuiltBase64, "base64").toString("utf-8"));
+    expect(decodedRebuilt.ps).toBe("🇺🇸 美国 01");
   });
 });

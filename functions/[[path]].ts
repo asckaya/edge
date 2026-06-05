@@ -1,40 +1,27 @@
+import { Hono } from 'hono';
+import { handle } from 'hono/cloudflare-pages';
 import { parseProxyTextToNodes, parseProxyUri } from './_src/utils/proxy-parser';
 import { buildSingBoxConfig } from './_src/utils/sing-box';
 import { buildMihomoConfig } from './_src/utils/mihomo';
 import { fetchSubscriptionNodes, parseSubscriptionContent } from './_src/utils/subscription-parser';
 import { Subscription, RequestParamsSchema } from './_src/types';
 
-interface PagesFunctionContext {
-  request: Request;
-  next: () => Response | Promise<Response>;
-}
+const app = new Hono();
 
-export const onRequest = async (context: PagesFunctionContext) => {
-  const { request, next } = context;
-  const url = new URL(request.url);
+app.get('*', async (c) => {
+  const url = new URL(c.req.url);
   const searchParams = url.searchParams;
 
-  if (searchParams.toString() === '') {
-    return next();
-  }
-
-  const paramsObj: Record<string, unknown> = {};
-  for (const [key, value] of searchParams.entries()) {
-    paramsObj[key] = value;
-  }
-
-  const dynamicSubscriptions: Subscription[] = [];
-  for (const [key, value] of searchParams.entries()) {
-    if (!key || !value || ['secret', 'proxies', 'type', 'gh_proxy'].includes(key)) continue;
-    if (value.startsWith('http://') || value.startsWith('https://')) {
-      dynamicSubscriptions.push({ name: key, url: value });
-    }
-  }
-  (paramsObj as any).subscriptions = dynamicSubscriptions;
+  const paramsObj = {
+    ...Object.fromEntries(searchParams),
+    subscriptions: Array.from(searchParams.entries())
+      .filter(([key, val]) => key && val && !['secret', 'proxies', 'type', 'gh_proxy'].includes(key) && (val.startsWith('http://') || val.startsWith('https://')))
+      .map(([name, url]) => ({ name, url }))
+  };
 
   const parseResult = RequestParamsSchema.safeParse(paramsObj);
   if (!parseResult.success) {
-    return new Response(`Invalid parameters: ${parseResult.error.message}`, { status: 400 });
+    return c.text(`Invalid parameters: ${parseResult.error.message}`, 400);
   }
 
   const { type: configType, secret: providedSecret, proxies: customProxiesRaw, gh_proxy: ghProxy, subscriptions } = parseResult.data;
@@ -46,8 +33,8 @@ export const onRequest = async (context: PagesFunctionContext) => {
   const isDual = configType.endsWith('-dual');
 
   if (subscriptions.length === 0 && !customProxiesRaw) {
-    return new Response('Edge Subscription API - Missing parameters. Visit / for the interface. Add ?proxies=... or ?SubName=SubUrl', {
-      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+    return c.text('Edge Subscription API - Missing parameters. Visit / for the interface. Add ?proxies=... or ?SubName=SubUrl', 200, {
+      'Content-Type': 'text/plain; charset=utf-8'
     });
   }
 
@@ -76,7 +63,7 @@ export const onRequest = async (context: PagesFunctionContext) => {
       isDual,
     });
 
-    return Response.json(finalConfig, { headers: { 'Cache-Control': 'no-cache' } });
+    return c.json(finalConfig, 200, { 'Cache-Control': 'no-cache' });
   }
 
   // Mihomo/Stash Logic
@@ -93,11 +80,16 @@ export const onRequest = async (context: PagesFunctionContext) => {
     isDual
   });
 
-  return new Response(finalYaml, {
-    headers: {
-      'content-type': 'text/yaml; charset=utf-8',
-      'Cache-Control': 'no-cache',
-    },
+  return c.text(finalYaml, 200, {
+    'content-type': 'text/yaml; charset=utf-8',
+    'Cache-Control': 'no-cache',
   });
+});
+
+export const onRequest = async (context: any) => {
+  const url = new URL(context.request.url);
+  if (url.searchParams.toString() === '') {
+    return context.next();
+  }
+  return handle(app)(context);
 };
-;

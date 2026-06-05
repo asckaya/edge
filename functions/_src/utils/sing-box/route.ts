@@ -1,5 +1,5 @@
 import { GEODATA_URLS, GEODATA_URLS_LITE, GEOX_ALLOWED_WHITE, GEOX_ALLOWED_BLACK } from '../../../_templates/shared/geox';
-import { RULE_SET_DEFINITIONS, ROUTE_RULES } from './definitions';
+import { RULE_SET_DEFINITIONS, ROUTE_RULES, filterAndMapRouteRules } from '../rules-registry';
 import { DIRECT_TAG, PROXY_SELECTOR_TAG, GROUP_TAGS } from '../shared-constants';
 import { buildRuleSetUrl } from './utils';
 
@@ -27,27 +27,14 @@ export function buildRoute(ruleSets: Record<string, unknown>[], isWhite = false,
     return remote;
   });
 
+  const coreOutbounds = new Set([GROUP_TAGS.CN_SERVICES, GROUP_TAGS.AD_BLOCK, DIRECT_TAG, GROUP_TAGS.REJECT, PROXY_SELECTOR_TAG]);
   let activeRules = ROUTE_RULES;
   if (isWhite) {
-    activeRules = ROUTE_RULES.filter((r) => !r.rule_set || (typeof r.rule_set === 'string' ? allowedWhite.has(r.rule_set) : r.rule_set.some((s) => allowedWhite.has(s))));
+    activeRules = filterAndMapRouteRules(ROUTE_RULES, allowedWhite, DIRECT_TAG, coreOutbounds);
   } else if (isBlack) {
-    activeRules = ROUTE_RULES.filter((r) => !r.rule_set || (typeof r.rule_set === 'string' ? allowedBlack.has(r.rule_set) : r.rule_set.some((s) => allowedBlack.has(s))));
+    activeRules = filterAndMapRouteRules(ROUTE_RULES, allowedBlack, PROXY_SELECTOR_TAG, coreOutbounds);
   } else if (isDual) {
-    const coreOutbounds = new Set([GROUP_TAGS.CN_SERVICES, GROUP_TAGS.AD_BLOCK, DIRECT_TAG, GROUP_TAGS.REJECT, PROXY_SELECTOR_TAG]);
-    activeRules = ROUTE_RULES.map((r) => {
-      if (r.action === 'route' && r.outbound) {
-        const outbound = r.outbound;
-        // BT/PT, Private, NTP -> DIRECT
-        if ([GROUP_TAGS.BT_PT, GROUP_TAGS.PRIVATE_NET, GROUP_TAGS.NTP_SERVICES].includes(outbound)) {
-          return { ...r, outbound: DIRECT_TAG };
-        }
-        // Non-core -> PROXY_SELECTOR_TAG
-        if (!coreOutbounds.has(outbound)) {
-          return { ...r, outbound: PROXY_SELECTOR_TAG };
-        }
-      }
-      return r;
-    });
+    activeRules = filterAndMapRouteRules(ROUTE_RULES, null, PROXY_SELECTOR_TAG, coreOutbounds);
   }
 
   // White: fallback to proxy; Black: fallback to direct
