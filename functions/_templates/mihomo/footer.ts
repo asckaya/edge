@@ -30,8 +30,6 @@ dns:
     - "*.test"
     - "*.home.arpa"
     - "+.tailscale.net"
-    - "+.ts.net"
-    - "+.et.net"
     - "+.easytier.cn"
     - "+.easytier.top"
     - "localhost.ptlogin2.qq.com"

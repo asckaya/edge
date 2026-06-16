@@ -40,7 +40,7 @@ export async function buildSingBoxConfig(options: BuildSingBoxOptions): Promise<
     });
 
     route.rules = [
-      { ip_cidr: ['100.64.0.0/10', 'fd7a:115c:a1e0::/48'], action: 'route', outbound: tailscaleOutbound },
+      { ip_cidr: ['100.64.0.0/10', 'fd7a:115c:a1e0::/48'], action: 'route', outbound: tailscaleOutbound, no_resolve: true },
       ...updatedRules
     ];
   }

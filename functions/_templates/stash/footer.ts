@@ -32,8 +32,6 @@ dns:
     - "*.local"
     - "*.home.arpa"
     - "+.tailscale.net"
-    - "+.ts.net"
-    - "+.et.net"
     - "+.easytier.cn"
     - "+.easytier.top"
     - "+.pool.ntp.org"

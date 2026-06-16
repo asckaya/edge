@@ -27,7 +27,8 @@ export function renderMihomoRules(rules: RouteRuleDefinition[], definitions: Rul
 
     if (r.ip_cidr) {
       const cidrs = Array.isArray(r.ip_cidr) ? r.ip_cidr : [r.ip_cidr];
-      return cidrs.map(c => `  - IP-CIDR,${c},${outbound}`).join('\n');
+      const noResolve = (r as any).no_resolve ? ',no-resolve' : '';
+      return cidrs.map(c => `  - IP-CIDR,${c},${outbound}${noResolve}`).join('\n');
     }
 
     if (r.port) {

@@ -167,7 +167,7 @@ export function buildMihomoConfig(options: BuildMihomoOptions): string {
       return [r];
     });
     activeRules = [
-      { ip_cidr: ['100.64.0.0/10', 'fd7a:115c:a1e0::/48'], action: 'route', outbound: tailscaleOutbound } as any,
+      { ip_cidr: ['100.64.0.0/10', 'fd7a:115c:a1e0::/48'], action: 'route', outbound: tailscaleOutbound, no_resolve: true } as any,
       ...activeRules
     ];
   }

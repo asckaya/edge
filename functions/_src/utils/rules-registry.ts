@@ -243,7 +243,7 @@ export const ROUTE_RULES: RouteRuleDefinition[] = [
   { port: 11010, action: 'route', outbound: DIRECT_TAG },
   { rule_set: 'private-ip', action: 'route', outbound: GROUP_TAGS.PRIVATE_NET },
   { rule_set: 'private', action: 'route', outbound: GROUP_TAGS.PRIVATE_NET },
-  { domain_suffix: ['et.net', 'ts.net'], action: 'route', outbound: DIRECT_TAG },
+  { domain_suffix: ['ts.net'], action: 'route', outbound: DIRECT_TAG },
   { rule_set: 'advertising', action: 'route', outbound: GROUP_TAGS.AD_BLOCK },
   { rule_set: 'adblockfilters', action: 'route', outbound: GROUP_TAGS.AD_BLOCK },
   { rule_set: 'category-speedtest', action: 'route', outbound: GROUP_TAGS.SPEEDTEST },
