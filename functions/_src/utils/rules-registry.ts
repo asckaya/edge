@@ -56,7 +56,6 @@ export const GEOX_CATEGORIES = {
       'category-social-media-!cn',
       'category-forums'
     ],
-    geoip: ['twitter'],
   },
   DEV: {
     geosite: [
@@ -179,7 +178,6 @@ export const GEOX_ALLOWED_BLACK = [
   ...GEOX_CATEGORIES.COMMUNICATION.geosite,
   ...GEOX_CATEGORIES.COMMUNICATION.geoip.map(t => `${t}-ip`),
   ...GEOX_CATEGORIES.SOCIAL.geosite,
-  ...GEOX_CATEGORIES.SOCIAL.geoip.map(t => `${t}-ip`),
   ...GEOX_CATEGORIES.DEV.geosite,
   ...GEOX_CATEGORIES.GAMES.geosite,
   ...GEOX_CATEGORIES.SCHOLAR.geosite,
@@ -290,7 +288,6 @@ export const ROUTE_RULES: RouteRuleDefinition[] = [
   { rule_set: 'category-media', action: 'route', outbound: GROUP_TAGS.STREAMING },
   { rule_set: 'category-forums', action: 'route', outbound: GROUP_TAGS.SOCIAL_MEDIA },
   { rule_set: 'category-social-media-!cn', action: 'route', outbound: GROUP_TAGS.SOCIAL_MEDIA },
-  { rule_set: 'twitter-ip', action: 'route', outbound: GROUP_TAGS.SOCIAL_MEDIA },
   { rule_set: 'steam@cn', action: 'route', outbound: GROUP_TAGS.CN_SERVICES },
   { rule_set: 'category-game-platforms-download', action: 'route', outbound: GROUP_TAGS.GAME_DOWNLOAD },
   { rule_set: 'category-games-!cn', action: 'route', outbound: GROUP_TAGS.GAMING },

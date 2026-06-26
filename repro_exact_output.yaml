@@ -320,33 +320,13 @@ dns:
   fake-ip-range: 198.18.0.1/16
   default-nameserver:
     - 223.5.5.5
-    - 119.29.29.29
   nameserver:
-    - https://doh.pub/dns-query
-    - https://dns.alidns.com/dns-query
-  proxy-server-nameserver:
+    - 223.5.5.5
     - https://doh.pub/dns-query
   nameserver-policy:
-    "geosite:cn,private,apple,microsoft@cn,steam@cn,onedrive":
-      - https://doh.pub/dns-query
-      - https://dns.alidns.com/dns-query
     "geosite:category-ads-all": rcode://success
-  fallback:
-    - 8.8.8.8
-    - 114.114.114.114
-  fallback-filter:
-    geoip: true
-    ipcidr: [240.0.0.0/4, 0.0.0.0/32, 127.0.0.1/32]
-    domain:
-      - +.google.com
-      - +.facebook.com
-      - +.twitter.com
-      - +.youtube.com
-      - +.google.cn
-      - +.googleapis.cn
-      - +.googleapis.com
+    "+.ts.net": "100.100.100.100"
   fake-ip-filter:
-    - "*"
     - "+.lan"
     - "+.local"
     - "+.market.xiaomi.com"
@@ -357,13 +337,12 @@ dns:
     - "*.test"
     - "*.home.arpa"
     - "+.tailscale.net"
-    - "+.ts.net"
-    - "+.et.net"
     - "+.easytier.cn"
     - "+.easytier.top"
     - "localhost.ptlogin2.qq.com"
     - "localhost.sec.qq.com"
     - "geosite:cn"
+    - "+.deepseek.com"
 
 profile:
   store-selected: true
@@ -406,29 +385,11 @@ rule-providers:
 rules:
   - DST-PORT,22,DIRECT
   - DST-PORT,11010,DIRECT
+  - DOMAIN-SUFFIX,ts.net,DIRECT
   - GEOIP,private,🏠 私有网络,no-resolve
   - GEOSITE,private,🏠 私有网络
-  - DOMAIN-SUFFIX,et.net,DIRECT
-  - DOMAIN-SUFFIX,ts.net,DIRECT
   - GEOSITE,category-ads-all,🛑 广告拦截
   - RULE-SET,adblockfilters,🛑 广告拦截
-  - GEOSITE,geolocation-cn,🔒 国内服务
-  - GEOSITE,cn,🔒 国内服务
-  - GEOIP,cn,🔒 国内服务,no-resolve
-  - GEOSITE,category-antivirus,🔒 国内服务
-  - GEOSITE,win-update,🔒 国内服务
-  - GEOSITE,apple-cn,🔒 国内服务
-  - GEOSITE,google-cn,🔒 国内服务
-  - GEOSITE,microsoft@cn,🔒 国内服务
-  - GEOSITE,steam@cn,🔒 国内服务
-  - GEOSITE,onedrive,🔒 国内服务
-  - GEOSITE,category-netdisk-cn,🔒 国内服务
-  - GEOSITE,category-ecommerce@cn,🔒 国内服务
-  - GEOSITE,category-collaborate-cn,🔒 国内服务
-  - GEOSITE,category-cdn-cn,🔒 国内服务
-  - GEOSITE,category-scholar-cn,🔒 国内服务
-  - GEOSITE,category-bank-cn,🔒 国内服务
-  - GEOSITE,category-games@cn,🔒 国内服务
   - GEOSITE,category-speedtest,🧪 测速专线
   - GEOSITE,category-ntp,🕓 NTP 服务
   - GEOSITE,category-dev,🐱 开发工具
@@ -438,10 +399,14 @@ rules:
   - GEOSITE,gitlab,🐱 开发工具
   - GEOSITE,github,🐱 开发工具
   - GEOSITE,docker,🐱 开发工具
+  - GEOSITE,google-cn,🔒 国内服务
   - GEOSITE,google,🔍 谷歌服务
   - GEOIP,google,🔍 谷歌服务,no-resolve
+  - GEOSITE,apple-cn,🔒 国内服务
   - GEOSITE,apple-tvplus,🎬 苹果视频
   - GEOSITE,apple,🍏 苹果服务
+  - GEOSITE,microsoft@cn,🔒 国内服务
+  - GEOSITE,onedrive,🔒 国内服务
   - GEOSITE,microsoft,Ⓜ️ 微软服务
   - GEOSITE,category-ai-chat-!cn,💬 AI 服务
   - GEOSITE,openai,💬 AI 服务
@@ -469,7 +434,7 @@ rules:
   - GEOSITE,category-media,🎬 流媒体
   - GEOSITE,category-forums,🌐 社交媒体
   - GEOSITE,category-social-media-!cn,🌐 社交媒体
-  - GEOIP,twitter,🌐 社交媒体,no-resolve
+  - GEOSITE,steam@cn,🔒 国内服务
   - GEOSITE,category-game-platforms-download,🎮 游戏下载
   - GEOSITE,category-games-!cn,🎮 游戏平台
   - GEOSITE,category-scholar-!cn,📚 教育资源
@@ -489,7 +454,21 @@ rules:
   - GEOSITE,cloudflare,☁️ 云服务
   - GEOIP,cloudflare,☁️ 云服务,no-resolve
   - GEOSITE,category-android-app-download,☁️ 云服务
+  - GEOSITE,dropbox,☁️ 云服务
+  - GEOSITE,mega,☁️ 云服务
   - GEOSITE,category-ecommerce,🛒 购物网站
   - GEOSITE,category-ip-geo-detect,🧪 测速专线
+  - GEOSITE,geolocation-cn,🔒 国内服务
+  - GEOSITE,cn,🔒 国内服务
+  - GEOIP,cn,🔒 国内服务,no-resolve
+  - GEOSITE,category-antivirus,🔒 国内服务
+  - GEOSITE,win-update,🔒 国内服务
+  - GEOSITE,category-netdisk-cn,🔒 国内服务
+  - GEOSITE,category-ecommerce@cn,🔒 国内服务
+  - GEOSITE,category-collaborate-cn,🔒 国内服务
+  - GEOSITE,category-cdn-cn,🔒 国内服务
+  - GEOSITE,category-scholar-cn,🔒 国内服务
+  - GEOSITE,category-bank-cn,🔒 国内服务
+  - GEOSITE,category-games@cn,🔒 国内服务
   - GEOSITE,geolocation-!cn,🌐 非中国
   - MATCH,🐟 漏网之鱼
