@@ -16,7 +16,7 @@ dns:
   listen: "127.0.0.1:1053"
   use-system-hosts: false
   enhanced-mode: fake-ip
-  fake-ip-range: 198.18.0.1/16
+  fake-ip-range: 10.255.0.1/16
   default-nameserver:
     - 223.5.5.5
   nameserver:
