@@ -16,6 +16,7 @@ dns:
   ipv6: false
   default-nameserver:
     - 223.5.5.5
+    - 119.29.29.29
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter-mode: blacklist
@@ -39,7 +40,7 @@ dns:
     - https://dns.alidns.com/dns-query
   direct-nameserver:
     - system
-  direct-nameserver-follow-policy: false
+  direct-nameserver-follow-policy: true
   fallback-filter:
     geoip: true
     geoip-code: CN
