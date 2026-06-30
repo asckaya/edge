@@ -81,6 +81,7 @@ dns:
     - "+.chatgpt.com"
     - "+.oaistatic.com"
     - "+.oaiusercontent.com"
+    - "+.bing.com"
 
 profile:
   store-selected: true

@@ -40,6 +40,7 @@ dns:
     - "+.chatgpt.com"
     - "+.oaistatic.com"
     - "+.oaiusercontent.com"
+    - "+.bing.com"
     - "*.msftconnecttest.com"
     - "*.msftncsi.com"
     - "time.*.com"
