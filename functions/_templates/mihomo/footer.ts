@@ -29,6 +29,9 @@ dns:
     "geosite:cn":
       - https://doh.pub/dns-query
       - https://dns.alidns.com/dns-query
+    "geosite:gfw":
+      - tls://8.8.4.4
+      - tls://1.1.1.1
   nameserver:
     - https://doh.pub/dns-query
     - https://dns.alidns.com/dns-query
@@ -44,8 +47,6 @@ dns:
   fallback-filter:
     geoip: true
     geoip-code: CN
-    geosite:
-      - gfw
     ipcidr:
       - 240.0.0.0/4
     domain:
