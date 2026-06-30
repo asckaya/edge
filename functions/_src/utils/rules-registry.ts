@@ -237,7 +237,6 @@ export const ROUTE_RULES: RouteRuleDefinition[] = [
     rules: [{ protocol: 'dns' }, { port: 53 }],
     action: 'hijack-dns',
   },
-  { port: 11010, action: 'route', outbound: DIRECT_TAG },
   { domain_suffix: ['ts.net'], action: 'route', outbound: DIRECT_TAG },
   { rule_set: 'private-ip', action: 'route', outbound: GROUP_TAGS.PRIVATE_NET },
   { rule_set: 'private', action: 'route', outbound: GROUP_TAGS.PRIVATE_NET },

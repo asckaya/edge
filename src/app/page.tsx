@@ -28,24 +28,27 @@ export default function Home() {
       label: 'Mihomo / Clash Meta',
       options: [
         { value: 'mihomo', label: 'Mihomo Full' },
-        { value: 'mihomo-mini', label: 'Mihomo Mini (Whitelist)' },
-        { value: 'mihomo-micro', label: 'Mihomo Micro (Blacklist)' },
+        { value: 'mihomo-dual', label: 'Mihomo Dual (Recommended)' },
+        { value: 'mihomo-white', label: 'Mihomo White (Whitelist)' },
+        { value: 'mihomo-black', label: 'Mihomo Black (Blacklist)' },
       ]
     },
     {
       label: 'Stash iOS',
       options: [
         { value: 'stash', label: 'Stash Full' },
-        { value: 'stash-mini', label: 'Stash Mini (Whitelist)' },
-        { value: 'stash-micro', label: 'Stash Micro (Blacklist)' },
+        { value: 'stash-dual', label: 'Stash Dual (Recommended)' },
+        { value: 'stash-white', label: 'Stash White (Whitelist)' },
+        { value: 'stash-black', label: 'Stash Black (Blacklist)' },
       ]
     },
     {
       label: 'sing-box',
       options: [
         { value: 'sing-box', label: 'sing-box Full' },
-        { value: 'sing-box-mini', label: 'sing-box Mini (Whitelist)' },
-        { value: 'sing-box-micro', label: 'sing-box Micro (Blacklist)' },
+        { value: 'sing-box-dual', label: 'sing-box Dual (Recommended)' },
+        { value: 'sing-box-white', label: 'sing-box White (Whitelist)' },
+        { value: 'sing-box-black', label: 'sing-box Black (Blacklist)' },
       ]
     }
   ];
