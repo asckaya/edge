@@ -7,46 +7,68 @@ find-process-mode: strict
 
 dns:
   enable: true
+  cache-algorithm: arc
+  prefer-h3: true
+  use-hosts: true
+  use-system-hosts: true
+  respect-rules: false
   listen: 0.0.0.0:1053
   ipv6: false
-  enhanced-mode: fake-ip
-  fake-ip-range: 198.18.0.1/16
   default-nameserver:
     - 223.5.5.5
-  nameserver:
-    - 223.5.5.5
-    - https://doh.pub/dns-query
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter-mode: blacklist
+  fake-ip-filter:
+    - "+.m2m"
+    - "injections.adguard.org"
+    - "local.adguard.org"
+    - "+.bogon"
+    - "+.local"
+    - "+.lan"
+    - "+.internal"
+    - "+.localdomain"
+    - "home.arpa"
+    - "dns.msftncsi.com"
+    - "*.srv.nintendo.net"
+    - "*.stun.playstation.net"
+    - "xbox.*.microsoft.com"
+    - "*.xboxlive.com"
+    - "*.turn.twilio.com"
+    - "*.stun.twilio.com"
+    - "stun.syncthing.net"
+    - "stun.*"
+    - "lancache.steamcontent.com"
   nameserver-policy:
     "geosite:category-ads-all": rcode://success
     "+.ts.net": "100.100.100.100"
-  fake-ip-filter:
-    - "+.lan"
-    - "+.local"
-    - "+.market.xiaomi.com"
-    - "*.localdomain"
-    - "*.example"
-    - "*.invalid"
-    - "*.localhost"
-    - "*.test"
-    - "*.home.arpa"
-    - "+.tailscale.net"
-    - "+.easytier.cn"
-    - "+.easytier.top"
-    - "localhost.ptlogin2.qq.com"
-    - "localhost.sec.qq.com"
-    - "geosite:cn"
-    - "+.deepseek.com"
-    - "+.openai.com"
-    - "+.chatgpt.com"
-    - "+.oaistatic.com"
-    - "+.oaiusercontent.com"
-    - "+.bing.com"
-    - "*.msftconnecttest.com"
-    - "*.msftncsi.com"
-    - "time.*.com"
-    - "time.*.gov"
-    - "time.*.apple.com"
-    - "+.pool.ntp.org"
+    "+.arpa": "10.0.0.1"
+    "geosite:cn":
+      - https://doh.pub/dns-query
+      - https://dns.alidns.com/dns-query
+  nameserver:
+    - https://doh.pub/dns-query
+    - https://dns.alidns.com/dns-query
+  fallback:
+    - tls://8.8.4.4
+    - tls://1.1.1.1
+  proxy-server-nameserver:
+    - https://doh.pub/dns-query
+    - https://dns.alidns.com/dns-query
+  direct-nameserver:
+    - system
+  direct-nameserver-follow-policy: false
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+    geosite:
+      - gfw
+    ipcidr:
+      - 240.0.0.0/4
+    domain:
+      - "+.google.com"
+      - "+.facebook.com"
+      - "+.youtube.com"
 
 profile:
   store-selected: true
