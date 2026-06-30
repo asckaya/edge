@@ -77,6 +77,10 @@ dns:
     - "+.launchpad.net"
     - "+.codeberg.org"
     - "+.deepseek.com"
+    - "+.openai.com"
+    - "+.chatgpt.com"
+    - "+.oaistatic.com"
+    - "+.oaiusercontent.com"
 
 profile:
   store-selected: true

@@ -36,6 +36,16 @@ dns:
     - "localhost.sec.qq.com"
     - "geosite:cn"
     - "+.deepseek.com"
+    - "+.openai.com"
+    - "+.chatgpt.com"
+    - "+.oaistatic.com"
+    - "+.oaiusercontent.com"
+    - "*.msftconnecttest.com"
+    - "*.msftncsi.com"
+    - "time.*.com"
+    - "time.*.gov"
+    - "time.*.apple.com"
+    - "+.pool.ntp.org"
 
 profile:
   store-selected: true
