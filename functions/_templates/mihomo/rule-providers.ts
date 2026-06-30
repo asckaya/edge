@@ -14,6 +14,6 @@ export const configMihomoRuleProviders = `rule-providers:
     behavior: domain
     format: text
     interval: 86400
-    url: "https://cdn.jsdelivr.net/gh/juewuy/ShellCrash@dev/public/fake_ip_filter.list"
+    url: "https://testingcf.jsdelivr.net/gh/juewuy/ShellCrash@dev/public/fake_ip_filter.list"
     path: ./ruleset/fake_ip_filter.list
 `;
