@@ -20,25 +20,7 @@ dns:
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter-mode: blacklist
   fake-ip-filter:
-    - "+.m2m"
-    - "injections.adguard.org"
-    - "local.adguard.org"
-    - "+.bogon"
-    - "+.local"
-    - "+.lan"
-    - "+.internal"
-    - "+.localdomain"
-    - "home.arpa"
-    - "dns.msftncsi.com"
-    - "*.srv.nintendo.net"
-    - "*.stun.playstation.net"
-    - "xbox.*.microsoft.com"
-    - "*.xboxlive.com"
-    - "*.turn.twilio.com"
-    - "*.stun.twilio.com"
-    - "stun.syncthing.net"
-    - "stun.*"
-    - "lancache.steamcontent.com"
+    - 'rule-set:fake-ip-filter'
   nameserver-policy:
     "geosite:category-ads-all": rcode://success
     "+.ts.net": "100.100.100.100"
