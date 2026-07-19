@@ -1,0 +1,37 @@
+# Build output
+dist/
+.output/
+.tanstack/
+
+# Generated route tree (TanStack Start)
+src/routeTree.gen.ts
+
+# dependencies
+node_modules/
+
+# testing
+coverage/
+
+# misc
+.DS_Store
+
+# debug logs
+*.log
+
+# local env files
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+# wrangler
+.wrangler/
+
+# bare-kernel test artifacts (tests/_helpers/bare-kernel.ts)
+*-kernel-test.*
+
+# local config (contains personal subscriptions / credentials)
+proxy.yaml
+
+# local agent configs
+.agents/
