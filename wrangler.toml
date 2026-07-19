@@ -1,4 +1,4 @@
-name = "edge-engine"
+name = "edge"
 main = "src/server.ts"
 compatibility_date = "2026-05-11"
 compatibility_flags = ["nodejs_compat"]
