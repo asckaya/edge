@@ -14,6 +14,7 @@ import {
 	Terminal,
 } from "lucide-react";
 import { lazy, Suspense, useMemo, useState } from "react";
+import { FaGithub } from "react-icons/fa";
 import ActionBox from "@/components/ActionBox";
 import InteractiveCard from "@/components/home/InteractiveCard";
 import { COMMON_GH_PROXIES, HOME_TRANSLATIONS } from "@/components/home/translations";
@@ -536,6 +537,15 @@ function HomeComponent() {
 							className="text-[10px] font-extrabold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors"
 						>
 							{lang === "zh" ? "快速入门 / AI 文档 ↗" : "Quick Start / AI Guide ↗"}
+						</a>
+						<a
+							href="https://github.com/asckaya/edge"
+							target="_blank"
+							rel="noreferrer"
+							aria-label="GitHub"
+							className="text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors"
+						>
+							<FaGithub className="h-3.5 w-3.5" />
 						</a>
 					</div>
 				</footer>

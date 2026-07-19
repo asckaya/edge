@@ -32,7 +32,7 @@ export default defineConfig({
 		markdownCharset(),
 		cloudflare({ viteEnvironment: { name: "ssr" } }),
 		tanstackStart({
-			prerender: { enabled: true },
+			prerender: { enabled: true, crawlLinks: false },
 			router: { routesDirectory: "app" },
 		}),
 		react({

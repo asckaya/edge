@@ -38,6 +38,7 @@
 		"picocolors": "^1.1.1",
 		"react": "19.2.7",
 		"react-dom": "19.2.7",
+		"react-icons": "^5.7.0",
 		"valibot": "^1.4.2",
 		"vite": "^8.1.5",
 		"yaml": "^2.9.0"
