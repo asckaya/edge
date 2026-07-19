@@ -1,0 +1,114 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.5.4/schema.json",
+	"vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+	"css": {
+		"formatter": { "enabled": true },
+		"linter": { "enabled": false },
+		"parser": { "cssModules": false, "tailwindDirectives": true }
+	},
+	"files": {
+		"ignoreUnknown": true,
+		"includes": [
+			"**",
+			"!.next",
+			"!dist",
+			"!out",
+			"!build",
+			"!next-env.d.ts",
+			"!.wrangler",
+			"!.open-next",
+			"!node_modules",
+			"!coverage",
+			"!pnpm-lock.yaml",
+			"!src/routeTree.gen.ts"
+		]
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "tab",
+		"indentWidth": 2,
+		"lineWidth": 100,
+		"formatWithErrors": false
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"preset": "recommended",
+			"a11y": {
+				"recommended": true
+			},
+			"complexity": {
+				"recommended": true,
+				"useOptionalChain": "warn",
+				"noUselessTypeConstraint": "error",
+				"useArrowFunction": "error",
+				"useSimplifiedLogicExpression": "warn"
+			},
+			"correctness": {
+				"recommended": true,
+				"noUnusedVariables": "error",
+				"noUnusedImports": "error",
+				"useExhaustiveDependencies": "warn",
+				"useHookAtTopLevel": "error",
+				"useJsxKeyInIterable": "error"
+			},
+			"nursery": {
+				"recommended": true
+			},
+			"performance": {
+				"recommended": true,
+				"noAccumulatingSpread": "warn",
+				"noBarrelFile": "off"
+			},
+			"security": {
+				"recommended": true,
+				"noDangerouslySetInnerHtml": "warn"
+			},
+			"style": {
+				"recommended": true,
+				"useImportType": "error",
+				"useNodejsImportProtocol": "error",
+				"useNamingConvention": "off",
+				"useTemplate": "warn",
+				"noNonNullAssertion": "warn",
+				"noDefaultExport": "off",
+				"useConsistentArrayType": "error",
+				"useShorthandFunctionType": "error",
+				"useExportType": "error",
+				"useSingleVarDeclarator": "error",
+				"noNegationElse": "warn",
+				"useDefaultParameterLast": "error",
+				"useAsConstAssertion": "error",
+				"noInferrableTypes": "warn"
+			},
+			"suspicious": {
+				"recommended": true,
+				"noExplicitAny": "error",
+				"noArrayIndexKey": "error",
+				"noAssignInExpressions": "error",
+				"noImplicitAnyLet": "warn",
+				"noMisplacedAssertion": "error",
+				"useAwait": "error",
+				"useDefaultSwitchClauseLast": "warn",
+				"useGetterReturn": "error",
+				"useNamespaceKeyword": "error"
+			}
+		}
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "double",
+			"semicolons": "always",
+			"trailingCommas": "all",
+			"jsxQuoteStyle": "double",
+			"arrowParentheses": "always",
+			"bracketSameLine": false,
+			"bracketSpacing": true
+		},
+		"globals": []
+	},
+	"assist": {
+		"enabled": true,
+		"actions": { "source": { "organizeImports": "on" } }
+	}
+}

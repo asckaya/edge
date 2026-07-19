@@ -1,0 +1,17 @@
+name = "edge-engine"
+main = "src/server.ts"
+compatibility_date = "2026-05-11"
+compatibility_flags = ["nodejs_compat"]
+
+# 短链接功能用的 KV namespace
+# 1. Dashboard > Workers & Pages > KV > Create namespace, 名字随意 (例如 edge-links)
+# 2. 复制创建后的 namespace ID 填到下方 id 字段
+# 3. 重新部署 (git push 或手动)
+[[kv_namespaces]]
+binding = "EDGE_KV"
+id = "dc7b3efaf67e4460848d310960daef81"
+
+# TanStack Start prerendered assets and Vite build output
+[assets]
+directory = ".output/public"
+binding = "ASSETS"

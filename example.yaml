@@ -1,0 +1,132 @@
+# ============================================================
+# proxy.yaml — Edge Engine 本地配置文件
+# 用途：scripts/ 下的 CLI 工具读取此文件生成订阅转换 URL / 本地配置
+#
+# 使用方法：
+#   pnpm gen                                  # 生成 URL（默认 mihomo / full）
+#   pnpm gen --type mihomo --mode dual         # Mihomo 双模（推荐）
+#   pnpm gen --type stash                      # Stash iOS
+#   pnpm gen --type stash --mode black         # Stash 黑名单
+#   pnpm gen --type sing-box                   # sing-box v1.14+ JSON
+#   pnpm local --type mihomo --mode dual       # 本地直接生成配置文件
+#   pnpm short --slug mylink --target <url>    # 创建短链
+# ============================================================
+
+# Worker 部署地址（必填，改为你自己的域名）
+worker: https://your-edge.workers.dev/
+
+# 写入生成配置的外部控制密钥（可选，默认 edge-default）
+# 注意：这不是 Edge Engine API 的访问鉴权，是写入生成配置供 Mihomo/sing-box 外部控制用的密码
+secret: "your-secret-password"
+
+# GitHub 规则源加速前缀（可选）
+# gh_proxy: https://mirror.ghproxy.com/
+
+# ============================================================
+# Cloudflare KV 资源配置（可选，用于短链功能）
+#
+# 在 wrangler.toml 中配置：
+#   1. KV namespace 绑定：变量名 EDGE_KV
+#   2. 环境变量 EDGE_ADMIN_KEY（管理 custom slug / 更新 / 删除的鉴权密钥）
+#
+# 本地 admin_key 用于 gen-short 脚本调 API，须与部署的 EDGE_ADMIN_KEY 一致
+# ============================================================
+cf:
+  admin_key: ""   # 与 wrangler.toml 的 EDGE_ADMIN_KEY 保持一致
+
+# ============================================================
+# 订阅提供商（机场订阅）
+# 每条订阅生成独立的 proxy-provider，name 作为 URL 参数 key
+# ============================================================
+provider:
+  - name: Airport1
+    url: https://your-airport-1.com/subscribe/token123
+
+  - name: Airport2
+    url: https://your-airport-2.com/api/v1/client/subscribe?token=abc456
+
+  # 更多订阅...
+  # - name: Airport3
+  #   url: https://...
+
+# ============================================================
+# 自建节点（直接写单节点配置，会出现在 Self-Hosted 节点组）
+# 支持 18 种协议：vless / vmess / ss / trojan / wireguard / hysteria2 /
+#   tuic / tailscale / anytls / socks / http / snell /
+#   juicity / naive / masque / mieru / trusttunnel / shadowtls
+# ============================================================
+proxy:
+
+  # --- Hysteria2 示例 ---
+  - name: "My-Hy2"
+    type: hysteria2
+    server: your-server.example.com
+    port: 443
+    password: your-password
+    sni: your-server.example.com
+    alpn: [h3]
+    skip-cert-verify: false
+    fast-open: true              # 可选
+
+  # --- VLESS + REALITY 示例 ---
+  - name: "My-VLESS-Reality"
+    type: vless
+    server: your-server.example.com
+    port: 443
+    uuid: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+    network: grpc
+    flow: xtls-rprx-vision
+    servername: www.bing.com
+    reality-opts:
+      public-key: your-reality-public-key
+      short-id: your-short-id
+
+  # --- WireGuard 示例 ---
+  - name: "My-WG"
+    type: wireguard
+    server: your-server.example.com
+    port: 51820
+    ip: 10.0.0.1
+    public-key: your-wg-public-key
+    private-key: your-wg-private-key
+    mtu: 1420
+    reserved: [1, 2, 3]
+
+  # --- Shadowsocks 示例 ---
+  - name: "My-SS"
+    type: ss
+    server: your-server.example.com
+    port: 8388
+    cipher: aes-256-gcm
+    password: your-ss-password
+
+  # --- Tailscale 示例 ---
+  - name: "My-Tailscale"
+    type: tailscale
+    hostname: mihomo
+    auth-key: tskey-auth-xxxxxxxxxxxx
+    control-url: https://controlplane.tailscale.com
+    state-dir: ./tailscale
+    udp: true
+    accept-routes: true
+    exit-node: 100.88.0.1
+
+  # --- TUIC v5 示例 ---
+  - name: "My-TUIC"
+    type: tuic
+    server: your-server.example.com
+    port: 443
+    uuid: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+    password: your-tuic-password
+    sni: your-server.example.com
+    congestion-controller: bbr
+    udp-relay-mode: native
+
+# ============================================================
+# 分流模式对比（mode 参数，适用于所有内核）
+#
+# full:  精细化分流（20+ 策略组，覆盖 AI/媒体/开发/金融等）
+# dual:  双模分流（推荐，全量规则但合并国外场景为统一"节点选择"，BT/PT 强制直连）
+# white: 白名单（直连优先，仅代理已定义国外规则，其余兜底 DIRECT）
+# black: 黑名单（代理优先，仅直连已定义国内规则，其余兜底代理）
+# ============================================================
