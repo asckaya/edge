@@ -43,9 +43,6 @@ dns:
   proxy-server-nameserver:
     - https://doh.pub/dns-query
     - https://dns.alidns.com/dns-query
-  direct-nameserver:
-    - system
-  direct-nameserver-follow-policy: true
   fallback-filter:
     geoip: true
     geoip-code: CN
