@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { runBareKernelTest } from "../_helpers/bare-kernel";
+import { canRunBareKernelTest, runBareKernelTest } from "../_helpers/bare-kernel";
 
 /**
  * Sing-box Bare Kernel Test
@@ -9,7 +9,7 @@ import { runBareKernelTest } from "../_helpers/bare-kernel";
  * stubbed for any provider URLs in proxy.yaml (and DNS/geo lookups).
  */
 
-describe("Sing-box Bare Kernel Validation", () => {
+describe.skipIf(!canRunBareKernelTest("sing-box"))("Sing-box Bare Kernel Validation", () => {
 	const options = {
 		name: "Sing-box",
 		fileExtension: "json",

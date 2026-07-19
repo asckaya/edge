@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { runBareKernelTest } from "../_helpers/bare-kernel";
+import { canRunBareKernelTest, runBareKernelTest } from "../_helpers/bare-kernel";
 
 /**
  * Mihomo Bare Kernel Test
@@ -8,7 +8,7 @@ import { runBareKernelTest } from "../_helpers/bare-kernel";
  * 'mihomo' binary with the '-t' flag to ensure validity.
  */
 
-describe("Mihomo Bare Kernel Validation", () => {
+describe.skipIf(!canRunBareKernelTest("mihomo"))("Mihomo Bare Kernel Validation", () => {
 	const options = {
 		name: "Mihomo",
 		fileExtension: "yaml",

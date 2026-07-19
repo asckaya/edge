@@ -33,6 +33,26 @@ export interface BareKernelTestOptions {
 }
 
 /**
+ * Check whether the prerequisites for a bare-kernel test are met:
+ *   1. `proxy.yaml` exists in the project root (gitignored, contains real
+ *      proxy nodes — only present in local dev).
+ *   2. The named validator binary is on PATH.
+ *
+ * Used by `describe.skipIf` in each kernel.test.ts so the bare-kernel
+ * integration tests are skipped in CI (where neither proxy.yaml nor the
+ * kernel binaries are available) instead of throwing.
+ */
+export function canRunBareKernelTest(binaryName: string): boolean {
+	if (!fs.existsSync(path.join(process.cwd(), "proxy.yaml"))) return false;
+	try {
+		execSync(`which ${binaryName}`, { stdio: "pipe" });
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+/**
  * Build a config from proxy.yaml for the given kernel type, write it to a temp
  * file, run the validator binary, and return whether validation succeeded.
  */

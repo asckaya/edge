@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { runBareKernelTest } from "../_helpers/bare-kernel";
+import { canRunBareKernelTest, runBareKernelTest } from "../_helpers/bare-kernel";
 
 /**
  * Stash Bare Kernel Test
@@ -11,7 +11,7 @@ import { runBareKernelTest } from "../_helpers/bare-kernel";
  * does not).
  */
 
-describe("Stash Bare Kernel Validation", () => {
+describe.skipIf(!canRunBareKernelTest("mihomo"))("Stash Bare Kernel Validation", () => {
 	const options = {
 		name: "Stash",
 		fileExtension: "yaml",
