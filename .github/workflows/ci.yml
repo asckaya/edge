@@ -21,6 +21,11 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # Generate src/routeTree.gen.ts (gitignored, produced by the TanStack
+      # Start vite plugin at build time) before type-checking so tsc can
+      # resolve the './routeTree.gen' module imported by src/router.tsx.
+      - run: pnpm build
+
       - run: pnpm check
 
       - run: pnpm lint
