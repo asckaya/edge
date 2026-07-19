@@ -1,6 +1,6 @@
 name = "edge"
 main = "src/server.ts"
-compatibility_date = "2026-05-11"
+compatibility_date = "2026-06-16"
 compatibility_flags = ["nodejs_compat"]
 
 # 短链接功能用的 KV namespace
@@ -12,6 +12,25 @@ binding = "EDGE_KV"
 id = "dc7b3efaf67e4460848d310960daef81"
 
 # TanStack Start prerendered assets and Vite build output
+# run_worker_first = true ensures the Worker (src/server.ts) handles every
+# request first, so /?query goes to the Hono config renderer instead of being
+# served as a static index.html.
 [assets]
 directory = ".output/public"
 binding = "ASSETS"
+run_worker_first = true
+
+# 收集日志和 traces 用于调试 Worker
+[observability]
+enabled = false
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+persist = true
+invocation_logs = true
+
+[observability.traces]
+enabled = true
+persist = true
+head_sampling_rate = 1
