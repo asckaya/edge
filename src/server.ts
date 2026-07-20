@@ -22,7 +22,7 @@ function withMarkdownCharset(url: URL, response: Response): Response {
 }
 
 const server = {
-	fetch(request: Request, env: WorkerEnv, ctx: WorkerExecutionContext) {
+	async fetch(request: Request, env: WorkerEnv, ctx: WorkerExecutionContext) {
 		const url = new URL(request.url);
 		// API and short-link routes always go through Hono (they may have no query string)
 		if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/s/")) {
@@ -32,8 +32,16 @@ const server = {
 		if (url.searchParams.toString() !== "") {
 			return app.fetch(request, env, ctx);
 		}
-		// Static assets and prerendered pages fallback to TanStack Start handler
-		return Promise.resolve(tanstackFetch(request)).then((res) => withMarkdownCharset(url, res));
+		// Serve static assets from Cloudflare Assets if available
+		if (env.ASSETS) {
+			const res = await env.ASSETS.fetch(request);
+			if (res.status !== 404 || url.pathname.startsWith("/assets/")) {
+				return withMarkdownCharset(url, res);
+			}
+		}
+		// Fallback to TanStack Start handler (useful in local dev / dev server)
+		const res = await tanstackFetch(request);
+		return withMarkdownCharset(url, res);
 	},
 };
 
