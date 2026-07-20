@@ -78,7 +78,6 @@ export async function buildSingBoxConfig(
 			},
 			{
 				tag: "direct-client",
-				detour: "direct",
 			},
 		],
 		experimental: {

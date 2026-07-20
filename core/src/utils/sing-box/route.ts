@@ -57,21 +57,17 @@ export function buildRoute({
 			url: buildRuleSetUrl(d, ghProxy),
 			http_client: ghProxy ? "direct-client" : "proxy-client",
 		};
-		if (d.tag === "adblockfilters") {
-			remote.http_client = "direct-client";
-		} else {
-			const geoUrlMap: Record<string, string> = {
-				geosite: selectedGeoUrls.geosite,
-				geoip: selectedGeoUrls.geoip,
-			};
-			const baseUrl = geoUrlMap[d.kind];
-			// Only replace if baseUrl looks like a directory prefix (doesn't end in .dat or .mmdb)
-			if (baseUrl && !baseUrl.endsWith(".dat") && !baseUrl.endsWith(".mmdb")) {
-				remote.url = (remote.url as string).replace(
-					/https:\/\/raw\.githubusercontent\.com\/MetaCubeX\/meta-rules-dat\/sing\/geo\/(geosite|geoip)\/.*\.srs/,
-					`${baseUrl}/$1/${d.remoteName || d.tag}.srs`,
-				);
-			}
+		const geoUrlMap: Record<string, string> = {
+			geosite: selectedGeoUrls.geosite,
+			geoip: selectedGeoUrls.geoip,
+		};
+		const baseUrl = geoUrlMap[d.kind];
+		// Only replace if baseUrl looks like a directory prefix (doesn't end in .dat or .mmdb)
+		if (baseUrl && !baseUrl.endsWith(".dat") && !baseUrl.endsWith(".mmdb")) {
+			remote.url = (remote.url as string).replace(
+				/https:\/\/raw\.githubusercontent\.com\/MetaCubeX\/meta-rules-dat\/sing\/geo\/(geosite|geoip)\/.*\.srs/,
+				`${baseUrl}/$1/${d.remoteName || d.tag}.srs`,
+			);
 		}
 		return remote;
 	});
