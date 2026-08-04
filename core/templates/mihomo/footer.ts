@@ -13,7 +13,7 @@ dns:
   prefer-h3: true
   use-hosts: true
   use-system-hosts: true
-  respect-rules: false
+  respect-rules: true
   listen: 0.0.0.0:1053
   ipv6: false
   default-nameserver:
