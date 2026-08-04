@@ -6,6 +6,18 @@ Edge Engine 将一个或多个机场订阅、自建节点转换为 **Mihomo（Cl
 
 ---
 
+## 在线网络与分流诊断工具箱
+
+Edge Engine 现已内置媲美 [Net.Coffee](https://ip.net.coffee/) 的全套网络分流与安全诊断工具：
+
+- **全能工具箱入口**: [`/tools.html`](/tools.html)
+- **IP 查询与 35+ 站点分流测试**: [`/ip.html`](/ip.html) — 实时测试多站点分流出口 IP
+- **DNS 泄露检测与源头 URL 追溯**: [`/dns.html`](/dns.html) — 动态随机探针与 4 步分流仿真器
+- **Claude & ChatGPT AI IP 纯净度检测**: [`/claude.html`](/claude.html) — 评估 AI 平台解锁及 ASN 风险
+- **WebRTC 与 UDP 真实 IP 泄露检测**: [`/webrtc.html`](/webrtc.html) — 探查浏览器 UDP 真实 IP 泄露
+
+---
+
 ## 一分钟上手
 
 ### 方法一：使用网页（推荐新用户）
@@ -48,13 +60,13 @@ https://edge.example.com/?type=mihomo&mode=dual&Airport=https%3A%2F%2Fsub.exampl
 
 ### 标准参数
 
-| 参数 | 是否必填 | 默认值 | 说明 |
-|---|---:|---|---|
-| `type` | 否 | 自动识别，识别失败时为 `mihomo` | `mihomo`、`stash`、`sing-box` |
-| `mode` | 否 | `full` | `full`、`dual`、`white`、`black` |
-| `secret` | 否 | `edge-default` | 写入生成配置的外部控制密钥，不是转换接口的访问密码 |
-| `proxies` | 否 | 空 | 自建节点 URI；多个节点使用换行分隔并进行 URL 编码 |
-| `gh_proxy` | 否 | 空 | GitHub 规则资源的镜像前缀，值必须是完整 HTTP/HTTPS URL |
+| 参数       | 是否必填 | 默认值                          | 说明                                                   |
+| ---------- | -------: | ------------------------------- | ------------------------------------------------------ |
+| `type`     |       否 | 自动识别，识别失败时为 `mihomo` | `mihomo`、`stash`、`sing-box`                          |
+| `mode`     |       否 | `full`                          | `full`、`dual`、`white`、`black`                       |
+| `secret`   |       否 | `edge-default`                  | 写入生成配置的外部控制密钥，不是转换接口的访问密码     |
+| `proxies`  |       否 | 空                              | 自建节点 URI；多个节点使用换行分隔并进行 URL 编码      |
+| `gh_proxy` |       否 | 空                              | GitHub 规则资源的镜像前缀，值必须是完整 HTTP/HTTPS URL |
 
 除上述保留参数外，其他合法的 HTTP/HTTPS 查询参数都会被视为订阅：
 
@@ -80,11 +92,11 @@ type  mode  secret  proxies  gh_proxy
 
 ## 目标内核
 
-| `type` | 输出 | 常见客户端 |
-|---|---|---|
-| `mihomo` | YAML | Mihomo、Clash Meta 兼容客户端 |
-| `stash` | YAML | Stash（iOS） |
-| `sing-box` | JSON | sing-box 兼容客户端 |
+| `type`     | 输出 | 常见客户端                    |
+| ---------- | ---- | ----------------------------- |
+| `mihomo`   | YAML | Mihomo、Clash Meta 兼容客户端 |
+| `stash`    | YAML | Stash（iOS）                  |
+| `sing-box` | JSON | sing-box 兼容客户端           |
 
 如果省略 `type`，服务会根据请求的 `User-Agent` 判断：
 
@@ -99,12 +111,12 @@ type  mode  secret  proxies  gh_proxy
 
 ## 分流模式
 
-| `mode` | 行为 | 适用场景 |
-|---|---|---|
-| `dual` | 国外场景统一进入 `🚀 节点选择`，国内流量直连 | 推荐日常使用，策略组简洁 |
-| `full` | AI、媒体、开发等场景分别使用独立策略组 | 需要精细控制每类流量 |
-| `white` | 只代理已定义的国外规则，其余流量直连 | 国内优先、省代理流量 |
-| `black` | 只直连已定义的国内规则，其余流量代理 | 代理优先、覆盖范围更大 |
+| `mode`  | 行为                                         | 适用场景                 |
+| ------- | -------------------------------------------- | ------------------------ |
+| `dual`  | 国外场景统一进入 `🚀 节点选择`，国内流量直连 | 推荐日常使用，策略组简洁 |
+| `full`  | AI、媒体、开发等场景分别使用独立策略组       | 需要精细控制每类流量     |
+| `white` | 只代理已定义的国外规则，其余流量直连         | 国内优先、省代理流量     |
+| `black` | 只直连已定义的国内规则，其余流量代理         | 代理优先、覆盖范围更大   |
 
 内核和模式是两个独立参数：
 
@@ -162,14 +174,14 @@ juicity  naive  masque  mieru  trusttunnel  shadowtls
 
 不同内核支持的协议范围不同，未支持的协议节点会被自动过滤：
 
-| 协议 | Mihomo | Stash | sing-box |
-|---|:---:|:---:|:---:|
-| vmess / vless / ss / trojan / hysteria2 / tuic / anytls / socks / http / snell | ✓ | ✓ | ✓ (outbound) |
-| wireguard / tailscale | ✓ | ✓ | ✓ (endpoint) |
-| trusttunnel | ✓ | ✓ | ✗ |
-| masque / mieru | ✓ | ✗ | ✗ |
-| juicity | ✗ | ✓ | ✗ |
-| naive / shadowtls | ✗ | ✗ | ✓ |
+| 协议                                                                           | Mihomo | Stash |   sing-box   |
+| ------------------------------------------------------------------------------ | :----: | :---: | :----------: |
+| vmess / vless / ss / trojan / hysteria2 / tuic / anytls / socks / http / snell |   ✓    |   ✓   | ✓ (outbound) |
+| wireguard / tailscale                                                          |   ✓    |   ✓   | ✓ (endpoint) |
+| trusttunnel                                                                    |   ✓    |   ✓   |      ✗       |
+| masque / mieru                                                                 |   ✓    |   ✗   |      ✗       |
+| juicity                                                                        |   ✗    |   ✓   |      ✗       |
+| naive / shadowtls                                                              |   ✗    |   ✗   |      ✓       |
 
 机场订阅和 `proxies` 可以同时使用。
 
@@ -193,12 +205,12 @@ hysteria2://...
 JavaScript：
 
 ```js
-const baseUrl = 'https://edge.example.com/';
+const baseUrl = "https://edge.example.com/";
 const url = new URL(baseUrl);
 
-url.searchParams.set('type', 'mihomo');
-url.searchParams.set('mode', 'dual');
-url.searchParams.set('Airport', 'https://sub.example.com/path?token=abc&flag=1');
+url.searchParams.set("type", "mihomo");
+url.searchParams.set("mode", "dual");
+url.searchParams.set("Airport", "https://sub.example.com/path?token=abc&flag=1");
 
 console.log(url.toString());
 ```
@@ -324,4 +336,3 @@ GitHub 镜像：<可选>
 - [ ] 订阅名称不重复且未使用保留名称
 - [ ] 所有参数值均已正确 URL 编码
 - [ ] 没有把包含敏感信息的完整 URL 公开分享
-

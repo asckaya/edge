@@ -28,16 +28,17 @@ A worker-first proxy subscription orchestration engine running on Cloudflare Wor
 
 ### Generate a subscription via API
 
-| Param | Required | Description |
-|---|---|---|
-| `type` | no | Config format: `mihomo`, `stash`, `sing-box`. Inferred from `User-Agent` if omitted |
-| `mode` | no | Routing mode: `full`, `dual`, `white`, `black` (default `full`) |
-| `secret` | no | Dashboard/API password (default `edge-default`) |
-| `proxies` | no | Self-hosted node URIs (one per line, any of the 18 protocols) |
-| `gh_proxy` | no | GitHub rule-source mirror prefix (e.g. `https://mirror.ghproxy.com/`) |
-| `[SubName]` | ≥1 | Airport subscriptions, e.g. `Airport1=https://sub.url` |
+| Param       | Required | Description                                                                         |
+| ----------- | -------- | ----------------------------------------------------------------------------------- |
+| `type`      | no       | Config format: `mihomo`, `stash`, `sing-box`. Inferred from `User-Agent` if omitted |
+| `mode`      | no       | Routing mode: `full`, `dual`, `white`, `black` (default `full`)                     |
+| `secret`    | no       | Dashboard/API password (default `edge-default`)                                     |
+| `proxies`   | no       | Self-hosted node URIs (one per line, any of the 18 protocols)                       |
+| `gh_proxy`  | no       | GitHub rule-source mirror prefix (e.g. `https://mirror.ghproxy.com/`)               |
+| `[SubName]` | ≥1       | Airport subscriptions, e.g. `Airport1=https://sub.url`                              |
 
 **Example:**
+
 ```text
 https://your-edge.workers.dev/?type=mihomo&mode=dual&secret=xxx&MySub=https://airport.url
 ```
@@ -53,14 +54,15 @@ Legacy combined values (e.g. `type=mihomo-dual`) still work.
 
 ## 📊 Routing modes
 
-| Mode | Behavior | Best for |
-|---|---|---|
-| `full` | Granular routing | All 20+ rule groups (AI / media / dev / finance / …) |
-| `dual` | Consolidated (recommended) | Full rules, foreign scenarios merged into one selector; BT/PT forced direct |
-| `white` | Direct-first | Only defined foreign rules proxied; rest falls back to `DIRECT` |
-| `black` | Proxy-first | Only defined domestic rules direct; rest falls back to proxies |
+| Mode    | Behavior                   | Best for                                                                    |
+| ------- | -------------------------- | --------------------------------------------------------------------------- |
+| `full`  | Granular routing           | All 20+ rule groups (AI / media / dev / finance / …)                        |
+| `dual`  | Consolidated (recommended) | Full rules, foreign scenarios merged into one selector; BT/PT forced direct |
+| `white` | Direct-first               | Only defined foreign rules proxied; rest falls back to `DIRECT`             |
+| `black` | Proxy-first                | Only defined domestic rules direct; rest falls back to proxies              |
 
 ### Supported kernels
+
 - `mihomo` · `stash` · `sing-box` (v1.14+)
 
 ## 🛠️ Project structure
@@ -128,4 +130,4 @@ Pre-commit hook (husky + lint-staged) auto-runs `biome check --write` on staged 
 
 ---
 
-**Edge Engine** — *Refined, Efficient, and Deterministic.*
+**Edge Engine** — _Refined, Efficient, and Deterministic._

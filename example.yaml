@@ -32,7 +32,7 @@ secret: "your-secret-password"
 # 本地 admin_key 用于 gen-short 脚本调 API，须与部署的 EDGE_ADMIN_KEY 一致
 # ============================================================
 cf:
-  admin_key: ""   # 与 wrangler.toml 的 EDGE_ADMIN_KEY 保持一致
+  admin_key: "" # 与 wrangler.toml 的 EDGE_ADMIN_KEY 保持一致
 
 # ============================================================
 # 订阅提供商（机场订阅）
@@ -56,7 +56,6 @@ provider:
 #   juicity / naive / masque / mieru / trusttunnel / shadowtls
 # ============================================================
 proxy:
-
   # --- Hysteria2 示例 ---
   - name: "My-Hy2"
     type: hysteria2
@@ -66,7 +65,7 @@ proxy:
     sni: your-server.example.com
     alpn: [h3]
     skip-cert-verify: false
-    fast-open: true              # 可选
+    fast-open: true # 可选
 
   # --- VLESS + REALITY 示例 ---
   - name: "My-VLESS-Reality"

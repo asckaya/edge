@@ -28,16 +28,17 @@
 
 ### 通过 API 生成订阅
 
-| 参数 | 必填 | 说明 |
-|---|---|---|
-| `type` | 否 | 配置格式：`mihomo`、`stash`、`sing-box`。未传时根据客户端 UA 自动判断 |
-| `mode` | 否 | 分流模式：`full`、`dual`、`white`、`black`（默认 `full`） |
-| `secret` | 否 | 控制面板/API 访问密码（默认 `edge-default`） |
-| `proxies` | 否 | 自建节点 URI（每行一个，支持 18 种协议） |
-| `gh_proxy` | 否 | GitHub 规则源加速前缀（例如 `https://mirror.ghproxy.com/`） |
-| `[SubName]` | 至少一个 | 机场订阅，例如 `Airport1=https://sub.url` |
+| 参数        | 必填     | 说明                                                                  |
+| ----------- | -------- | --------------------------------------------------------------------- |
+| `type`      | 否       | 配置格式：`mihomo`、`stash`、`sing-box`。未传时根据客户端 UA 自动判断 |
+| `mode`      | 否       | 分流模式：`full`、`dual`、`white`、`black`（默认 `full`）             |
+| `secret`    | 否       | 控制面板/API 访问密码（默认 `edge-default`）                          |
+| `proxies`   | 否       | 自建节点 URI（每行一个，支持 18 种协议）                              |
+| `gh_proxy`  | 否       | GitHub 规则源加速前缀（例如 `https://mirror.ghproxy.com/`）           |
+| `[SubName]` | 至少一个 | 机场订阅，例如 `Airport1=https://sub.url`                             |
 
 **示例：**
+
 ```text
 https://your-edge.workers.dev/?type=mihomo&mode=dual&secret=xxx&MySub=https://机场链接
 ```
@@ -53,14 +54,15 @@ https://your-edge.workers.dev/?type=mihomo&mode=dual&secret=xxx&MySub=https://�
 
 ## 📊 配置模式对比
 
-| 模式 | 路由逻辑 | 适用场景 |
-|---|---|---|
-| `full` | 精细化分流 | 全量 20+ 规则组，覆盖 AI / 媒体 / 开发 / 金融等细分领域 |
-| `dual` | 双模分流（推荐） | 全量规则，国外场景合并为统一"节点选择"，BT/PT 强制直连防封号 |
-| `white` | 白名单（直连优先） | 仅代理明确定义的国外规则，其余兜底 `DIRECT`，适合省流 |
-| `black` | 黑名单（代理优先） | 仅直连明确定义的国内规则，其余兜底代理，追求极致代理覆盖 |
+| 模式    | 路由逻辑           | 适用场景                                                     |
+| ------- | ------------------ | ------------------------------------------------------------ |
+| `full`  | 精细化分流         | 全量 20+ 规则组，覆盖 AI / 媒体 / 开发 / 金融等细分领域      |
+| `dual`  | 双模分流（推荐）   | 全量规则，国外场景合并为统一"节点选择"，BT/PT 强制直连防封号 |
+| `white` | 白名单（直连优先） | 仅代理明确定义的国外规则，其余兜底 `DIRECT`，适合省流        |
+| `black` | 黑名单（代理优先） | 仅直连明确定义的国内规则，其余兜底代理，追求极致代理覆盖     |
 
 ### 支持内核
+
 - `mihomo` · `stash` · `sing-box`（v1.14+）
 
 ## 🛠️ 项目结构
@@ -128,4 +130,4 @@ Pre-commit hook（husky + lint-staged）会对暂存文件自动执行 `biome ch
 
 ---
 
-**Edge Engine** — *Refined, Efficient, and Deterministic.*
+**Edge Engine** — _Refined, Efficient, and Deterministic._

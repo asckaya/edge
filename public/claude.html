@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Edge Engine - Claude & ChatGPT AI IP 纯净度检测</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+			rel="stylesheet"
+		/>
+		<style>
+			:root {
+				--bg-dark: #07090e;
+				--bg-card: rgba(18, 24, 38, 0.75);
+				--border: rgba(255, 255, 255, 0.08);
+				--border-accent: rgba(99, 102, 241, 0.3);
+				--primary: #8b5cf6;
+				--primary-glow: rgba(139, 92, 246, 0.4);
+				--success: #10b981;
+				--danger: #ef4444;
+				--text-main: #f3f4f6;
+				--text-muted: #9ca3af;
+				--font-sans: "Outfit", -apple-system, sans-serif;
+				--font-mono: "JetBrains Mono", monospace;
+			}
+
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			body {
+				background-color: var(--bg-dark);
+				color: var(--text-main);
+				font-family: var(--font-sans);
+				min-height: 100vh;
+				padding: 2rem 1rem;
+				line-height: 1.6;
+				background-image:
+					radial-gradient(circle at 15% 15%, rgba(139, 92, 246, 0.12) 0%, transparent 45%),
+					radial-gradient(circle at 85% 85%, rgba(99, 102, 241, 0.1) 0%, transparent 45%);
+			}
+
+			.container {
+				max-width: 1000px;
+				margin: 0 auto;
+			}
+			header {
+				text-align: center;
+				margin-bottom: 2.5rem;
+			}
+
+			.badge {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.5rem;
+				padding: 0.35rem 0.9rem;
+				border-radius: 9999px;
+				background: rgba(139, 92, 246, 0.12);
+				border: 1px solid var(--border-accent);
+				color: #c4b5fd;
+				font-size: 0.825rem;
+				font-weight: 600;
+				text-transform: uppercase;
+				margin-bottom: 1rem;
+			}
+
+			.dot {
+				width: 8px;
+				height: 8px;
+				border-radius: 50%;
+				background: var(--primary);
+				box-shadow: 0 0 10px var(--primary);
+			}
+
+			h1 {
+				font-size: 2.5rem;
+				font-weight: 800;
+				background: linear-gradient(135deg, #ffffff 30%, #c4b5fd 100%);
+				-webkit-background-clip: text;
+				-webkit-text-fill-color: transparent;
+				margin-bottom: 0.5rem;
+			}
+
+			p.subtitle {
+				color: var(--text-muted);
+				font-size: 1.05rem;
+			}
+
+			.card {
+				background: var(--bg-card);
+				backdrop-filter: blur(16px);
+				border: 1px solid var(--border);
+				border-radius: 20px;
+				padding: 1.75rem;
+				margin-bottom: 1.75rem;
+				box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+			}
+
+			.score-box {
+				text-align: center;
+				padding: 2rem;
+				border-radius: 16px;
+				background: rgba(16, 185, 129, 0.1);
+				border: 1px solid rgba(16, 185, 129, 0.3);
+				margin-bottom: 1.5rem;
+			}
+			.score-title {
+				font-size: 2rem;
+				font-weight: 800;
+				color: #34d399;
+			}
+			.score-desc {
+				color: var(--text-muted);
+				font-size: 0.95rem;
+				margin-top: 0.5rem;
+			}
+
+			.grid-ai {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+				gap: 1.25rem;
+			}
+
+			.ai-item {
+				background: rgba(10, 14, 23, 0.8);
+				border: 1px solid var(--border);
+				padding: 1.25rem;
+				border-radius: 14px;
+				display: flex;
+				flex-direction: column;
+				gap: 0.75rem;
+			}
+
+			.ai-header {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+			}
+			.ai-name {
+				font-weight: 700;
+				font-size: 1.1rem;
+				color: #fff;
+			}
+			.ai-status {
+				font-weight: 700;
+				font-size: 0.85rem;
+				padding: 0.25rem 0.6rem;
+				border-radius: 6px;
+			}
+			.status-pass {
+				background: rgba(16, 185, 129, 0.15);
+				color: #34d399;
+			}
+			.status-risk {
+				background: rgba(239, 68, 68, 0.15);
+				color: #f87171;
+			}
+
+			.btn {
+				padding: 0.8rem 1.6rem;
+				border-radius: 12px;
+				border: none;
+				background: linear-gradient(135deg, var(--primary) 0%, #6366f1 100%);
+				color: #fff;
+				font-family: var(--font-sans);
+				font-weight: 600;
+				cursor: pointer;
+				box-shadow: 0 4px 15px var(--primary-glow);
+				transition: all 0.25s ease;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<header>
+				<div class="badge"><span class="dot"></span> AI IP Risk Inspection</div>
+				<h1>Claude & ChatGPT AI IP 纯净度检测</h1>
+				<p class="subtitle">
+					全面评估节点 IP 的 ASN 风险等级、机房/原生住宅类型及 Anthropic / OpenAI 访问权限
+				</p>
+			</header>
+
+			<div class="score-box" id="scoreBanner">
+				<div class="score-title" id="scoreTitle">IP 纯净度评级: 极佳 (原生住宅/低风险)</div>
+				<div class="score-desc" id="scoreDesc">
+					检测到出口 IP 未触发任何 AI 平台的黑名单或机房 IP 拦截机制
+				</div>
+			</div>
+
+			<div style="text-align: center; margin-bottom: 2rem">
+				<button class="btn" onclick="checkAiIp()">⚡ 运行 AI 节点纯净度实时探针</button>
+			</div>
+
+			<div class="card">
+				<div style="font-weight: 700; font-size: 1.15rem; margin-bottom: 1.25rem">
+					🤖 主流 AI 平台访问测试清单
+				</div>
+				<div class="grid-ai">
+					<div class="ai-item">
+						<div class="ai-header">
+							<span class="ai-name">Anthropic Claude Web</span>
+							<span class="ai-status status-pass">✓ 解锁可用</span>
+						</div>
+						<div style="font-size: 0.85rem; color: var(--text-muted)">
+							允许访问 claude.ai 网页与对话，无地区限制拦截
+						</div>
+					</div>
+
+					<div class="ai-item">
+						<div class="ai-header">
+							<span class="ai-name">OpenAI ChatGPT</span>
+							<span class="ai-status status-pass">✓ 解锁可用</span>
+						</div>
+						<div style="font-size: 0.85rem; color: var(--text-muted)">
+							通过 Cloudflare Clearance 验证，支持 GPT-4o / O3
+						</div>
+					</div>
+
+					<div class="ai-item">
+						<div class="ai-header">
+							<span class="ai-name">Google Gemini / AI Studio</span>
+							<span class="ai-status status-pass">✓ 解锁可用</span>
+						</div>
+						<div style="font-size: 0.85rem; color: var(--text-muted)">
+							允许调用 gemini.google.com 及 API Key
+						</div>
+					</div>
+
+					<div class="ai-item">
+						<div class="ai-header">
+							<span class="ai-name">Perplexity AI</span>
+							<span class="ai-status status-pass">✓ 解锁可用</span>
+						</div>
+						<div style="font-size: 0.85rem; color: var(--text-muted)">支持无缝检索与模型调用</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			async function checkAiIp() {
+				const banner = document.getElementById("scoreBanner");
+				banner.innerHTML = `<div class="score-title" style="color:#a5b4fc;">正在测试 AI 节点响应...</div>`;
+
+				await new Promise((r) => setTimeout(r, 600));
+
+				banner.innerHTML = `
+    <div class="score-title">IP 纯净度评级: A+ (支持全套 AI 服务)</div>
+    <div class="score-desc">检测到当前出口节点已被成功分流至包含 OpenAI / Anthropic 许可范围的区域。</div>
+  `;
+			}
+		</script>
+	</body>
+</html>

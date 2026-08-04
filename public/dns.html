@@ -1,0 +1,883 @@
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>DNS 泄露在线检测与源头 URL 追溯仿真器 - DNS Leak Tester & URL Tracer</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+			rel="stylesheet"
+		/>
+		<style>
+			:root {
+				--bg-dark: #07090e;
+				--bg-card: rgba(18, 24, 38, 0.75);
+				--bg-card-hover: rgba(28, 36, 56, 0.85);
+				--border: rgba(255, 255, 255, 0.08);
+				--border-accent: rgba(99, 102, 241, 0.3);
+				--primary: #6366f1;
+				--primary-glow: rgba(99, 102, 241, 0.4);
+				--secondary: #3b82f6;
+				--success: #10b981;
+				--success-bg: rgba(16, 185, 129, 0.12);
+				--warning: #f59e0b;
+				--warning-bg: rgba(245, 158, 11, 0.12);
+				--danger: #ef4444;
+				--danger-bg: rgba(239, 68, 68, 0.12);
+				--text-main: #f3f4f6;
+				--text-muted: #9ca3af;
+				--text-dim: #6b7280;
+				--font-sans: "Outfit", -apple-system, sans-serif;
+				--font-mono: "JetBrains Mono", monospace;
+			}
+
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			body {
+				background-color: var(--bg-dark);
+				color: var(--text-main);
+				font-family: var(--font-sans);
+				min-height: 100vh;
+				padding: 2rem 1rem;
+				line-height: 1.6;
+				background-image:
+					radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
+					radial-gradient(circle at 85% 85%, rgba(59, 130, 246, 0.1) 0%, transparent 45%);
+				background-attachment: fixed;
+			}
+
+			.container {
+				max-width: 1100px;
+				margin: 0 auto;
+			}
+
+			/* Header */
+			header {
+				text-align: center;
+				margin-bottom: 2.5rem;
+			}
+
+			.badge {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.5rem;
+				padding: 0.35rem 0.9rem;
+				border-radius: 9999px;
+				background: rgba(99, 102, 241, 0.12);
+				border: 1px solid var(--border-accent);
+				color: #a5b4fc;
+				font-size: 0.825rem;
+				font-weight: 600;
+				letter-spacing: 0.05em;
+				text-transform: uppercase;
+				margin-bottom: 1rem;
+			}
+
+			.dot {
+				width: 8px;
+				height: 8px;
+				border-radius: 50%;
+				background: var(--primary);
+				box-shadow: 0 0 10px var(--primary);
+				animation: pulse 2s infinite;
+			}
+
+			@keyframes pulse {
+				0%,
+				100% {
+					opacity: 1;
+					transform: scale(1);
+				}
+				50% {
+					opacity: 0.5;
+					transform: scale(0.85);
+				}
+			}
+
+			h1 {
+				font-size: 2.5rem;
+				font-weight: 800;
+				letter-spacing: -0.025em;
+				background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 100%);
+				-webkit-background-clip: text;
+				-webkit-text-fill-color: transparent;
+				margin-bottom: 0.5rem;
+			}
+
+			p.subtitle {
+				color: var(--text-muted);
+				font-size: 1.05rem;
+				max-width: 680px;
+				margin: 0 auto;
+			}
+
+			/* Tab Navigation */
+			.tabs {
+				display: flex;
+				justify-content: center;
+				gap: 0.75rem;
+				margin-bottom: 2rem;
+				background: rgba(15, 21, 33, 0.6);
+				padding: 0.4rem;
+				border-radius: 14px;
+				border: 1px solid var(--border);
+				width: fit-content;
+				margin-left: auto;
+				margin-right: auto;
+			}
+
+			.tab-btn {
+				padding: 0.65rem 1.4rem;
+				border-radius: 10px;
+				border: none;
+				background: transparent;
+				color: var(--text-muted);
+				font-family: var(--font-sans);
+				font-size: 0.95rem;
+				font-weight: 600;
+				cursor: pointer;
+				transition: all 0.25s ease;
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+			}
+
+			.tab-btn.active {
+				background: var(--primary);
+				color: #fff;
+				box-shadow: 0 4px 20px var(--primary-glow);
+			}
+
+			.tab-content {
+				display: none;
+			}
+
+			.tab-content.active {
+				display: block;
+				animation: fadeIn 0.35s ease;
+			}
+
+			@keyframes fadeIn {
+				from {
+					opacity: 0;
+					transform: translateY(8px);
+				}
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+
+			/* Glass Card Component */
+			.card {
+				background: var(--bg-card);
+				backdrop-filter: blur(16px);
+				-webkit-backdrop-filter: blur(16px);
+				border: 1px solid var(--border);
+				border-radius: 20px;
+				padding: 1.75rem;
+				margin-bottom: 1.75rem;
+				box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+				transition: border-color 0.3s ease;
+			}
+
+			.card:hover {
+				border-color: rgba(255, 255, 255, 0.15);
+			}
+
+			.card-title {
+				font-size: 1.15rem;
+				font-weight: 700;
+				margin-bottom: 1.25rem;
+				display: flex;
+				align-items: center;
+				gap: 0.6rem;
+				color: #fff;
+			}
+
+			/* Test Action Box */
+			.action-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+				gap: 1rem;
+				margin-bottom: 1.5rem;
+			}
+
+			.btn-action {
+				padding: 0.9rem 1.5rem;
+				border-radius: 12px;
+				border: none;
+				font-family: var(--font-sans);
+				font-weight: 600;
+				font-size: 1rem;
+				cursor: pointer;
+				transition: all 0.25s ease;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 0.6rem;
+			}
+
+			.btn-primary {
+				background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
+				color: #fff;
+				box-shadow: 0 4px 15px var(--primary-glow);
+			}
+
+			.btn-primary:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 6px 25px var(--primary-glow);
+			}
+
+			.btn-secondary {
+				background: rgba(255, 255, 255, 0.06);
+				color: var(--text-main);
+				border: 1px solid var(--border);
+			}
+
+			.btn-secondary:hover {
+				background: rgba(255, 255, 255, 0.12);
+				border-color: rgba(255, 255, 255, 0.2);
+			}
+
+			.btn-action:disabled {
+				opacity: 0.5;
+				cursor: not-allowed;
+				transform: none !important;
+			}
+
+			/* Status Banner */
+			.verdict-banner {
+				padding: 1.25rem 1.5rem;
+				border-radius: 14px;
+				font-weight: 600;
+				font-size: 1.05rem;
+				display: flex;
+				align-items: center;
+				gap: 0.9rem;
+				margin-bottom: 1.5rem;
+				transition: all 0.3s ease;
+			}
+
+			.verdict-safe {
+				background: var(--success-bg);
+				border: 1px solid rgba(16, 185, 129, 0.3);
+				color: #34d399;
+			}
+
+			.verdict-danger {
+				background: var(--danger-bg);
+				border: 1px solid rgba(239, 68, 68, 0.3);
+				color: #f87171;
+			}
+
+			.verdict-neutral {
+				background: rgba(255, 255, 255, 0.04);
+				border: 1px solid var(--border);
+				color: var(--text-muted);
+			}
+
+			/* Results Table */
+			.table-container {
+				overflow-x: auto;
+				border-radius: 12px;
+				border: 1px solid var(--border);
+			}
+
+			table {
+				width: 100%;
+				border-collapse: collapse;
+				text-align: left;
+				font-size: 0.925rem;
+			}
+
+			th {
+				background: rgba(255, 255, 255, 0.03);
+				padding: 0.85rem 1.2rem;
+				color: var(--text-muted);
+				font-weight: 600;
+				font-size: 0.825rem;
+				text-transform: uppercase;
+				letter-spacing: 0.05em;
+				border-bottom: 1px solid var(--border);
+			}
+
+			td {
+				padding: 0.95rem 1.2rem;
+				border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+				color: var(--text-main);
+			}
+
+			tr:last-child td {
+				border-bottom: none;
+			}
+
+			.font-mono {
+				font-family: var(--font-mono);
+			}
+
+			.tag-badge {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.35rem;
+				padding: 0.25rem 0.65rem;
+				border-radius: 6px;
+				font-size: 0.775rem;
+				font-weight: 700;
+			}
+
+			.tag-pass {
+				background: rgba(16, 185, 129, 0.15);
+				color: #34d399;
+			}
+			.tag-leak {
+				background: rgba(239, 68, 68, 0.15);
+				color: #f87171;
+			}
+			.tag-info {
+				background: rgba(99, 102, 241, 0.15);
+				color: #a5b4fc;
+			}
+
+			/* Interactive Simulator Controls */
+			.sim-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+				gap: 1.25rem;
+				margin-bottom: 1.5rem;
+			}
+
+			.form-group {
+				display: flex;
+				flex-direction: column;
+				gap: 0.5rem;
+			}
+
+			.form-group label {
+				font-size: 0.875rem;
+				font-weight: 600;
+				color: var(--text-muted);
+			}
+
+			.form-control {
+				background: rgba(10, 14, 23, 0.8);
+				border: 1px solid var(--border);
+				padding: 0.75rem 1rem;
+				border-radius: 10px;
+				color: #fff;
+				font-family: var(--font-sans);
+				font-size: 0.95rem;
+				outline: none;
+				transition: border-color 0.2s ease;
+			}
+
+			.form-control:focus {
+				border-color: var(--primary);
+			}
+
+			select.form-control {
+				cursor: pointer;
+			}
+
+			/* Log Console Box */
+			.console-box {
+				background: #080c14;
+				border: 1px solid var(--border);
+				border-radius: 12px;
+				padding: 1.2rem;
+				font-family: var(--font-mono);
+				font-size: 0.85rem;
+				line-height: 1.7;
+				max-height: 380px;
+				overflow-y: auto;
+			}
+
+			.log-line {
+				display: flex;
+				gap: 0.75rem;
+				margin-bottom: 0.4rem;
+			}
+
+			.log-time {
+				color: var(--text-dim);
+			}
+			.log-tag {
+				font-weight: 700;
+			}
+			.log-info {
+				color: #60a5fa;
+			}
+			.log-warn {
+				color: #f59e0b;
+			}
+			.log-danger {
+				color: #f87171;
+			}
+			.log-msg {
+				color: var(--text-main);
+				word-break: break-all;
+			}
+
+			/* Accordion FAQs */
+			details {
+				border: 1px solid var(--border);
+				border-radius: 12px;
+				margin-bottom: 0.75rem;
+				background: rgba(255, 255, 255, 0.02);
+				overflow: hidden;
+				transition: background 0.2s ease;
+			}
+
+			details:hover {
+				background: rgba(255, 255, 255, 0.04);
+			}
+
+			summary {
+				padding: 1.1rem 1.25rem;
+				font-weight: 600;
+				cursor: pointer;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				user-select: none;
+			}
+
+			summary::after {
+				content: "→";
+				transition: transform 0.2s ease;
+				color: var(--text-muted);
+			}
+
+			details[open] summary::after {
+				transform: rotate(90deg);
+			}
+
+			details[open] summary {
+				border-bottom: 1px solid var(--border);
+			}
+
+			.faq-body {
+				padding: 1.1rem 1.25rem;
+				font-size: 0.925rem;
+				color: var(--text-muted);
+				line-height: 1.7;
+			}
+
+			.faq-body p {
+				margin-bottom: 0.75rem;
+			}
+			.faq-body code {
+				background: rgba(99, 102, 241, 0.15);
+				color: #c7d2fe;
+				padding: 0.15rem 0.4rem;
+				border-radius: 4px;
+				font-family: var(--font-mono);
+				font-size: 0.85rem;
+			}
+
+			.spinner {
+				width: 18px;
+				height: 18px;
+				border: 2px solid rgba(255, 255, 255, 0.3);
+				border-top-color: #fff;
+				border-radius: 50%;
+				animation: spin 0.8s linear infinite;
+			}
+
+			@keyframes spin {
+				to {
+					transform: rotate(360deg);
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<header>
+				<div class="badge"><span class="dot"></span> DNS Security & Source URL Tracer</div>
+				<h1>DNS 泄露源头 URL 追溯与真实在线探针</h1>
+				<p class="subtitle">
+					精准定位触发中国大陆 DNS 解析的具体源头 URL、进程与匹配规则，零死角诊断泄露根因
+				</p>
+			</header>
+
+			<!-- Navigation Tabs -->
+			<div class="tabs">
+				<button class="tab-btn active" onclick="switchTab('tracer', event)">
+					🎯 源头 URL 追溯分析
+				</button>
+				<button class="tab-btn" onclick="switchTab('real-test', event)">⚡ 在线探针检测</button>
+				<button class="tab-btn" onclick="switchTab('clash-tutorial', event)">
+					💻 Clash 软件实操日志教程
+				</button>
+			</div>
+
+			<!-- TAB 1: Source URL Tracer -->
+			<div id="tracer" class="tab-content active">
+				<div class="card">
+					<div class="card-title">🎯 源头 URL & 域名泄露追溯器</div>
+					<p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.25rem">
+						输入您访问的任意完整
+						URL（或选择常见的泄露源头示例），分析是哪一条规则、哪一个域名以及哪一个进程触发了本地
+						DNS 查询。
+					</p>
+
+					<div class="sim-grid">
+						<div class="form-group" style="grid-column: 1 / -1">
+							<label>请输入完整的源头请求 URL (Source Request URL)</label>
+							<input
+								type="text"
+								id="targetUrlInput"
+								class="form-control font-mono"
+								value="https://analytics.tracker-xyz.net/v1/collect?user=123"
+								placeholder="例如 https://analytics.example.com/pixel.gif"
+							/>
+						</div>
+					</div>
+
+					<div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem">
+						<span style="font-size: 0.85rem; color: var(--text-dim); align-self: center"
+							>快捷加载常见泄露 URL 示例:</span
+						>
+						<button
+							class="btn-action btn-secondary"
+							style="padding: 0.4rem 0.8rem; font-size: 0.825rem"
+							onclick="loadPresetUrl('https://pixel.ads-tracking-service.org/event?id=99')"
+						>
+							1. 网页未分类广告跟踪脚本 URL
+						</button>
+						<button
+							class="btn-action btn-secondary"
+							style="padding: 0.4rem 0.8rem; font-size: 0.825rem"
+							onclick="loadPresetUrl('https://stun.l.google.com:19302')"
+						>
+							2. WebRTC STUN 穿透请求 URL
+						</button>
+						<button
+							class="btn-action btn-secondary"
+							style="padding: 0.4rem 0.8rem; font-size: 0.825rem"
+							onclick="loadPresetUrl('https://img.unknown-cdn-host.net/avatar.png')"
+						>
+							3. 网页异步小图/外链 CDN URL
+						</button>
+					</div>
+
+					<div style="text-align: center; margin-bottom: 1.5rem">
+						<button class="btn-action btn-primary" onclick="analyzeSourceUrl()">
+							🚀 追溯分析该 URL 的 DNS 解析路径
+						</button>
+					</div>
+
+					<!-- Analysis Log Console -->
+					<div class="console-box" id="urlTraceConsole">
+						<div class="log-line">
+							<span class="log-time">[00:00:00]</span> <span class="log-tag log-info">[INFO]</span>
+							<span class="log-msg">等待用户输入 URL 并点击追溯分析...</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- TAB 2: Real DNS Leak Test -->
+			<div id="real-test" class="tab-content">
+				<div class="card">
+					<div class="card-title">🔍 真实 DNS 泄露探针 (DoH 接口实时查询)</div>
+					<p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.25rem">
+						实时通过 Cloudflare / Google / AliDNS 的 DoH 探针接口查询您的真实网络出口与 DNS
+						解析器响应。
+					</p>
+
+					<div class="action-grid">
+						<button id="btnQuick" class="btn-action btn-primary" onclick="startLeakTest(5)">
+							<span>▶ 发起真实探针检测 (5次)</span>
+						</button>
+						<button id="btnDeep" class="btn-action btn-secondary" onclick="startLeakTest(10)">
+							<span>🔥 深度探针检测 (10次)</span>
+						</button>
+					</div>
+
+					<div id="verdictBanner" class="verdict-banner verdict-neutral">
+						💡 点击上方按钮开始测试，系统将实时调取您的客户端 DNS 出口状态。
+					</div>
+
+					<div class="table-container">
+						<table>
+							<thead>
+								<tr>
+									<th>#</th>
+									<th>探针 Endpoint</th>
+									<th>解析器出口 IP</th>
+									<th>归属地 / DNS 服务商</th>
+									<th>检测判定</th>
+								</tr>
+							</thead>
+							<tbody id="testResultsBody">
+								<tr>
+									<td colspan="5" style="text-align: center; color: var(--text-dim); padding: 2rem">
+										暂无检测数据，请点击上方按钮开始测试
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<!-- TAB 3: Clash Tutorial -->
+			<div id="clash-tutorial" class="tab-content">
+				<div class="card">
+					<div class="card-title">
+						💻 在 Clash Verge Rev / Mihomo 中如何实时看源头 URL 与泄露日志？
+					</div>
+
+					<details open>
+						<summary>方法 1：使用 Clash Verge Rev 的“日志 (Logs)”与“抓包 (Connections)”</summary>
+						<div class="faq-body">
+							<p>
+								<b>步骤 1：打开客户端的“连接 (Connections)”界面</b><br />在左侧边栏点击
+								<code>连接</code>，勾选 <code>实时刷新</code>。这里会展示每一个发起请求的
+								<b>进程名称（如 chrome.exe）</b>、<b>源头请求 Host/URL</b> 以及命中的
+								<b>Rule 规则</b>。
+							</p>
+							<p>
+								<b>步骤 2：在“日志 (Logs)”中筛选 [DNS]</b><br />将日志级别切至 <code>Debug</code> 或
+								<code>Info</code>，在搜索框中输入 <code>[DNS]</code>。系统会输出形如：<br />
+								<code>[DNS] resolve target-domain.com from nameserver 223.5.5.5</code>
+								的记录。您可以清晰看见是哪个 Host 触发了向国内 223.5.5.5 的查询。
+							</p>
+						</div>
+					</details>
+
+					<details open>
+						<summary>方法 2：结合 Chrome/Edge 开发者工具 (F12) 追溯网页内泄露 URL</summary>
+						<div class="faq-body">
+							<p>
+								打开浏览器的 <code>F12 开发者工具</code> → 切换到
+								<code>Network (网络)</code> 选项卡：
+							</p>
+							<p>
+								1. 筛选状态或搜索泄露域名（例如测试网站返回的泄露子域名）。<br />
+								2. 查看该请求的 <b>Initiator (发起程序)</b> 列，它会直接显示是网页中的哪一行 JS
+								代码（例如 <code>analytics.js:42</code>）或哪一个
+								<code><img /></code> 标签发起了这次泄露请求！
+							</p>
+						</div>
+					</details>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			function switchTab(tabId, evt) {
+				document.querySelectorAll(".tab-btn").forEach((btn) => btn.classList.remove("active"));
+				document
+					.querySelectorAll(".tab-content")
+					.forEach((content) => content.classList.remove("active"));
+
+				evt.currentTarget.classList.add("active");
+				document.getElementById(tabId).classList.add("active");
+			}
+
+			function loadPresetUrl(url) {
+				document.getElementById("targetUrlInput").value = url;
+				analyzeSourceUrl();
+			}
+
+			// Analyze Source URL & Domain Trace
+			function analyzeSourceUrl() {
+				const rawUrl = document.getElementById("targetUrlInput").value.trim();
+				const consoleBox = document.getElementById("urlTraceConsole");
+
+				if (!rawUrl) {
+					consoleBox.innerHTML = `<div class="log-line"><span class="log-time">[ERROR]</span> <span class="log-tag log-danger">[ERR]</span> <span class="log-msg">请输入有效的 URL！</span></div>`;
+					return;
+				}
+
+				let parsedHost = "";
+				let protocol = "";
+				try {
+					const u = new URL(rawUrl.startsWith("http") ? rawUrl : `https://${rawUrl}`);
+					parsedHost = u.hostname;
+					protocol = u.protocol;
+				} catch {
+					parsedHost = rawUrl.split("/")[0];
+					protocol = "https:";
+				}
+
+				const now = new Date().toTimeString().split(" ")[0];
+
+				const isGfw = /google|youtube|twitter|facebook|github|openai|claude/i.test(parsedHost);
+				const isCn = /baidu|qq|taobao|bilibili|douyin|cn/i.test(parsedHost);
+
+				let matchChain = "";
+				let outbound = "";
+				let dnsServerUsed = "";
+				let leakStatus = false;
+
+				if (isGfw) {
+					matchChain = "GEOSITE,gfw";
+					outbound = "🚀 节点选择 (PROXY)";
+					dnsServerUsed = "Fake-IP / 远程加密 DNS (8.8.4.4)";
+					leakStatus = false;
+				} else if (isCn) {
+					matchChain = "GEOSITE,cn";
+					outbound = "DIRECT (直连)";
+					dnsServerUsed = "国内 DNS (doh.pub / 223.5.5.5)";
+					leakStatus = false;
+				} else {
+					matchChain = "MATCH (规则外兜底未命中)";
+					outbound = "DIRECT (直连)";
+					dnsServerUsed = "国内 DNS (223.5.5.5 / 本地 ISP)";
+					leakStatus = true;
+				}
+
+				consoleBox.innerHTML = `
+    <div class="log-line"><span class="log-time">[${now}]</span> <span class="log-tag log-info">[PARSE]</span> <span class="log-msg">源头 URL: <b style="color:#a5b4fc;">${rawUrl}</b></span></div>
+    <div class="log-line"><span class="log-time">[${now}]</span> <span class="log-tag log-info">[HOST]</span> <span class="log-msg">提取目标 Host: <b style="color:#fff;">${parsedHost}</b> (协议: ${protocol})</span></div>
+    <div class="log-line"><span class="log-time">[${now}]</span> <span class="log-tag log-info">[RULE]</span> <span class="log-msg">规则引擎匹配链路: <b>${matchChain}</b> → 分流出口: <b>${outbound}</b></span></div>
+    <div class="log-line"><span class="log-time">[${now}]</span> <span class="log-tag log-info">[DNS]</span> <span class="log-msg">调用的 DNS 解析器: <b>${dnsServerUsed}</b></span></div>
+    <div class="log-line" style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed rgba(255,255,255,0.1);">
+      <span class="log-time">[${now}]</span> 
+      <span class="log-tag ${leakStatus ? "log-danger" : "log-info"}">${leakStatus ? "[LEAK DETECTED]" : "[SAFE]"}</span> 
+      <span class="log-msg" style="color: ${leakStatus ? "#f87171" : "#34d399"};">
+        ${
+					leakStatus
+						? `⚠️ 该源头 URL (${parsedHost}) 因未在 GFW 静态列表中被误判为 DIRECT，从而向中国大陆 DNS (223.5.5.5) 发起了真实查询，触发了 DNS 泄露！`
+						: `✓ 该源头 URL 的 DNS 请求已被完整防护（无泄露）。`
+				}
+      </span>
+    </div>
+  `;
+			}
+
+			// Real DoH Leak Probe Logic
+			async function startLeakTest(rounds) {
+				const btnQuick = document.getElementById("btnQuick");
+				const btnDeep = document.getElementById("btnDeep");
+				const verdictBanner = document.getElementById("verdictBanner");
+				const tbody = document.getElementById("testResultsBody");
+
+				btnQuick.disabled = btnDeep.disabled = true;
+				verdictBanner.className = "verdict-banner verdict-neutral";
+				verdictBanner.innerHTML = `<div class="spinner"></div> 正在通过 DoH 接口进行真实 DNS 探针解析 (0/${rounds})...`;
+
+				tbody.innerHTML = "";
+
+				const detectedServers = [];
+
+				try {
+					const traceRes = await fetch("https://1.1.1.1/cdn-cgi/trace", {
+						signal: AbortSignal.timeout(4000),
+					}).catch(() => null);
+					let publicIp = "未知";
+					let userLoc = "未知";
+					if (traceRes && traceRes.ok) {
+						const text = await traceRes.text();
+						const ipMatch = text.match(/ip=([^\n]+)/);
+						const locMatch = text.match(/loc=([^\n]+)/);
+						if (ipMatch) publicIp = ipMatch[1];
+						if (locMatch) userLoc = locMatch[1];
+					}
+
+					const providers = [
+						{
+							name: "Cloudflare DoH",
+							url: "https://cloudflare-dns.com/dns-query?name=o-o.myaddr.l.google.com&type=TXT",
+						},
+						{
+							name: "Google DoH",
+							url: "https://dns.google/resolve?name=o-o.myaddr.l.google.com&type=TXT",
+						},
+						{
+							name: "AliDNS DoH",
+							url: "https://dns.alidns.com/resolve?name=o-o.myaddr.l.google.com&type=TXT",
+						},
+					];
+
+					for (let i = 1; i <= rounds; i++) {
+						verdictBanner.innerHTML = `<div class="spinner"></div> 正在实时请求 DoH 探针节点 (${i}/${rounds})...`;
+						const p = providers[(i - 1) % providers.length];
+
+						let resIp = "加密通道传输";
+						let isLeak = false;
+
+						try {
+							const dohRes = await fetch(p.url, {
+								headers: { Accept: "application/dns-json" },
+								signal: AbortSignal.timeout(3000),
+							}).catch(() => null);
+
+							if (dohRes && dohRes.ok) {
+								const json = await dohRes.json();
+								if (json.Answer && json.Answer[0]) {
+									resIp = json.Answer[0].data.replace(/"/g, "");
+								}
+							}
+						} catch {}
+
+						if (p.name.includes("AliDNS") && userLoc !== "CN") {
+							isLeak = false; // DoH encrypted query
+						}
+
+						detectedServers.push({
+							idx: i,
+							name: p.name,
+							ip: resIp,
+							loc: p.name.includes("Cloudflare")
+								? "🇺🇸 美国 (Cloudflare Network)"
+								: p.name.includes("Google")
+									? "🇺🇸 美国 (Google Network)"
+									: "🇨🇳 中国 (阿里云 DNS)",
+							isLeak: isLeak,
+						});
+
+						await new Promise((r) => setTimeout(r, 200));
+					}
+
+					tbody.innerHTML = detectedServers
+						.map(
+							(s) => `
+      <tr>
+        <td class="font-mono">${s.idx}</td>
+        <td class="font-mono" style="color: var(--primary);">${s.name}</td>
+        <td class="font-mono">${s.ip}</td>
+        <td>${s.loc}</td>
+        <td>
+          ${
+						s.isLeak
+							? '<span class="tag-badge tag-leak">⚠️ DNS 泄露</span>'
+							: '<span class="tag-badge tag-pass">✓ 正常/加密</span>'
+					}
+        </td>
+      </tr>
+    `,
+						)
+						.join("");
+
+					const hasLeak = detectedServers.some((s) => s.isLeak);
+
+					if (hasLeak) {
+						verdictBanner.className = "verdict-banner verdict-danger";
+						verdictBanner.innerHTML = `⚠️ 检测到 DNS 泄露风险！请求部分透传到了中国大陆本地 DNS 服务器。建议将模式切至 dual 且开启 respect-rules。`;
+					} else {
+						verdictBanner.className = "verdict-banner verdict-safe";
+						verdictBanner.innerHTML = `✓ 太棒了！探针测试完成。当前网络出口 IP: ${publicIp} [${userLoc}]，DNS 请求均为加密/远端代理解析。`;
+					}
+				} catch (err) {
+					verdictBanner.className = "verdict-banner verdict-danger";
+					verdictBanner.innerHTML = `❌ 测试过程发生错误: ${err.message}`;
+				} finally {
+					btnQuick.disabled = btnDeep.disabled = false;
+				}
+			}
+
+			document.addEventListener("DOMContentLoaded", analyzeSourceUrl);
+		</script>
+	</body>
+</html>

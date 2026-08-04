@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Edge Engine - 综合网络与分流诊断工具箱</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+			rel="stylesheet"
+		/>
+		<style>
+			:root {
+				--bg-dark: #07090e;
+				--bg-card: rgba(18, 24, 38, 0.75);
+				--bg-card-hover: rgba(28, 36, 56, 0.85);
+				--border: rgba(255, 255, 255, 0.08);
+				--border-accent: rgba(99, 102, 241, 0.3);
+				--primary: #6366f1;
+				--primary-glow: rgba(99, 102, 241, 0.4);
+				--text-main: #f3f4f6;
+				--text-muted: #9ca3af;
+				--font-sans: "Outfit", -apple-system, sans-serif;
+				--font-mono: "JetBrains Mono", monospace;
+			}
+
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			body {
+				background-color: var(--bg-dark);
+				color: var(--text-main);
+				font-family: var(--font-sans);
+				min-height: 100vh;
+				padding: 2.5rem 1rem;
+				line-height: 1.6;
+				background-image:
+					radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
+					radial-gradient(circle at 85% 85%, rgba(59, 130, 246, 0.1) 0%, transparent 45%);
+			}
+
+			.container {
+				max-width: 1100px;
+				margin: 0 auto;
+			}
+			header {
+				text-align: center;
+				margin-bottom: 3rem;
+			}
+
+			.badge {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.5rem;
+				padding: 0.35rem 0.9rem;
+				border-radius: 9999px;
+				background: rgba(99, 102, 241, 0.12);
+				border: 1px solid var(--border-accent);
+				color: #a5b4fc;
+				font-size: 0.825rem;
+				font-weight: 600;
+				text-transform: uppercase;
+				margin-bottom: 1rem;
+			}
+
+			.dot {
+				width: 8px;
+				height: 8px;
+				border-radius: 50%;
+				background: var(--primary);
+				box-shadow: 0 0 10px var(--primary);
+			}
+
+			h1 {
+				font-size: 2.75rem;
+				font-weight: 800;
+				background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 100%);
+				-webkit-background-clip: text;
+				-webkit-text-fill-color: transparent;
+				margin-bottom: 0.5rem;
+			}
+
+			p.subtitle {
+				color: var(--text-muted);
+				font-size: 1.1rem;
+				max-width: 650px;
+				margin: 0 auto;
+			}
+
+			.tool-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+				gap: 1.5rem;
+			}
+
+			.tool-card {
+				background: var(--bg-card);
+				backdrop-filter: blur(16px);
+				border: 1px solid var(--border);
+				border-radius: 20px;
+				padding: 1.75rem;
+				display: flex;
+				flex-direction: column;
+				justify-content: space-between;
+				transition: all 0.3s ease;
+				text-decoration: none;
+				color: var(--text-main);
+				box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+			}
+
+			.tool-card:hover {
+				transform: translateY(-4px);
+				border-color: var(--border-accent);
+				box-shadow: 0 15px 35px var(--primary-glow);
+			}
+
+			.tool-icon {
+				width: 48px;
+				height: 48px;
+				border-radius: 12px;
+				background: rgba(99, 102, 241, 0.12);
+				border: 1px solid var(--border-accent);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 1.5rem;
+				margin-bottom: 1.25rem;
+			}
+
+			.tool-name {
+				font-size: 1.3rem;
+				font-weight: 700;
+				color: #fff;
+				margin-bottom: 0.5rem;
+			}
+			.tool-desc {
+				color: var(--text-muted);
+				font-size: 0.925rem;
+				line-height: 1.6;
+				margin-bottom: 1.25rem;
+			}
+			.tool-link {
+				color: #a5b4fc;
+				font-weight: 600;
+				font-size: 0.9rem;
+				display: flex;
+				align-items: center;
+				gap: 0.4rem;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<header>
+				<div class="badge"><span class="dot"></span> Edge Engine Utilities</div>
+				<h1>网络与分流诊断全能工具箱</h1>
+				<p class="subtitle">
+					全面参照 Net.Coffee 平台架构打造，提供 IP 查询、AI 纯净度检测、DNS 泄露追溯与 WebRTC
+					探针工具
+				</p>
+			</header>
+
+			<div class="tool-grid">
+				<a href="/ip.html" class="tool-card">
+					<div>
+						<div class="tool-icon">🌐</div>
+						<div class="tool-name">IP 查询与 35+ 站点分流测试</div>
+						<div class="tool-desc">
+							测试当前出口 IP、地理位置归属，并实时验证 Bilibili、Google、GitHub、OpenAI
+							等热门站点的分流状态。
+						</div>
+					</div>
+					<div class="tool-link">立即使用分流测试工具 &rarr;</div>
+				</a>
+
+				<a href="/dns.html" class="tool-card">
+					<div>
+						<div class="tool-icon">🔍</div>
+						<div class="tool-name">DNS 泄露检测与源头 URL 追溯</div>
+						<div class="tool-desc">
+							复现随机动态子域名探针原理，提供交互式 4 步分流仿真器与源头 URL 零死角诊断抓包控制台。
+						</div>
+					</div>
+					<div class="tool-link">立即开启 DNS 泄露检测 &rarr;</div>
+				</a>
+
+				<a href="/claude.html" class="tool-card">
+					<div>
+						<div class="tool-icon">🤖</div>
+						<div class="tool-name">Claude & ChatGPT AI IP 纯净度检测</div>
+						<div class="tool-desc">
+							评估出口节点在 Anthropic Claude、OpenAI ChatGPT、Google Gemini 等 AI
+							平台的风险等级与解锁可用性。
+						</div>
+					</div>
+					<div class="tool-link">检测 AI 节点纯净度 &rarr;</div>
+				</a>
+
+				<a href="/webrtc.html" class="tool-card">
+					<div>
+						<div class="tool-icon">🛡️</div>
+						<div class="tool-name">WebRTC 与 UDP 真实 IP 泄露检测</div>
+						<div class="tool-desc">
+							探查浏览器 RTCPeerConnection 接口是否跳过代理泄露本地局域网 IP 或真实运营商 IPv4/IPv6
+							地址。
+						</div>
+					</div>
+					<div class="tool-link">测试 WebRTC 安全性 &rarr;</div>
+				</a>
+			</div>
+		</div>
+	</body>
+</html>

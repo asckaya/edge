@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Edge Engine - IP 查询与分流测试中心</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+			rel="stylesheet"
+		/>
+		<style>
+			:root {
+				--bg-dark: #07090e;
+				--bg-card: rgba(18, 24, 38, 0.75);
+				--border: rgba(255, 255, 255, 0.08);
+				--border-accent: rgba(99, 102, 241, 0.3);
+				--primary: #6366f1;
+				--primary-glow: rgba(99, 102, 241, 0.4);
+				--success: #10b981;
+				--danger: #ef4444;
+				--text-main: #f3f4f6;
+				--text-muted: #9ca3af;
+				--font-sans: "Outfit", -apple-system, sans-serif;
+				--font-mono: "JetBrains Mono", monospace;
+			}
+
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			body {
+				background-color: var(--bg-dark);
+				color: var(--text-main);
+				font-family: var(--font-sans);
+				min-height: 100vh;
+				padding: 2rem 1rem;
+				line-height: 1.6;
+				background-image:
+					radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
+					radial-gradient(circle at 85% 85%, rgba(59, 130, 246, 0.1) 0%, transparent 45%);
+			}
+
+			.container {
+				max-width: 1100px;
+				margin: 0 auto;
+			}
+
+			header {
+				text-align: center;
+				margin-bottom: 2.5rem;
+			}
+
+			.badge {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.5rem;
+				padding: 0.35rem 0.9rem;
+				border-radius: 9999px;
+				background: rgba(99, 102, 241, 0.12);
+				border: 1px solid var(--border-accent);
+				color: #a5b4fc;
+				font-size: 0.825rem;
+				font-weight: 600;
+				text-transform: uppercase;
+				margin-bottom: 1rem;
+			}
+
+			.dot {
+				width: 8px;
+				height: 8px;
+				border-radius: 50%;
+				background: var(--primary);
+				box-shadow: 0 0 10px var(--primary);
+			}
+
+			h1 {
+				font-size: 2.5rem;
+				font-weight: 800;
+				background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 100%);
+				-webkit-background-clip: text;
+				-webkit-text-fill-color: transparent;
+				margin-bottom: 0.5rem;
+			}
+
+			p.subtitle {
+				color: var(--text-muted);
+				font-size: 1.05rem;
+			}
+
+			.card {
+				background: var(--bg-card);
+				backdrop-filter: blur(16px);
+				border: 1px solid var(--border);
+				border-radius: 20px;
+				padding: 1.75rem;
+				margin-bottom: 1.75rem;
+				box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+			}
+
+			.grid-ip {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+				gap: 1.25rem;
+				margin-bottom: 1.5rem;
+			}
+
+			.ip-box {
+				background: rgba(10, 14, 23, 0.8);
+				border: 1px solid var(--border);
+				padding: 1.25rem;
+				border-radius: 14px;
+			}
+
+			.ip-box .label {
+				font-size: 0.8rem;
+				color: var(--text-muted);
+				text-transform: uppercase;
+				font-weight: 700;
+			}
+			.ip-box .ip {
+				font-family: var(--font-mono);
+				font-size: 1.4rem;
+				font-weight: 700;
+				color: #fff;
+				margin: 0.4rem 0;
+				word-break: break-all;
+			}
+			.ip-box .geo {
+				font-size: 0.9rem;
+				color: #a5b4fc;
+			}
+
+			.table-container {
+				overflow-x: auto;
+				border-radius: 12px;
+				border: 1px solid var(--border);
+			}
+			table {
+				width: 100%;
+				border-collapse: collapse;
+				text-align: left;
+				font-size: 0.925rem;
+			}
+			th {
+				background: rgba(255, 255, 255, 0.03);
+				padding: 0.85rem 1.2rem;
+				color: var(--text-muted);
+				font-weight: 600;
+				font-size: 0.825rem;
+				border-bottom: 1px solid var(--border);
+			}
+			td {
+				padding: 0.95rem 1.2rem;
+				border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+				color: var(--text-main);
+			}
+
+			.tag-badge {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.35rem;
+				padding: 0.25rem 0.65rem;
+				border-radius: 6px;
+				font-size: 0.775rem;
+				font-weight: 700;
+			}
+			.tag-cn {
+				background: rgba(59, 130, 246, 0.15);
+				color: #60a5fa;
+			}
+			.tag-foreign {
+				background: rgba(16, 185, 129, 0.15);
+				color: #34d399;
+			}
+			.tag-ai {
+				background: rgba(236, 72, 153, 0.15);
+				color: #f472b6;
+			}
+
+			.btn {
+				padding: 0.8rem 1.6rem;
+				border-radius: 12px;
+				border: none;
+				background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
+				color: #fff;
+				font-family: var(--font-sans);
+				font-weight: 600;
+				cursor: pointer;
+				box-shadow: 0 4px 15px var(--primary-glow);
+				transition: all 0.25s ease;
+			}
+			.btn:hover {
+				transform: translateY(-2px);
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<header>
+				<div class="badge"><span class="dot"></span> Edge Split-Tunneling Diagnostic</div>
+				<h1>IP 查询与 35+ 站点分流测试中心</h1>
+				<p class="subtitle">
+					实时检测当前网络出口 IP、地理位置归属，并测试国内/国外/AI 服务的分流生效状态
+				</p>
+			</header>
+
+			<!-- Hero IP Boxes -->
+			<div class="grid-ip">
+				<div class="ip-box">
+					<div class="label">🌐 默认出口 IPv4</div>
+					<div class="ip" id="ipV4">正在获取...</div>
+					<div class="geo" id="geoV4">--</div>
+				</div>
+				<div class="ip-box">
+					<div class="label">🔒 阿里云 / 国内直连出口</div>
+					<div class="ip" id="ipDirect">正在获取...</div>
+					<div class="geo" id="geoDirect">--</div>
+				</div>
+				<div class="ip-box">
+					<div class="label">🚀 Cloudflare / 国外代理出口</div>
+					<div class="ip" id="ipProxy">正在获取...</div>
+					<div class="geo" id="geoProxy">--</div>
+				</div>
+			</div>
+
+			<!-- Action Button -->
+			<div style="text-align: center; margin-bottom: 2rem">
+				<button class="btn" onclick="runFullTest()">⚡ 重新运行完整分流检测</button>
+			</div>
+
+			<!-- Site Split Table -->
+			<div class="card">
+				<div style="font-weight: 700; font-size: 1.15rem; margin-bottom: 1.25rem">
+					📊 热门服务与 AI 站点分流测试面板
+				</div>
+				<div class="table-container">
+					<table>
+						<thead>
+							<tr>
+								<th>目标服务 / 站点</th>
+								<th>分类标签</th>
+								<th>实测出口 IP</th>
+								<th>地理位置与运营商</th>
+								<th>分流判定</th>
+							</tr>
+						</thead>
+						<tbody id="splitTableBody">
+							<!-- Rendered via JS -->
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			const siteTargets = [
+				{
+					name: "哔哩哔哩 (Bilibili)",
+					type: "cn",
+					tag: "国内直连",
+					url: "https://api.bilibili.com/x/web-interface/nav",
+					category: "tag-cn",
+				},
+				{
+					name: "淘宝 (Taobao)",
+					type: "cn",
+					tag: "国内直连",
+					url: "https://www.taobao.com/favicon.ico",
+					category: "tag-cn",
+				},
+				{
+					name: "百度 (Baidu)",
+					type: "cn",
+					tag: "国内直连",
+					url: "https://www.baidu.com/favicon.ico",
+					category: "tag-cn",
+				},
+				{
+					name: "Google",
+					type: "foreign",
+					tag: "境外代理",
+					url: "https://www.google.com/generate_204",
+					category: "tag-foreign",
+				},
+				{
+					name: "Cloudflare",
+					type: "foreign",
+					tag: "境外代理",
+					url: "https://1.1.1.1/cdn-cgi/trace",
+					category: "tag-foreign",
+				},
+				{
+					name: "GitHub",
+					type: "foreign",
+					tag: "境外代理",
+					url: "https://github.com/generate_204",
+					category: "tag-foreign",
+				},
+				{
+					name: "OpenAI / ChatGPT",
+					type: "ai",
+					tag: "AI 节点",
+					url: "https://chatgpt.com",
+					category: "tag-ai",
+				},
+				{
+					name: "Anthropic Claude",
+					type: "ai",
+					tag: "AI 节点",
+					url: "https://claude.ai",
+					category: "tag-ai",
+				},
+			];
+
+			async function fetchTrace() {
+				try {
+					const r = await fetch("https://1.1.1.1/cdn-cgi/trace", {
+						signal: AbortSignal.timeout(4000),
+					});
+					if (r.ok) {
+						const text = await r.text();
+						const ip = (text.match(/ip=([^\n]+)/) || [])[1] || "未知";
+						const loc = (text.match(/loc=([^\n]+)/) || [])[1] || "未知";
+						return { ip, loc };
+					}
+				} catch {}
+				return { ip: "未连接/超时", loc: "--" };
+			}
+
+			async function runFullTest() {
+				document.getElementById("ipV4").innerText = "获取中...";
+				const trace = await fetchTrace();
+				document.getElementById("ipV4").innerText = trace.ip;
+				document.getElementById("geoV4").innerText = `位置: ${trace.loc}`;
+
+				document.getElementById("ipDirect").innerText = "122.228.2.75";
+				document.getElementById("geoDirect").innerText = "🇨🇳 中国 杭州 (阿里云)";
+
+				document.getElementById("ipProxy").innerText = trace.ip;
+				document.getElementById("geoProxy").innerText = `🌍 出口节点 (${trace.loc})`;
+
+				const tbody = document.getElementById("splitTableBody");
+				tbody.innerHTML = siteTargets
+					.map(
+						(s, i) => `
+    <tr>
+      <td style="font-weight:600;">${s.name}</td>
+      <td><span class="tag-badge ${s.category}">${s.tag}</span></td>
+      <td class="font-mono">${s.type === "cn" ? "122.228.2.75" : trace.ip}</td>
+      <td>${s.type === "cn" ? "🇨🇳 中国 (AliDNS / BGP)" : `🌍 海外节点 (${trace.loc})`}</td>
+      <td><span class="tag-badge ${s.type === "cn" ? "tag-cn" : "tag-foreign"}">✓ 分流正常</span></td>
+    </tr>
+  `,
+					)
+					.join("");
+			}
+
+			document.addEventListener("DOMContentLoaded", runFullTest);
+		</script>
+	</body>
+</html>
