@@ -127,4 +127,22 @@ export const REGION_GROUPS = [
 		filter:
 			"^(?i)(?=.*(台湾|台北|台中|台南|台东|湾湾|(?<![a-zA-Z])(tw|tpe|khh|tsa)(?![a-zA-Z])|taiwan|taipei|🇹🇼|🇼🇸))(?!.*(排除)).*$",
 	},
+	{
+		code: "AU",
+		tag: "🇦🇺 澳大利亚节点",
+		filter:
+			"^(?i)(?=.*(澳大利亚|澳洲|悉尼|墨尔本|布里斯班|阿德莱德|珀斯|堪培拉|(?<![a-zA-Z])(au|aus|syd|mel|bne|adl|per|cbr)(?![a-zA-Z])|australia|sydney|melbourne|🇦🇺))(?!.*(排除)).*$",
+	},
+	{
+		code: "GB",
+		tag: "🇬🇧 英国节点",
+		filter:
+			"^(?i)(?=.*(英国|伦敦|英格兰|大不列颠|(?<![a-zA-Z])(gb|uk|lhr|man|bhx)(?![a-zA-Z])|united kingdom|britain|england|london|🇬🇧))(?!.*(排除)).*$",
+	},
+	{
+		code: "DE",
+		tag: "🇩🇪 德国节点",
+		filter:
+			"^(?i)(?=.*(德国|法兰克福|柏林|慕尼黑|汉堡|(?<![a-zA-Z])(de|fra|ber|muc|ham)(?![a-zA-Z])|germany|deutschland|frankfurt|berlin|munich|🇩🇪))(?!.*(排除)).*$",
+	},
 ] as const;
