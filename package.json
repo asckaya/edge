@@ -62,6 +62,9 @@
 	"lint-staged": {
 		"*.{ts,tsx,js,jsx,json,jsonc}": "vp check --fix"
 	},
+	"engines": {
+		"node": ">=24.19.0"
+	},
 	"packageManager": "pnpm@11.15.0",
 	"ignoreScripts": [
 		"sharp",
