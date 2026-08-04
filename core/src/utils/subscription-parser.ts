@@ -172,7 +172,7 @@ export async function fetchSubscriptionNodes(
 			uniqueUrls.map(async (url) => {
 				try {
 					const body = await fetchWithCache(url, userAgent);
-					return [url, await parseSubscriptionContent(body)] as const;
+					return [url, parseSubscriptionContent(body)] as const;
 				} catch (err) {
 					console.error(`Failed to fetch subscription (${url}):`, err);
 					return [url, null] as const;

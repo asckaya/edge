@@ -76,7 +76,7 @@ export function toFlagEmoji(countryCode?: string | null): string {
 export function extractCountryCodeFromFlag(name: string): string | null {
 	const match = String(name || "").match(/\p{Regional_Indicator}{2}/u);
 	if (!match) return null;
-	const codes = [...match[0]].map((c) => c.codePointAt(0) || 0);
+	const codes = Array.from(match[0]).map((c) => c.codePointAt(0) || 0);
 	const first = codes[0];
 	const second = codes[1];
 	if (first == null || second == null) return null;

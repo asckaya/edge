@@ -3,7 +3,7 @@ import { cloudflare } from "@cloudflare/vite-plugin";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import react from "@vitejs/plugin-react";
-import { defineConfig, type Plugin } from "vite";
+import { defineConfig, type Plugin } from "vite-plus";
 
 const srcDir = fileURLToPath(new URL("./src", import.meta.url));
 
@@ -27,6 +27,21 @@ function markdownCharset(): Plugin {
 }
 
 export default defineConfig({
+	fmt: {
+		singleQuote: false,
+		semi: true,
+		tabWidth: 2,
+		useTabs: true,
+	},
+	lint: {
+		options: {
+			typeAware: true,
+		},
+		rules: {
+			"@typescript-eslint/no-base-to-string": "off",
+			"@typescript-eslint/restrict-template-expressions": "off",
+		},
+	},
 	plugins: [
 		tailwindcss(),
 		markdownCharset(),

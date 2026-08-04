@@ -7,6 +7,7 @@ This document provides a highly consolidated, zero-fluff context reference for A
 ## 1. Core Architecture (Worker-First, Registry-Driven)
 
 Single CF Worker entrypoint (`src/server.ts`) routes:
+
 - `/api/*`, `/s/*`, or any request **with query params** → Hono app (`core/[[path]].ts`)
 - Everything else (no query: `/`, static assets) → TanStack Start handler (prerendered SSR)
 
@@ -37,24 +38,27 @@ The system operates across 3 target kernels with 4 orchestration depth settings 
 - `type`: `mihomo`, `stash`, or `sing-box`.
 - `mode`: `full`, `dual`, `white`, or `black` (defaults to `full`).
 
-| Mode | Behavior |
-|---|---|
-| `full` | Granular routing across all 20+ scenario-specific outbounds. |
-| `dual` | Consolidates all foreign scenario outbounds into a single `🚀 节点选择` group (Recommended). |
-| `white` | Domestic-first: Proxies only defined rules; everything else defaults to `DIRECT`. |
-| `black` | Proxy-first: Directs only domestic rules; everything else defaults to proxies. |
+| Mode    | Behavior                                                                                     |
+| ------- | -------------------------------------------------------------------------------------------- |
+| `full`  | Granular routing across all 20+ scenario-specific outbounds.                                 |
+| `dual`  | Consolidates all foreign scenario outbounds into a single `🚀 节点选择` group (Recommended). |
+| `white` | Domestic-first: Proxies only defined rules; everything else defaults to `DIRECT`.            |
+| `black` | Proxy-first: Directs only domestic rules; everything else defaults to proxies.               |
 
 ### Request Target Resolution:
+
 - Explicit `type` takes precedence over User-Agent detection.
 - Without `type`, UA matching is case-insensitive: `clash`/`mihomo` -> `mihomo`, `stash` -> `stash`, `sing-box`/`singbox` -> `sing-box`.
 - Unknown UAs default to `mihomo`.
 - Legacy combined values such as `type=mihomo-dual` remain supported; new URLs must use `type=mihomo&mode=dual`.
 
 ### Single Subscription Optimization:
+
 - **Multiple Subscriptions**: Renders independent `[Airport]` and auto-select groups per provider. sing-box displays groups in Mihomo order: top selectors -> provider selectors -> regions -> scenarios.
 - **Single Subscription**: Bypasses airport-named groups entirely. Provider nodes are injected directly into `🚀 节点选择` and auto-select groups.
 
 ### Builder Option Shape:
+
 - Both `BuildMihomoOptions` and `BuildSingBoxOptions` use a single `mode: ConfigMode` ('full'|'dual'|'white'|'black') discriminator field. Each builder derives `{ isWhite, isBlack, isDual }` booleans via `configModeFlags(mode)` internally — downstream functions receive these booleans for branch logic.
 
 ---
@@ -82,18 +86,19 @@ The system operates across 3 target kernels with 4 orchestration depth settings 
 ## 4. Scripts, Commands & Testing
 
 - **`package.json` Commands**:
-  - `pnpm dev`: Vite dev server (SSR + HMR).
-  - `pnpm build`: Vite production build (prerenders `/` and `/GUIDE.md` to `.output/public`).
-  - `pnpm preview`: Preview the production build.
-  - `pnpm deploy`: `pnpm build && wrangler deploy` to CF Workers.
+  - `pnpm dev` / `vp dev`: Vite dev server (SSR + HMR).
+  - `pnpm build` / `vp build`: Vite production build (prerenders `/` and `/GUIDE.md` to `.output/public`).
+  - `pnpm preview` / `vp preview`: Preview the production build.
+  - `pnpm deploy`: `vp run build && wrangler deploy` to CF Workers.
   - `pnpm local [--type <type>] [--mode <mode>] [--output <file>]`: Local config generator (`scripts/yaml-to-config.ts`, in-process `onRequest` call; needs `proxy.yaml`).
   - `pnpm gen [--type <type>] [--mode <mode>] [--gh-proxy <url>]`: URL parameter preview (`scripts/gen-url.ts`).
   - `pnpm short`: Short-link CRUD CLI (`scripts/gen-short.ts`, calls `/api/shorten`).
-  - `pnpm test`: Runs entire Vitest suite (25 files / 345 tests).
-  - `pnpm check`: TypeScript type check (`tsc --noEmit`).
-  - `pnpm lint`: Biome check.
+  - `pnpm test` / `vp test`: Runs entire Vitest suite (26 files / 359 tests).
+  - `pnpm check` / `vp check`: Unified static analysis (format, lint, and type check).
+  - `pnpm lint` / `vp lint`: Oxlint code linter.
+  - `pnpm fmt` / `vp fmt`: Oxfmt code formatter.
   - `pnpm cf-typegen`: Generate CF Workers types via `wrangler types`.
-  - `pnpm vitest tests/mihomo/kernel.test.ts`: Runs a specific test file (bare kernel tests require the `mihomo`/`sing-box` binary on PATH + `proxy.yaml`).
+  - `pnpm test tests/mihomo/kernel.test.ts`: Runs a specific test file.
 
 - **Test Layout**:
   - `tests/_helpers/`: Shared test helpers — `callWorker(url, ua?, env?)` (Hono `app.request` wrapper), `runBareKernelTest(options, type)` (binary validation harness), `createKernelMockFetch({dnsIp?})` (shared fetch mock), `makeNode(partial)` (node fixture factory).

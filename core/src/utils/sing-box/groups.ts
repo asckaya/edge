@@ -142,7 +142,7 @@ export async function buildTaggedNodes(
 			const labels = await Promise.all(
 				nodes.map((node, index) =>
 					node.__subscriptionAlert
-						? String(node.name)
+						? Promise.resolve(String(node.name))
 						: buildGeoNodeLabel(sub.name, index + 1, node),
 				),
 			);
