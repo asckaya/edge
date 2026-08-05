@@ -3,15 +3,21 @@ import {
 	Activity,
 	AlertCircle,
 	AlertTriangle,
+	BookOpen,
 	Cpu,
+	ExternalLink,
 	Globe,
 	HelpCircle,
 	Layers,
 	Moon,
 	Network,
 	Settings,
+	ShieldAlert,
+	ShieldCheck,
+	Sparkles,
 	Sun,
 	Terminal,
+	Wrench,
 } from "lucide-react";
 import { lazy, Suspense, useMemo, useState } from "react";
 import { FaGithub } from "react-icons/fa";
@@ -152,6 +158,64 @@ function HomeComponent() {
 						</div>
 					</div>
 				</header>
+
+				{/* Header Quick Tools Navigation Bar */}
+				<nav className="flex items-center gap-2 overflow-x-auto pb-1 text-xs font-semibold text-zinc-600 dark:text-zinc-400 no-scrollbar">
+					<a
+						href="/ip.html"
+						target="_blank"
+						rel="noreferrer"
+						className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/60 dark:bg-zinc-950/40 border border-zinc-200/80 dark:border-zinc-800/60 text-zinc-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-500/40 hover:shadow-sm transition-all shrink-0 text-[11px]"
+					>
+						<Globe className="w-3.5 h-3.5 text-blue-500" />
+						<span>{t.ipTool}</span>
+					</a>
+					<a
+						href="/dns.html"
+						target="_blank"
+						rel="noreferrer"
+						className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/60 dark:bg-zinc-950/40 border border-zinc-200/80 dark:border-zinc-800/60 text-zinc-700 dark:text-zinc-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-500/40 hover:shadow-sm transition-all shrink-0 text-[11px]"
+					>
+						<ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+						<span>{t.dnsTool}</span>
+					</a>
+					<a
+						href="/webrtc.html"
+						target="_blank"
+						rel="noreferrer"
+						className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/60 dark:bg-zinc-950/40 border border-zinc-200/80 dark:border-zinc-800/60 text-zinc-700 dark:text-zinc-300 hover:text-amber-600 dark:hover:text-amber-400 hover:border-amber-500/40 hover:shadow-sm transition-all shrink-0 text-[11px]"
+					>
+						<ShieldAlert className="w-3.5 h-3.5 text-amber-500" />
+						<span>{t.webrtcTool}</span>
+					</a>
+					<a
+						href="/claude.html"
+						target="_blank"
+						rel="noreferrer"
+						className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/60 dark:bg-zinc-950/40 border border-zinc-200/80 dark:border-zinc-800/60 text-zinc-700 dark:text-zinc-300 hover:text-purple-600 dark:hover:text-purple-400 hover:border-purple-500/40 hover:shadow-sm transition-all shrink-0 text-[11px]"
+					>
+						<Sparkles className="w-3.5 h-3.5 text-purple-500" />
+						<span>{t.claudeTool}</span>
+					</a>
+					<a
+						href="/tools.html"
+						target="_blank"
+						rel="noreferrer"
+						className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/60 dark:bg-zinc-950/40 border border-zinc-200/80 dark:border-zinc-800/60 text-zinc-700 dark:text-zinc-300 hover:text-cyan-600 dark:hover:text-cyan-400 hover:border-cyan-500/40 hover:shadow-sm transition-all shrink-0 text-[11px]"
+					>
+						<Wrench className="w-3.5 h-3.5 text-cyan-500" />
+						<span>{t.toolsSuite}</span>
+					</a>
+					<a
+						href="/GUIDE.md"
+						target="_blank"
+						rel="noreferrer"
+						className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/40 text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 hover:border-indigo-400 transition-all shrink-0 text-[11px] font-bold"
+					>
+						<BookOpen className="w-3.5 h-3.5 text-indigo-500" />
+						<span>{t.docGuide}</span>
+					</a>
+				</nav>
 
 				{/* Dashboard Realtime Stats Cards */}
 				<section className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-reveal">
@@ -522,22 +586,209 @@ function HomeComponent() {
 				{/* Dynamic Traffic Routing Flow Visualizer */}
 				<RoutingFlow mode={selectedMode} lang={lang} />
 
+				{/* Network Diagnostics & Security Tools Cards Grid */}
+				<section className="flex flex-col gap-4 animate-reveal mt-2">
+					<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+						<h2 className="text-base font-extrabold text-zinc-900 dark:text-white flex items-center gap-2">
+							<Wrench className="w-4 h-4 text-indigo-500" />
+							<span>{t.toolsTitle}</span>
+						</h2>
+						<p className="text-xs text-zinc-500 dark:text-zinc-400">{t.toolsDesc}</p>
+					</div>
+
+					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+						<a
+							href="/ip.html"
+							target="_blank"
+							rel="noreferrer"
+							className="group p-4 bg-white/70 dark:bg-zinc-950/40 backdrop-blur-md rounded-xl border border-zinc-200/80 dark:border-zinc-900 flex flex-col justify-between hover:border-indigo-500/50 dark:hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-300 relative overflow-hidden"
+						>
+							<div className="flex items-start justify-between">
+								<div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 group-hover:scale-110 transition-transform">
+									<Globe className="w-5 h-5" />
+								</div>
+								<ExternalLink className="w-4 h-4 text-zinc-400 dark:text-zinc-600 group-hover:text-indigo-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+							</div>
+							<div className="mt-4">
+								<h3 className="text-sm font-bold text-zinc-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+									{t.ipTool}
+								</h3>
+								<p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2">
+									{t.ipDesc}
+								</p>
+							</div>
+						</a>
+
+						<a
+							href="/dns.html"
+							target="_blank"
+							rel="noreferrer"
+							className="group p-4 bg-white/70 dark:bg-zinc-950/40 backdrop-blur-md rounded-xl border border-zinc-200/80 dark:border-zinc-900 flex flex-col justify-between hover:border-emerald-500/50 dark:hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-300 relative overflow-hidden"
+						>
+							<div className="flex items-start justify-between">
+								<div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 group-hover:scale-110 transition-transform">
+									<ShieldCheck className="w-5 h-5" />
+								</div>
+								<ExternalLink className="w-4 h-4 text-zinc-400 dark:text-zinc-600 group-hover:text-emerald-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+							</div>
+							<div className="mt-4">
+								<h3 className="text-sm font-bold text-zinc-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+									{t.dnsTool}
+								</h3>
+								<p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2">
+									{t.dnsDesc}
+								</p>
+							</div>
+						</a>
+
+						<a
+							href="/webrtc.html"
+							target="_blank"
+							rel="noreferrer"
+							className="group p-4 bg-white/70 dark:bg-zinc-950/40 backdrop-blur-md rounded-xl border border-zinc-200/80 dark:border-zinc-900 flex flex-col justify-between hover:border-amber-500/50 dark:hover:border-amber-500/50 hover:shadow-lg hover:shadow-amber-500/5 transition-all duration-300 relative overflow-hidden"
+						>
+							<div className="flex items-start justify-between">
+								<div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 group-hover:scale-110 transition-transform">
+									<ShieldAlert className="w-5 h-5" />
+								</div>
+								<ExternalLink className="w-4 h-4 text-zinc-400 dark:text-zinc-600 group-hover:text-amber-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+							</div>
+							<div className="mt-4">
+								<h3 className="text-sm font-bold text-zinc-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+									{t.webrtcTool}
+								</h3>
+								<p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2">
+									{t.webrtcDesc}
+								</p>
+							</div>
+						</a>
+
+						<a
+							href="/claude.html"
+							target="_blank"
+							rel="noreferrer"
+							className="group p-4 bg-white/70 dark:bg-zinc-950/40 backdrop-blur-md rounded-xl border border-zinc-200/80 dark:border-zinc-900 flex flex-col justify-between hover:border-purple-500/50 dark:hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/5 transition-all duration-300 relative overflow-hidden"
+						>
+							<div className="flex items-start justify-between">
+								<div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 group-hover:scale-110 transition-transform">
+									<Sparkles className="w-5 h-5" />
+								</div>
+								<ExternalLink className="w-4 h-4 text-zinc-400 dark:text-zinc-600 group-hover:text-purple-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+							</div>
+							<div className="mt-4">
+								<h3 className="text-sm font-bold text-zinc-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+									{t.claudeTool}
+								</h3>
+								<p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2">
+									{t.claudeDesc}
+								</p>
+							</div>
+						</a>
+
+						<a
+							href="/tools.html"
+							target="_blank"
+							rel="noreferrer"
+							className="group p-4 bg-white/70 dark:bg-zinc-950/40 backdrop-blur-md rounded-xl border border-zinc-200/80 dark:border-zinc-900 flex flex-col justify-between hover:border-cyan-500/50 dark:hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/5 transition-all duration-300 relative overflow-hidden"
+						>
+							<div className="flex items-start justify-between">
+								<div className="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 group-hover:scale-110 transition-transform">
+									<Wrench className="w-5 h-5" />
+								</div>
+								<ExternalLink className="w-4 h-4 text-zinc-400 dark:text-zinc-600 group-hover:text-cyan-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+							</div>
+							<div className="mt-4">
+								<h3 className="text-sm font-bold text-zinc-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+									{t.toolsSuite}
+								</h3>
+								<p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2">
+									{t.toolsSuiteDesc}
+								</p>
+							</div>
+						</a>
+
+						<a
+							href="/GUIDE.md"
+							target="_blank"
+							rel="noreferrer"
+							className="group p-4 bg-white/70 dark:bg-zinc-950/40 backdrop-blur-md rounded-xl border border-zinc-200/80 dark:border-zinc-900 flex flex-col justify-between hover:border-indigo-500/50 dark:hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-300 relative overflow-hidden"
+						>
+							<div className="flex items-start justify-between">
+								<div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 group-hover:scale-110 transition-transform">
+									<BookOpen className="w-5 h-5" />
+								</div>
+								<ExternalLink className="w-4 h-4 text-zinc-400 dark:text-zinc-600 group-hover:text-indigo-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+							</div>
+							<div className="mt-4">
+								<h3 className="text-sm font-bold text-zinc-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+									{t.docGuide}
+								</h3>
+								<p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2">
+									{t.docGuideDesc}
+								</p>
+							</div>
+						</a>
+					</div>
+				</section>
+
 				{/* Footer */}
-				<footer className="mt-8 text-center border-t border-zinc-200 dark:border-zinc-900 pt-6">
+				<footer className="mt-8 text-center border-t border-zinc-200 dark:border-zinc-900 pt-6 flex flex-col gap-4">
+					<div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+						<a
+							href="/ip.html"
+							target="_blank"
+							rel="noreferrer"
+							className="hover:text-blue-500 transition-colors"
+						>
+							{t.ipTool}
+						</a>
+						<a
+							href="/dns.html"
+							target="_blank"
+							rel="noreferrer"
+							className="hover:text-emerald-500 transition-colors"
+						>
+							{t.dnsTool}
+						</a>
+						<a
+							href="/webrtc.html"
+							target="_blank"
+							rel="noreferrer"
+							className="hover:text-amber-500 transition-colors"
+						>
+							{t.webrtcTool}
+						</a>
+						<a
+							href="/claude.html"
+							target="_blank"
+							rel="noreferrer"
+							className="hover:text-purple-500 transition-colors"
+						>
+							{t.claudeTool}
+						</a>
+						<a
+							href="/tools.html"
+							target="_blank"
+							rel="noreferrer"
+							className="hover:text-cyan-500 transition-colors"
+						>
+							{t.toolsSuite}
+						</a>
+						<a
+							href="/GUIDE.md"
+							target="_blank"
+							rel="noreferrer"
+							className="hover:text-indigo-500 transition-colors font-bold text-indigo-600 dark:text-indigo-400"
+						>
+							{t.docGuide} ↗
+						</a>
+					</div>
 					<div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-5">
 						<p className="text-[9px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-[0.3em]">
 							{lang === "zh"
 								? "边缘网络分布式计算节点 • 强力驱动"
 								: "Distributed Edge Compute Infrastructure"}
 						</p>
-						<a
-							href="/GUIDE.md"
-							target="_blank"
-							rel="noreferrer"
-							className="text-[10px] font-extrabold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors"
-						>
-							{lang === "zh" ? "快速入门 / AI 文档 ↗" : "Quick Start / AI Guide ↗"}
-						</a>
 						<a
 							href="https://github.com/asckaya/edge"
 							target="_blank"
