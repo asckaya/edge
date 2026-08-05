@@ -16,6 +16,7 @@
 		"gen": "tsx scripts/gen-url.ts",
 		"local": "tsx scripts/yaml-to-config.ts",
 		"short": "tsx scripts/gen-short.ts",
+		"version:update": "node scripts/update-version.js",
 		"prepare": "husky"
 	},
 	"dependencies": {
