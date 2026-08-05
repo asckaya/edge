@@ -1,7 +1,7 @@
 import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 import "@fontsource-variable/inter";
 import "@fontsource-variable/outfit";
-import "./globals.css";
+import appCss from "./globals.css?url";
 
 export const Route = createRootRoute({
 	head: () => ({
@@ -12,6 +12,7 @@ export const Route = createRootRoute({
 				content: "High-performance proxy subscription converter for Mihomo, Stash, and sing-box.",
 			},
 		],
+		links: [{ rel: "stylesheet", href: appCss }],
 	}),
 	component: RootComponent,
 });
