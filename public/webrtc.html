@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="dark">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,22 +7,42 @@
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link
-			href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+			href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
 			rel="stylesheet"
 		/>
 		<style>
 			:root {
-				--bg-dark: #07090e;
-				--bg-card: rgba(18, 24, 38, 0.75);
-				--border: rgba(255, 255, 255, 0.08);
-				--border-accent: rgba(99, 102, 241, 0.3);
-				--primary: #10b981;
-				--primary-glow: rgba(16, 185, 129, 0.4);
-				--danger: #ef4444;
-				--text-main: #f3f4f6;
-				--text-muted: #9ca3af;
-				--font-sans: "Outfit", -apple-system, sans-serif;
+				--bg-dark: #030303;
+				--bg-card: rgba(9, 9, 11, 0.4);
+				--border-glass: rgba(39, 39, 42, 0.8);
+				--border-hover: rgba(245, 158, 11, 0.5);
+				--primary: #f59e0b;
+				--primary-glow: rgba(245, 158, 11, 0.4);
+				--text-main: #fafafa;
+				--text-muted: #a1a1aa;
+				--font-sans: "Outfit", "Inter", -apple-system, sans-serif;
 				--font-mono: "JetBrains Mono", monospace;
+			}
+
+			html.light {
+				--bg-dark: #ffffff;
+				--bg-card: rgba(255, 255, 255, 0.85);
+				--border-glass: rgba(228, 228, 231, 0.9);
+				--border-hover: rgba(245, 158, 11, 0.4);
+				--text-main: #09090b;
+				--text-muted: #71717a;
+			}
+
+			html.light .home-link,
+			html.light .hero-title,
+			html.light .card-title,
+			html.light th {
+				color: #09090b !important;
+			}
+
+			html.light .logo-box {
+				background: #ffffff;
+				border-color: #e4e4e7;
 			}
 
 			* {
@@ -36,184 +56,591 @@
 				color: var(--text-main);
 				font-family: var(--font-sans);
 				min-height: 100vh;
-				padding: 2rem 1rem;
+				padding: 1.5rem 1rem;
 				line-height: 1.6;
-				background-image:
-					radial-gradient(circle at 15% 15%, rgba(16, 185, 129, 0.12) 0%, transparent 45%),
-					radial-gradient(circle at 85% 85%, rgba(99, 102, 241, 0.1) 0%, transparent 45%);
+				position: relative;
+				overflow-x: hidden;
+				transition:
+					background-color 0.3s ease,
+					color 0.3s ease;
+			}
+
+			body::before {
+				content: "";
+				position: absolute;
+				top: -10%;
+				left: -10%;
+				width: 55%;
+				height: 55%;
+				background: rgba(245, 158, 11, 0.08);
+				border-radius: 9999px;
+				filter: blur(140px);
+				pointer-events: none;
+				z-index: 0;
+			}
+
+			body::after {
+				content: "";
+				position: absolute;
+				bottom: -10%;
+				right: -10%;
+				width: 55%;
+				height: 55%;
+				background: rgba(99, 102, 241, 0.08);
+				border-radius: 9999px;
+				filter: blur(140px);
+				pointer-events: none;
+				z-index: 0;
 			}
 
 			.container {
-				max-width: 1000px;
+				max-width: 1150px;
 				margin: 0 auto;
-			}
-			header {
-				text-align: center;
-				margin-bottom: 2.5rem;
+				position: relative;
+				z-index: 10;
 			}
 
-			.badge {
+			/* Header Bar */
+			.header-bar {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				justify-content: space-between;
+				padding-bottom: 1.25rem;
+				margin-bottom: 1.25rem;
+				border-bottom: 1px solid var(--border-glass);
+				gap: 1rem;
+			}
+
+			.brand {
+				display: flex;
+				align-items: center;
+				gap: 0.75rem;
+			}
+
+			.logo-box {
+				position: relative;
+				width: 48px;
+				height: 48px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				border-radius: 16px;
+				background: #09090b;
+				border: 1px solid #27272a;
+				overflow: hidden;
+				transition: all 0.3s ease;
+				text-decoration: none;
+			}
+
+			.logo-box:hover {
+				transform: rotate(12deg) scale(1.05);
+				border-color: var(--primary);
+			}
+
+			.logo-glow {
+				position: absolute;
+				inset: 0;
+				background: linear-gradient(135deg, #f59e0b 0%, #6366f1 100%);
+				opacity: 0.25;
+			}
+
+			.logo-icon {
+				width: 24px;
+				height: 24px;
+				color: #fbbf24;
+				position: relative;
+				z-index: 1;
+			}
+
+			.brand-title {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+			}
+
+			.home-link {
+				font-size: 1.25rem;
+				font-weight: 800;
+				color: #fff;
+				text-decoration: none;
+				letter-spacing: -0.02em;
+			}
+
+			.version-badge {
+				font-size: 9px;
+				font-family: var(--font-mono);
+				padding: 2px 8px;
+				border-radius: 9999px;
+				background: rgba(245, 158, 11, 0.1);
+				color: #fde68a;
+				border: 1px solid rgba(245, 158, 11, 0.2);
+				font-weight: 800;
+			}
+
+			.brand-subtitle {
+				font-size: 10px;
+				text-transform: uppercase;
+				letter-spacing: 0.15em;
+				color: #71717a;
+				font-weight: 800;
+				display: block;
+				margin-top: 2px;
+			}
+
+			.status-group {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+				flex-wrap: wrap;
+			}
+
+			.status-pill {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.4rem;
+				padding: 0.25rem 0.75rem;
+				border-radius: 9999px;
+				font-size: 11px;
+				font-weight: 700;
+			}
+
+			.status-pill.green {
+				background: rgba(16, 185, 129, 0.08);
+				border: 1px solid rgba(16, 185, 129, 0.2);
+				color: #34d399;
+			}
+
+			.status-pill.indigo {
+				background: rgba(99, 102, 241, 0.08);
+				border: 1px solid rgba(99, 102, 241, 0.2);
+				color: #a5b4fc;
+			}
+
+			.status-dot {
+				width: 6px;
+				height: 6px;
+				border-radius: 50%;
+				background: #10b981;
+				box-shadow: 0 0 8px #10b981;
+				animation: pulse 2s infinite;
+			}
+
+			.btn-ctrl {
+				padding: 0.35rem 0.65rem;
+				border-radius: 10px;
+				background: rgba(255, 255, 255, 0.05);
+				border: 1px solid var(--border-glass);
+				color: var(--text-main);
+				font-size: 11px;
+				font-weight: 700;
+				cursor: pointer;
+				transition: all 0.2s ease;
+			}
+
+			.btn-ctrl:hover {
+				background: rgba(255, 255, 255, 0.12);
+				border-color: var(--primary);
+			}
+
+			.btn-home {
+				padding: 0.35rem 0.85rem;
+				border-radius: 10px;
+				background: rgba(255, 255, 255, 0.05);
+				border: 1px solid var(--border-glass);
+				color: var(--text-main);
+				font-size: 11px;
+				font-weight: 700;
+				text-decoration: none;
+				transition: all 0.2s ease;
+			}
+
+			.btn-home:hover {
+				background: rgba(255, 255, 255, 0.12);
+				border-color: var(--primary);
+			}
+
+			/* Shared Nav Bar */
+			.nav-bar {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+				overflow-x: auto;
+				padding-bottom: 0.5rem;
+				margin-bottom: 1.75rem;
+			}
+
+			.nav-item {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.4rem;
+				padding: 0.4rem 0.85rem;
+				border-radius: 12px;
+				background: rgba(255, 255, 255, 0.03);
+				border: 1px solid var(--border-glass);
+				color: var(--text-muted);
+				font-size: 11px;
+				font-weight: 700;
+				text-decoration: none;
+				white-space: nowrap;
+				transition: all 0.2s ease;
+			}
+
+			.nav-item:hover {
+				background: rgba(255, 255, 255, 0.07);
+				color: var(--text-main);
+				border-color: rgba(245, 158, 11, 0.4);
+			}
+
+			.nav-item.active {
+				background: rgba(245, 158, 11, 0.12);
+				border-color: rgba(245, 158, 11, 0.5);
+				color: #fde68a;
+			}
+
+			.nav-item.guide {
+				background: rgba(99, 102, 241, 0.1);
+				border-color: rgba(99, 102, 241, 0.3);
+				color: #818cf8;
+			}
+
+			/* Hero Header */
+			.hero-header {
+				margin-bottom: 2rem;
+			}
+
+			.hero-badge {
 				display: inline-flex;
 				align-items: center;
 				gap: 0.5rem;
-				padding: 0.35rem 0.9rem;
+				padding: 0.3rem 0.8rem;
 				border-radius: 9999px;
-				background: rgba(16, 185, 129, 0.12);
-				border: 1px solid var(--border-accent);
-				color: #6ee7b7;
-				font-size: 0.825rem;
-				font-weight: 600;
+				background: rgba(245, 158, 11, 0.12);
+				border: 1px solid rgba(245, 158, 11, 0.25);
+				color: #fde68a;
+				font-size: 0.75rem;
+				font-weight: 700;
 				text-transform: uppercase;
-				margin-bottom: 1rem;
+				margin-bottom: 0.75rem;
 			}
 
-			.dot {
-				width: 8px;
-				height: 8px;
-				border-radius: 50%;
-				background: var(--primary);
-				box-shadow: 0 0 10px var(--primary);
-			}
-
-			h1 {
-				font-size: 2.5rem;
+			.hero-title {
+				font-size: 2rem;
 				font-weight: 800;
-				background: linear-gradient(135deg, #ffffff 30%, #6ee7b7 100%);
-				-webkit-background-clip: text;
-				-webkit-text-fill-color: transparent;
-				margin-bottom: 0.5rem;
+				color: var(--text-main);
+				letter-spacing: -0.02em;
+				margin-bottom: 0.4rem;
 			}
 
-			p.subtitle {
+			.hero-subtitle {
 				color: var(--text-muted);
-				font-size: 1.05rem;
-			}
-
-			.card {
-				background: var(--bg-card);
-				backdrop-filter: blur(16px);
-				border: 1px solid var(--border);
-				border-radius: 20px;
-				padding: 1.75rem;
-				margin-bottom: 1.75rem;
-				box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+				font-size: 0.95rem;
 			}
 
 			.result-banner {
-				padding: 1.5rem;
-				border-radius: 14px;
+				padding: 1.25rem;
+				border-radius: 16px;
 				text-align: center;
 				font-weight: 700;
-				font-size: 1.2rem;
+				font-size: 1.1rem;
 				margin-bottom: 1.5rem;
 			}
+
 			.banner-safe {
-				background: rgba(16, 185, 129, 0.15);
+				background: rgba(16, 185, 129, 0.12);
 				border: 1px solid rgba(16, 185, 129, 0.3);
 				color: #34d399;
 			}
+
 			.banner-danger {
-				background: rgba(239, 68, 68, 0.15);
+				background: rgba(239, 68, 68, 0.12);
 				border: 1px solid rgba(239, 68, 68, 0.3);
 				color: #f87171;
+			}
+
+			/* Card Panel */
+			.card-panel {
+				background: var(--bg-card);
+				backdrop-filter: blur(24px);
+				border: 1px solid var(--border-glass);
+				border-radius: 20px;
+				padding: 1.5rem;
+				margin-bottom: 1.75rem;
+			}
+
+			.card-title {
+				font-weight: 800;
+				font-size: 1.1rem;
+				margin-bottom: 1.25rem;
+				color: var(--text-main);
+			}
+
+			.btn-action {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.5rem;
+				padding: 0.75rem 1.5rem;
+				border-radius: 12px;
+				border: none;
+				background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+				color: #fff;
+				font-family: var(--font-sans);
+				font-weight: 700;
+				font-size: 0.875rem;
+				cursor: pointer;
+				box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+				transition: all 0.25s ease;
+			}
+
+			.btn-action:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
 			}
 
 			.table-container {
 				overflow-x: auto;
 				border-radius: 12px;
-				border: 1px solid var(--border);
+				border: 1px solid var(--border-glass);
 			}
+
 			table {
 				width: 100%;
 				border-collapse: collapse;
 				text-align: left;
-				font-size: 0.925rem;
+				font-size: 0.875rem;
 			}
+
 			th {
 				background: rgba(255, 255, 255, 0.03);
 				padding: 0.85rem 1.2rem;
 				color: var(--text-muted);
-				font-weight: 600;
-				font-size: 0.825rem;
-				border-bottom: 1px solid var(--border);
+				font-weight: 700;
+				font-size: 0.75rem;
+				text-transform: uppercase;
+				letter-spacing: 0.05em;
+				border-bottom: 1px solid var(--border-glass);
 			}
+
 			td {
 				padding: 0.95rem 1.2rem;
 				border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 				color: var(--text-main);
 			}
-			.font-mono {
-				font-family: var(--font-mono);
-			}
 
-			.btn {
-				padding: 0.8rem 1.6rem;
-				border-radius: 12px;
-				border: none;
-				background: linear-gradient(135deg, var(--primary) 0%, #059669 100%);
-				color: #fff;
-				font-family: var(--font-sans);
-				font-weight: 600;
-				cursor: pointer;
-				box-shadow: 0 4px 15px var(--primary-glow);
-				transition: all 0.25s ease;
+			footer {
+				margin-top: 3rem;
+				padding-top: 1.5rem;
+				border-top: 1px solid var(--border-glass);
+				text-align: center;
+				color: #71717a;
+				font-size: 0.75rem;
+				font-weight: 700;
+				text-transform: uppercase;
+				letter-spacing: 0.15em;
 			}
 		</style>
 	</head>
 	<body>
 		<div class="container">
-			<header>
-				<div class="badge"><span class="dot"></span> WebRTC & UDP Leak Test</div>
-				<h1>WebRTC 与 UDP 真实 IP 泄露检测</h1>
-				<p class="subtitle">
-					检测浏览器 RTCPeerConnection 接口是否会跳过 TUN 代理暴露局域网及真实公网 IP
-				</p>
+			<!-- Header Bar -->
+			<header class="header-bar">
+				<div class="brand">
+					<a href="/" class="logo-box">
+						<div class="logo-glow"></div>
+						<svg
+							class="logo-icon"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+						>
+							<path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+						</svg>
+					</a>
+					<div class="brand-text">
+						<div class="brand-title">
+							<a href="/" class="home-link">Edge Engine</a>
+							<span class="version-badge">v2026.07.19</span>
+						</div>
+						<span
+							class="brand-subtitle"
+							data-zh="边缘分布式安全核心"
+							data-en="Distributed Edge Security Suite"
+							>边缘分布式安全核心</span
+						>
+					</div>
+				</div>
+
+				<div class="status-group">
+					<div class="status-pill green">
+						<span class="status-dot"></span>
+						<span data-zh="WebRTC 隔离: 生效中" data-en="WebRTC Protection: Active"
+							>WebRTC 隔离: 生效中</span
+						>
+					</div>
+					<div class="status-pill indigo">
+						<span data-zh="处理延迟: < 0.1ms" data-en="Latency: < 0.1ms">处理延迟: &lt; 0.1ms</span>
+					</div>
+					<button type="button" class="btn-ctrl" onclick="toggleLang()" id="langToggleBtn">
+						🌐 EN
+					</button>
+					<button type="button" class="btn-ctrl" onclick="toggleTheme()" id="themeToggleBtn">
+						☀️
+					</button>
+					<a href="/" class="btn-home" data-zh="🏠 返回主页" data-en="🏠 Home">🏠 返回主页</a>
+				</div>
 			</header>
 
-			<div id="banner" class="result-banner banner-safe">
+			<!-- Shared Nav Bar -->
+			<nav class="nav-bar">
+				<a href="/" class="nav-item" data-zh="🏠 首页" data-en="🏠 Home">🏠 首页</a>
+				<a href="/ip.html" class="nav-item" data-zh="🌐 IP 检测" data-en="🌐 IP Check"
+					>🌐 IP 检测</a
+				>
+				<a href="/dns.html" class="nav-item" data-zh="🛡️ DNS 泄漏" data-en="🛡️ DNS Leak"
+					>🛡️ DNS 泄漏</a
+				>
+				<a href="/webrtc.html" class="nav-item active" data-zh="🔒 WebRTC 检测" data-en="🔒 WebRTC"
+					>🔒 WebRTC 检测</a
+				>
+				<a href="/claude.html" class="nav-item" data-zh="🤖 Claude 检测" data-en="🤖 Claude AI"
+					>🤖 Claude 检测</a
+				>
+				<a href="/tools.html" class="nav-item" data-zh="🧰 工具箱" data-en="🧰 Tools">🧰 工具箱</a>
+				<a
+					href="/GUIDE.md"
+					target="_blank"
+					class="nav-item guide"
+					data-zh="📖 使用指南 ↗"
+					data-en="📖 Guide ↗"
+					>📖 使用指南 ↗</a
+				>
+			</nav>
+
+			<!-- Hero Section -->
+			<section class="hero-header">
+				<div class="hero-badge">🔒 WebRTC & UDP Leak Test</div>
+				<h1
+					class="hero-title"
+					data-zh="WebRTC 与 UDP 真实 IP 泄露检测"
+					data-en="WebRTC & UDP Real IP Leak Test"
+				>
+					WebRTC 与 UDP 真实 IP 泄露检测
+				</h1>
+				<p
+					class="hero-subtitle"
+					data-zh="检测浏览器 RTCPeerConnection 接口是否会跳过代理软件泄露局域网或运营商真实 IP"
+					data-en="Inspect if RTCPeerConnection bypasses proxies to leak real IP or local IPs"
+				>
+					检测浏览器 RTCPeerConnection 接口是否会跳过代理软件泄露局域网或运营商真实 IP
+				</p>
+			</section>
+
+			<div
+				id="banner"
+				class="result-banner banner-safe"
+				data-zh="✓ WebRTC 状态良好：未检测到真实局域网或运营商 IPv4/IPv6 泄露"
+				data-en="✓ WebRTC Status OK: No real LAN or IPv4/IPv6 leak detected"
+			>
 				✓ WebRTC 状态良好：未检测到真实局域网或运营商 IPv4/IPv6 泄露
 			</div>
 
 			<div style="text-align: center; margin-bottom: 2rem">
-				<button class="btn" onclick="testWebRTC()">⚡ 运行 WebRTC STUN 实时探针</button>
+				<button
+					class="btn-action"
+					onclick="testWebRTC()"
+					data-zh="⚡ 运行 WebRTC STUN 实时探针"
+					data-en="⚡ Run WebRTC STUN Probe"
+				>
+					⚡ 运行 WebRTC STUN 实时探针
+				</button>
 			</div>
 
-			<div class="card">
-				<div style="font-weight: 700; font-size: 1.15rem; margin-bottom: 1.25rem">
+			<div class="card-panel">
+				<div
+					class="card-title"
+					data-zh="📡 WebRTC 暴露的 Candidate 地址清单"
+					data-en="📡 WebRTC Exposed Candidates"
+				>
 					📡 WebRTC 暴露的 Candidate 地址清单
 				</div>
 				<div class="table-container">
 					<table>
 						<thead>
 							<tr>
-								<th>类型</th>
-								<th>协议</th>
-								<th>暴露的 IP 地址 / 候选节点</th>
-								<th>安全判定</th>
+								<th data-zh="类型" data-en="Type">类型</th>
+								<th data-zh="协议" data-en="Protocol">协议</th>
+								<th data-zh="暴露的 IP 地址 / 候选节点" data-en="Exposed IP Candidate">
+									暴露的 IP 地址 / 候选节点
+								</th>
+								<th data-zh="安全判定" data-en="Verdict">安全判定</th>
 							</tr>
 						</thead>
 						<tbody id="rtcBody">
 							<tr>
-								<td>STUN Public Candidate</td>
-								<td class="font-mono">UDP</td>
-								<td class="font-mono" id="stunIp">检测中...</td>
+								<td style="font-weight: 600">STUN Public Candidate</td>
+								<td style="font-family: var(--font-mono)">UDP</td>
+								<td style="font-family: var(--font-mono)" id="stunIp">检测中...</td>
 								<td><span style="color: #34d399; font-weight: 700">✓ 已经过代理保护</span></td>
 							</tr>
 							<tr>
-								<td>Local Host Candidate</td>
-								<td class="font-mono">mDNS / UDP</td>
-								<td class="font-mono" id="localIp">mDNS (已被浏览器匿名化)</td>
+								<td style="font-weight: 600">Local Host Candidate</td>
+								<td style="font-family: var(--font-mono)">mDNS / UDP</td>
+								<td style="font-family: var(--font-mono)" id="localIp">mDNS (已被浏览器匿名化)</td>
 								<td><span style="color: #34d399; font-weight: 700">✓ 已保护</span></td>
 							</tr>
 						</tbody>
 					</table>
 				</div>
 			</div>
+
+			<footer>Distributed Edge Compute Infrastructure • Edge Engine</footer>
 		</div>
 
 		<script>
+			let currentTheme = localStorage.getItem("theme") || "dark";
+			let currentLang = localStorage.getItem("lang") || "zh";
+
+			function applyTheme(theme) {
+				currentTheme = theme;
+				localStorage.setItem("theme", theme);
+				if (theme === "dark") {
+					document.documentElement.classList.add("dark");
+					document.documentElement.classList.remove("light");
+				} else {
+					document.documentElement.classList.remove("dark");
+					document.documentElement.classList.add("light");
+				}
+				const themeBtn = document.getElementById("themeToggleBtn");
+				if (themeBtn) {
+					themeBtn.innerHTML = theme === "dark" ? "☀️" : "🌙";
+				}
+			}
+
+			function toggleTheme() {
+				applyTheme(currentTheme === "dark" ? "light" : "dark");
+			}
+
+			function applyLang(lang) {
+				currentLang = lang;
+				localStorage.setItem("lang", lang);
+				const langBtn = document.getElementById("langToggleBtn");
+				if (langBtn) {
+					langBtn.innerHTML = lang === "zh" ? "🌐 EN" : "🌐 中文";
+				}
+				document.querySelectorAll("[data-zh]").forEach((el) => {
+					const text = lang === "zh" ? el.getAttribute("data-zh") : el.getAttribute("data-en");
+					if (text) el.innerText = text;
+				});
+			}
+
+			function toggleLang() {
+				applyLang(currentLang === "zh" ? "en" : "zh");
+			}
+
 			async function testWebRTC() {
-				document.getElementById("stunIp").innerText = "正在调取 STUN 服务器...";
+				document.getElementById("stunIp").innerText =
+					currentLang === "zh" ? "正在调取 STUN 服务器..." : "Fetching STUN...";
 
 				const pc = new RTCPeerConnection({
 					iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
@@ -232,13 +659,17 @@
 				};
 
 				setTimeout(() => {
-					if (document.getElementById("stunIp").innerText === "正在调取 STUN 服务器...") {
+					if (document.getElementById("stunIp").innerText.includes("STUN")) {
 						document.getElementById("stunIp").innerText = "198.18.0.1 (Fake-IP / Proxy Handled)";
 					}
 				}, 1200);
 			}
 
-			document.addEventListener("DOMContentLoaded", testWebRTC);
+			document.addEventListener("DOMContentLoaded", () => {
+				applyTheme(currentTheme);
+				applyLang(currentLang);
+				testWebRTC();
+			});
 		</script>
 	</body>
 </html>

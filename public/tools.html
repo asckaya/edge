@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="dark">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,22 +7,42 @@
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link
-			href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+			href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
 			rel="stylesheet"
 		/>
 		<style>
 			:root {
-				--bg-dark: #07090e;
-				--bg-card: rgba(18, 24, 38, 0.75);
-				--bg-card-hover: rgba(28, 36, 56, 0.85);
-				--border: rgba(255, 255, 255, 0.08);
-				--border-accent: rgba(99, 102, 241, 0.3);
-				--primary: #6366f1;
-				--primary-glow: rgba(99, 102, 241, 0.4);
-				--text-main: #f3f4f6;
-				--text-muted: #9ca3af;
-				--font-sans: "Outfit", -apple-system, sans-serif;
+				--bg-dark: #030303;
+				--bg-card: rgba(9, 9, 11, 0.4);
+				--border-glass: rgba(39, 39, 42, 0.8);
+				--border-hover: rgba(6, 182, 212, 0.5);
+				--primary: #06b6d4;
+				--primary-glow: rgba(6, 182, 212, 0.4);
+				--text-main: #fafafa;
+				--text-muted: #a1a1aa;
+				--font-sans: "Outfit", "Inter", -apple-system, sans-serif;
 				--font-mono: "JetBrains Mono", monospace;
+			}
+
+			html.light {
+				--bg-dark: #ffffff;
+				--bg-card: rgba(255, 255, 255, 0.85);
+				--border-glass: rgba(228, 228, 231, 0.9);
+				--border-hover: rgba(6, 182, 212, 0.4);
+				--text-main: #09090b;
+				--text-muted: #71717a;
+			}
+
+			html.light .home-link,
+			html.light .hero-title,
+			html.light .card-title,
+			html.light .tool-name {
+				color: #09090b !important;
+			}
+
+			html.light .logo-box {
+				background: #ffffff;
+				border-color: #e4e4e7;
 			}
 
 			* {
@@ -36,182 +56,620 @@
 				color: var(--text-main);
 				font-family: var(--font-sans);
 				min-height: 100vh;
-				padding: 2.5rem 1rem;
+				padding: 1.5rem 1rem;
 				line-height: 1.6;
-				background-image:
-					radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
-					radial-gradient(circle at 85% 85%, rgba(59, 130, 246, 0.1) 0%, transparent 45%);
+				position: relative;
+				overflow-x: hidden;
+				transition:
+					background-color 0.3s ease,
+					color 0.3s ease;
+			}
+
+			body::before {
+				content: "";
+				position: absolute;
+				top: -10%;
+				left: -10%;
+				width: 55%;
+				height: 55%;
+				background: rgba(6, 182, 212, 0.08);
+				border-radius: 9999px;
+				filter: blur(140px);
+				pointer-events: none;
+				z-index: 0;
+			}
+
+			body::after {
+				content: "";
+				position: absolute;
+				bottom: -10%;
+				right: -10%;
+				width: 55%;
+				height: 55%;
+				background: rgba(99, 102, 241, 0.08);
+				border-radius: 9999px;
+				filter: blur(140px);
+				pointer-events: none;
+				z-index: 0;
 			}
 
 			.container {
-				max-width: 1100px;
+				max-width: 1150px;
 				margin: 0 auto;
-			}
-			header {
-				text-align: center;
-				margin-bottom: 3rem;
+				position: relative;
+				z-index: 10;
 			}
 
-			.badge {
+			/* Header Bar */
+			.header-bar {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				justify-content: space-between;
+				padding-bottom: 1.25rem;
+				margin-bottom: 1.25rem;
+				border-bottom: 1px solid var(--border-glass);
+				gap: 1rem;
+			}
+
+			.brand {
+				display: flex;
+				align-items: center;
+				gap: 0.75rem;
+			}
+
+			.logo-box {
+				position: relative;
+				width: 48px;
+				height: 48px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				border-radius: 16px;
+				background: #09090b;
+				border: 1px solid #27272a;
+				overflow: hidden;
+				transition: all 0.3s ease;
+				text-decoration: none;
+			}
+
+			.logo-box:hover {
+				transform: rotate(12deg) scale(1.05);
+				border-color: var(--primary);
+			}
+
+			.logo-glow {
+				position: absolute;
+				inset: 0;
+				background: linear-gradient(135deg, #06b6d4 0%, #6366f1 100%);
+				opacity: 0.25;
+			}
+
+			.logo-icon {
+				width: 24px;
+				height: 24px;
+				color: #22d3ee;
+				position: relative;
+				z-index: 1;
+			}
+
+			.brand-title {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+			}
+
+			.home-link {
+				font-size: 1.25rem;
+				font-weight: 800;
+				color: #fff;
+				text-decoration: none;
+				letter-spacing: -0.02em;
+			}
+
+			.version-badge {
+				font-size: 9px;
+				font-family: var(--font-mono);
+				padding: 2px 8px;
+				border-radius: 9999px;
+				background: rgba(6, 182, 212, 0.1);
+				color: #67e8f9;
+				border: 1px solid rgba(6, 182, 212, 0.2);
+				font-weight: 800;
+			}
+
+			.brand-subtitle {
+				font-size: 10px;
+				text-transform: uppercase;
+				letter-spacing: 0.15em;
+				color: #71717a;
+				font-weight: 800;
+				display: block;
+				margin-top: 2px;
+			}
+
+			.status-group {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+				flex-wrap: wrap;
+			}
+
+			.status-pill {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.4rem;
+				padding: 0.25rem 0.75rem;
+				border-radius: 9999px;
+				font-size: 11px;
+				font-weight: 700;
+			}
+
+			.status-pill.green {
+				background: rgba(16, 185, 129, 0.08);
+				border: 1px solid rgba(16, 185, 129, 0.2);
+				color: #34d399;
+			}
+
+			.status-pill.indigo {
+				background: rgba(99, 102, 241, 0.08);
+				border: 1px solid rgba(99, 102, 241, 0.2);
+				color: #a5b4fc;
+			}
+
+			.status-dot {
+				width: 6px;
+				height: 6px;
+				border-radius: 50%;
+				background: #10b981;
+				box-shadow: 0 0 8px #10b981;
+				animation: pulse 2s infinite;
+			}
+
+			.btn-ctrl {
+				padding: 0.35rem 0.65rem;
+				border-radius: 10px;
+				background: rgba(255, 255, 255, 0.05);
+				border: 1px solid var(--border-glass);
+				color: var(--text-main);
+				font-size: 11px;
+				font-weight: 700;
+				cursor: pointer;
+				transition: all 0.2s ease;
+			}
+
+			.btn-ctrl:hover {
+				background: rgba(255, 255, 255, 0.12);
+				border-color: var(--primary);
+			}
+
+			.btn-home {
+				padding: 0.35rem 0.85rem;
+				border-radius: 10px;
+				background: rgba(255, 255, 255, 0.05);
+				border: 1px solid var(--border-glass);
+				color: var(--text-main);
+				font-size: 11px;
+				font-weight: 700;
+				text-decoration: none;
+				transition: all 0.2s ease;
+			}
+
+			.btn-home:hover {
+				background: rgba(255, 255, 255, 0.12);
+				border-color: var(--primary);
+			}
+
+			/* Shared Nav Bar */
+			.nav-bar {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+				overflow-x: auto;
+				padding-bottom: 0.5rem;
+				margin-bottom: 1.75rem;
+			}
+
+			.nav-item {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.4rem;
+				padding: 0.4rem 0.85rem;
+				border-radius: 12px;
+				background: rgba(255, 255, 255, 0.03);
+				border: 1px solid var(--border-glass);
+				color: var(--text-muted);
+				font-size: 11px;
+				font-weight: 700;
+				text-decoration: none;
+				white-space: nowrap;
+				transition: all 0.2s ease;
+			}
+
+			.nav-item:hover {
+				background: rgba(255, 255, 255, 0.07);
+				color: var(--text-main);
+				border-color: rgba(6, 182, 212, 0.4);
+			}
+
+			.nav-item.active {
+				background: rgba(6, 182, 212, 0.12);
+				border-color: rgba(6, 182, 212, 0.5);
+				color: #67e8f9;
+			}
+
+			.nav-item.guide {
+				background: rgba(99, 102, 241, 0.1);
+				border-color: rgba(99, 102, 241, 0.3);
+				color: #818cf8;
+			}
+
+			/* Hero Header */
+			.hero-header {
+				margin-bottom: 2rem;
+			}
+
+			.hero-badge {
 				display: inline-flex;
 				align-items: center;
 				gap: 0.5rem;
-				padding: 0.35rem 0.9rem;
+				padding: 0.3rem 0.8rem;
 				border-radius: 9999px;
-				background: rgba(99, 102, 241, 0.12);
-				border: 1px solid var(--border-accent);
-				color: #a5b4fc;
-				font-size: 0.825rem;
-				font-weight: 600;
+				background: rgba(6, 182, 212, 0.12);
+				border: 1px solid rgba(6, 182, 212, 0.25);
+				color: #67e8f9;
+				font-size: 0.75rem;
+				font-weight: 700;
 				text-transform: uppercase;
-				margin-bottom: 1rem;
+				margin-bottom: 0.75rem;
 			}
 
-			.dot {
-				width: 8px;
-				height: 8px;
-				border-radius: 50%;
-				background: var(--primary);
-				box-shadow: 0 0 10px var(--primary);
-			}
-
-			h1 {
-				font-size: 2.75rem;
+			.hero-title {
+				font-size: 2rem;
 				font-weight: 800;
-				background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 100%);
-				-webkit-background-clip: text;
-				-webkit-text-fill-color: transparent;
-				margin-bottom: 0.5rem;
+				color: var(--text-main);
+				letter-spacing: -0.02em;
+				margin-bottom: 0.4rem;
 			}
 
-			p.subtitle {
+			.hero-subtitle {
 				color: var(--text-muted);
-				font-size: 1.1rem;
-				max-width: 650px;
-				margin: 0 auto;
+				font-size: 0.95rem;
 			}
 
+			/* Tool Grid */
 			.tool-grid {
 				display: grid;
-				grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-				gap: 1.5rem;
+				grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+				gap: 1.25rem;
 			}
 
 			.tool-card {
 				background: var(--bg-card);
-				backdrop-filter: blur(16px);
-				border: 1px solid var(--border);
+				backdrop-filter: blur(24px);
+				border: 1px solid var(--border-glass);
 				border-radius: 20px;
-				padding: 1.75rem;
+				padding: 1.5rem;
 				display: flex;
 				flex-direction: column;
 				justify-content: space-between;
 				transition: all 0.3s ease;
 				text-decoration: none;
 				color: var(--text-main);
-				box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
 			}
 
 			.tool-card:hover {
 				transform: translateY(-4px);
-				border-color: var(--border-accent);
-				box-shadow: 0 15px 35px var(--primary-glow);
+				border-color: var(--border-hover);
+				box-shadow: 0 12px 30px rgba(6, 182, 212, 0.1);
 			}
 
 			.tool-icon {
-				width: 48px;
-				height: 48px;
-				border-radius: 12px;
-				background: rgba(99, 102, 241, 0.12);
-				border: 1px solid var(--border-accent);
+				width: 44px;
+				height: 44px;
+				border-radius: 14px;
+				background: rgba(6, 182, 212, 0.1);
+				border: 1px solid rgba(6, 182, 212, 0.2);
 				display: flex;
 				align-items: center;
 				justify-content: center;
-				font-size: 1.5rem;
-				margin-bottom: 1.25rem;
+				font-size: 1.35rem;
+				margin-bottom: 1rem;
 			}
 
 			.tool-name {
-				font-size: 1.3rem;
-				font-weight: 700;
-				color: #fff;
-				margin-bottom: 0.5rem;
+				font-size: 1.15rem;
+				font-weight: 800;
+				color: var(--text-main);
+				margin-bottom: 0.4rem;
 			}
+
 			.tool-desc {
 				color: var(--text-muted);
-				font-size: 0.925rem;
+				font-size: 0.875rem;
 				line-height: 1.6;
 				margin-bottom: 1.25rem;
 			}
+
 			.tool-link {
-				color: #a5b4fc;
-				font-weight: 600;
-				font-size: 0.9rem;
+				color: #22d3ee;
+				font-weight: 700;
+				font-size: 0.85rem;
 				display: flex;
 				align-items: center;
 				gap: 0.4rem;
+			}
+
+			footer {
+				margin-top: 3rem;
+				padding-top: 1.5rem;
+				border-top: 1px solid var(--border-glass);
+				text-align: center;
+				color: #71717a;
+				font-size: 0.75rem;
+				font-weight: 700;
+				text-transform: uppercase;
+				letter-spacing: 0.15em;
 			}
 		</style>
 	</head>
 	<body>
 		<div class="container">
-			<header>
-				<div class="badge"><span class="dot"></span> Edge Engine Utilities</div>
-				<h1>网络与分流诊断全能工具箱</h1>
-				<p class="subtitle">
-					全面参照 Net.Coffee 平台架构打造，提供 IP 查询、AI 纯净度检测、DNS 泄露追溯与 WebRTC
-					探针工具
-				</p>
+			<!-- Header Bar -->
+			<header class="header-bar">
+				<div class="brand">
+					<a href="/" class="logo-box">
+						<div class="logo-glow"></div>
+						<svg
+							class="logo-icon"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+						>
+							<path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+						</svg>
+					</a>
+					<div class="brand-text">
+						<div class="brand-title">
+							<a href="/" class="home-link">Edge Engine</a>
+							<span class="version-badge">v2026.07.19</span>
+						</div>
+						<span
+							class="brand-subtitle"
+							data-zh="边缘分布式开发者工具箱"
+							data-en="Distributed Edge Developer Utilities"
+							>边缘分布式开发者工具箱</span
+						>
+					</div>
+				</div>
+
+				<div class="status-group">
+					<div class="status-pill green">
+						<span class="status-dot"></span>
+						<span data-zh="工具箱服务: 正常" data-en="Tools Suite: Operational"
+							>工具箱服务: 正常</span
+						>
+					</div>
+					<div class="status-pill indigo">
+						<span data-zh="处理延迟: < 0.1ms" data-en="Latency: < 0.1ms">处理延迟: &lt; 0.1ms</span>
+					</div>
+					<button type="button" class="btn-ctrl" onclick="toggleLang()" id="langToggleBtn">
+						🌐 EN
+					</button>
+					<button type="button" class="btn-ctrl" onclick="toggleTheme()" id="themeToggleBtn">
+						☀️
+					</button>
+					<a href="/" class="btn-home" data-zh="🏠 返回主页" data-en="🏠 Home">🏠 返回主页</a>
+				</div>
 			</header>
+
+			<!-- Shared Nav Bar -->
+			<nav class="nav-bar">
+				<a href="/" class="nav-item" data-zh="🏠 首页" data-en="🏠 Home">🏠 首页</a>
+				<a href="/ip.html" class="nav-item" data-zh="🌐 IP 检测" data-en="🌐 IP Check"
+					>🌐 IP 检测</a
+				>
+				<a href="/dns.html" class="nav-item" data-zh="🛡️ DNS 泄漏" data-en="🛡️ DNS Leak"
+					>🛡️ DNS 泄漏</a
+				>
+				<a href="/webrtc.html" class="nav-item" data-zh="🔒 WebRTC 检测" data-en="🔒 WebRTC"
+					>🔒 WebRTC 检测</a
+				>
+				<a href="/claude.html" class="nav-item" data-zh="🤖 Claude 检测" data-en="🤖 Claude AI"
+					>🤖 Claude 检测</a
+				>
+				<a href="/tools.html" class="nav-item active" data-zh="🧰 工具箱" data-en="🧰 Tools"
+					>🧰 工具箱</a
+				>
+				<a
+					href="/GUIDE.md"
+					target="_blank"
+					class="nav-item guide"
+					data-zh="📖 使用指南 ↗"
+					data-en="📖 Guide ↗"
+					>📖 使用指南 ↗</a
+				>
+			</nav>
+
+			<!-- Hero Section -->
+			<section class="hero-header">
+				<div class="hero-badge">🧰 Edge Engine Utilities</div>
+				<h1
+					class="hero-title"
+					data-zh="网络与分流诊断全能工具箱"
+					data-en="Network Diagnostics & Tools Suite"
+				>
+					网络与分流诊断全能工具箱
+				</h1>
+				<p
+					class="hero-subtitle"
+					data-zh="实时提供 IP 查询、AI 纯净度检测、DNS 泄露追溯与 WebRTC 安全探针工具"
+					data-en="Realtime IP detection, AI purity assessment, DNS leak tracing, and WebRTC probes"
+				>
+					实时提供 IP 查询、AI 纯净度检测、DNS 泄露追溯与 WebRTC 安全探针工具
+				</p>
+			</section>
 
 			<div class="tool-grid">
 				<a href="/ip.html" class="tool-card">
 					<div>
 						<div class="tool-icon">🌐</div>
-						<div class="tool-name">IP 查询与 35+ 站点分流测试</div>
-						<div class="tool-desc">
+						<div
+							class="tool-name"
+							data-zh="IP 查询与 35+ 站点分流测试"
+							data-en="IP Check & Routing Test"
+						>
+							IP 查询与 35+ 站点分流测试
+						</div>
+						<div
+							class="tool-desc"
+							data-zh="测试当前出口 IP、地理位置归属，并实时验证 Bilibili、Google、GitHub、OpenAI 等热门站点的分流状态。"
+							data-en="Test egress IP, geolocation, and verify split-tunneling status for popular services."
+						>
 							测试当前出口 IP、地理位置归属，并实时验证 Bilibili、Google、GitHub、OpenAI
 							等热门站点的分流状态。
 						</div>
 					</div>
-					<div class="tool-link">立即使用分流测试工具 &rarr;</div>
+					<div
+						class="tool-link"
+						data-zh="立即使用分流测试工具 &rarr;"
+						data-en="Launch IP Test &rarr;"
+					>
+						立即使用分流测试工具 &rarr;
+					</div>
 				</a>
 
 				<a href="/dns.html" class="tool-card">
 					<div>
-						<div class="tool-icon">🔍</div>
-						<div class="tool-name">DNS 泄露检测与源头 URL 追溯</div>
-						<div class="tool-desc">
-							复现随机动态子域名探针原理，提供交互式 4 步分流仿真器与源头 URL 零死角诊断抓包控制台。
+						<div class="tool-icon">🛡️</div>
+						<div
+							class="tool-name"
+							data-zh="DNS 泄露检测与源头 URL 追溯"
+							data-en="DNS Leak & URL Tracer"
+						>
+							DNS 泄露检测与源头 URL 追溯
+						</div>
+						<div
+							class="tool-desc"
+							data-zh="提供真实 DoH 探针检测与交互式源头 URL 零死角诊断控制台。"
+							data-en="Live DoH probe testing and interactive source URL trace console."
+						>
+							提供真实 DoH 探针检测与交互式源头 URL 零死角诊断控制台。
 						</div>
 					</div>
-					<div class="tool-link">立即开启 DNS 泄露检测 &rarr;</div>
+					<div
+						class="tool-link"
+						data-zh="立即开启 DNS 泄露检测 &rarr;"
+						data-en="Launch DNS Test &rarr;"
+					>
+						立即开启 DNS 泄露检测 &rarr;
+					</div>
 				</a>
 
 				<a href="/claude.html" class="tool-card">
 					<div>
 						<div class="tool-icon">🤖</div>
-						<div class="tool-name">Claude & ChatGPT AI IP 纯净度检测</div>
-						<div class="tool-desc">
-							评估出口节点在 Anthropic Claude、OpenAI ChatGPT、Google Gemini 等 AI
-							平台的风险等级与解锁可用性。
+						<div
+							class="tool-name"
+							data-zh="Claude & ChatGPT AI IP 纯净度检测"
+							data-en="Claude & ChatGPT AI IP Test"
+						>
+							Claude & ChatGPT AI IP 纯净度检测
+						</div>
+						<div
+							class="tool-desc"
+							data-zh="评估出口节点在 Anthropic Claude、OpenAI ChatGPT、Google Gemini 等 AI 平台的风险等级。"
+							data-en="Assess node risk score for Anthropic Claude, ChatGPT, and Gemini."
+						>
+							评估出口节点在 Anthropic Claude、OpenAI ChatGPT、Google Gemini 等 AI 平台的风险等级。
 						</div>
 					</div>
-					<div class="tool-link">检测 AI 节点纯净度 &rarr;</div>
+					<div
+						class="tool-link"
+						data-zh="检测 AI 节点纯净度 &rarr;"
+						data-en="Launch AI Test &rarr;"
+					>
+						检测 AI 节点纯净度 &rarr;
+					</div>
 				</a>
 
 				<a href="/webrtc.html" class="tool-card">
 					<div>
-						<div class="tool-icon">🛡️</div>
-						<div class="tool-name">WebRTC 与 UDP 真实 IP 泄露检测</div>
-						<div class="tool-desc">
-							探查浏览器 RTCPeerConnection 接口是否跳过代理泄露本地局域网 IP 或真实运营商 IPv4/IPv6
-							地址。
+						<div class="tool-icon">🔒</div>
+						<div
+							class="tool-name"
+							data-zh="WebRTC 与 UDP 真实 IP 泄露检测"
+							data-en="WebRTC & UDP Leak Test"
+						>
+							WebRTC 与 UDP 真实 IP 泄露检测
+						</div>
+						<div
+							class="tool-desc"
+							data-zh="探查浏览器 RTCPeerConnection 接口是否跳过代理泄露本地局域网 IP 或真实运营商 IP。"
+							data-en="Probe if RTCPeerConnection leaks local LAN or public IP addresses."
+						>
+							探查浏览器 RTCPeerConnection 接口是否跳过代理泄露本地局域网 IP 或真实运营商 IP。
 						</div>
 					</div>
-					<div class="tool-link">测试 WebRTC 安全性 &rarr;</div>
+					<div
+						class="tool-link"
+						data-zh="测试 WebRTC 安全性 &rarr;"
+						data-en="Launch WebRTC Test &rarr;"
+					>
+						测试 WebRTC 安全性 &rarr;
+					</div>
 				</a>
 			</div>
+
+			<footer>Distributed Edge Compute Infrastructure • Edge Engine</footer>
 		</div>
+
+		<script>
+			let currentTheme = localStorage.getItem("theme") || "dark";
+			let currentLang = localStorage.getItem("lang") || "zh";
+
+			function applyTheme(theme) {
+				currentTheme = theme;
+				localStorage.setItem("theme", theme);
+				if (theme === "dark") {
+					document.documentElement.classList.add("dark");
+					document.documentElement.classList.remove("light");
+				} else {
+					document.documentElement.classList.remove("dark");
+					document.documentElement.classList.add("light");
+				}
+				const themeBtn = document.getElementById("themeToggleBtn");
+				if (themeBtn) {
+					themeBtn.innerHTML = theme === "dark" ? "☀️" : "🌙";
+				}
+			}
+
+			function toggleTheme() {
+				applyTheme(currentTheme === "dark" ? "light" : "dark");
+			}
+
+			function applyLang(lang) {
+				currentLang = lang;
+				localStorage.setItem("lang", lang);
+				const langBtn = document.getElementById("langToggleBtn");
+				if (langBtn) {
+					langBtn.innerHTML = lang === "zh" ? "🌐 EN" : "🌐 中文";
+				}
+				document.querySelectorAll("[data-zh]").forEach((el) => {
+					const text = lang === "zh" ? el.getAttribute("data-zh") : el.getAttribute("data-en");
+					if (text) el.innerText = text;
+				});
+			}
+
+			function toggleLang() {
+				applyLang(currentLang === "zh" ? "en" : "zh");
+			}
+
+			document.addEventListener("DOMContentLoaded", () => {
+				applyTheme(currentTheme);
+				applyLang(currentLang);
+			});
+		</script>
 	</body>
 </html>

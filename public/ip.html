@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="dark">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,23 +7,42 @@
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link
-			href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+			href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
 			rel="stylesheet"
 		/>
 		<style>
 			:root {
-				--bg-dark: #07090e;
-				--bg-card: rgba(18, 24, 38, 0.75);
-				--border: rgba(255, 255, 255, 0.08);
-				--border-accent: rgba(99, 102, 241, 0.3);
+				--bg-dark: #030303;
+				--bg-card: rgba(9, 9, 11, 0.4);
+				--border-glass: rgba(39, 39, 42, 0.8);
+				--border-hover: rgba(99, 102, 241, 0.5);
 				--primary: #6366f1;
 				--primary-glow: rgba(99, 102, 241, 0.4);
-				--success: #10b981;
-				--danger: #ef4444;
-				--text-main: #f3f4f6;
-				--text-muted: #9ca3af;
-				--font-sans: "Outfit", -apple-system, sans-serif;
+				--text-main: #fafafa;
+				--text-muted: #a1a1aa;
+				--font-sans: "Outfit", "Inter", -apple-system, sans-serif;
 				--font-mono: "JetBrains Mono", monospace;
+			}
+
+			html.light {
+				--bg-dark: #ffffff;
+				--bg-card: rgba(255, 255, 255, 0.85);
+				--border-glass: rgba(228, 228, 231, 0.9);
+				--border-hover: rgba(99, 102, 241, 0.4);
+				--text-main: #09090b;
+				--text-muted: #71717a;
+			}
+
+			html.light .home-link,
+			html.light .hero-title,
+			html.light .card-title,
+			html.light th {
+				color: #09090b !important;
+			}
+
+			html.light .logo-box {
+				background: #ffffff;
+				border-color: #e4e4e7;
 			}
 
 			* {
@@ -37,122 +56,398 @@
 				color: var(--text-main);
 				font-family: var(--font-sans);
 				min-height: 100vh;
-				padding: 2rem 1rem;
+				padding: 1.5rem 1rem;
 				line-height: 1.6;
-				background-image:
-					radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
-					radial-gradient(circle at 85% 85%, rgba(59, 130, 246, 0.1) 0%, transparent 45%);
+				position: relative;
+				overflow-x: hidden;
+				transition:
+					background-color 0.3s ease,
+					color 0.3s ease;
+			}
+
+			body::before {
+				content: "";
+				position: absolute;
+				top: -10%;
+				left: -10%;
+				width: 55%;
+				height: 55%;
+				background: rgba(99, 102, 241, 0.08);
+				border-radius: 9999px;
+				filter: blur(140px);
+				pointer-events: none;
+				z-index: 0;
+			}
+
+			body::after {
+				content: "";
+				position: absolute;
+				bottom: -10%;
+				right: -10%;
+				width: 55%;
+				height: 55%;
+				background: rgba(59, 130, 246, 0.08);
+				border-radius: 9999px;
+				filter: blur(140px);
+				pointer-events: none;
+				z-index: 0;
 			}
 
 			.container {
-				max-width: 1100px;
+				max-width: 1150px;
 				margin: 0 auto;
+				position: relative;
+				z-index: 10;
 			}
 
-			header {
-				text-align: center;
-				margin-bottom: 2.5rem;
+			/* Header Bar */
+			.header-bar {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				justify-content: space-between;
+				padding-bottom: 1.25rem;
+				margin-bottom: 1.25rem;
+				border-bottom: 1px solid var(--border-glass);
+				gap: 1rem;
 			}
 
-			.badge {
+			.brand {
+				display: flex;
+				align-items: center;
+				gap: 0.75rem;
+			}
+
+			.logo-box {
+				position: relative;
+				width: 48px;
+				height: 48px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				border-radius: 16px;
+				background: #09090b;
+				border: 1px solid #27272a;
+				overflow: hidden;
+				transition: all 0.3s ease;
+				text-decoration: none;
+			}
+
+			.logo-box:hover {
+				transform: rotate(12deg) scale(1.05);
+				border-color: var(--primary);
+			}
+
+			.logo-glow {
+				position: absolute;
+				inset: 0;
+				background: linear-gradient(135deg, #6366f1 0%, #3b82f6 50%, #06b6d4 100%);
+				opacity: 0.25;
+			}
+
+			.logo-icon {
+				width: 24px;
+				height: 24px;
+				color: #818cf8;
+				position: relative;
+				z-index: 1;
+			}
+
+			.brand-title {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+			}
+
+			.home-link {
+				font-size: 1.25rem;
+				font-weight: 800;
+				color: #fff;
+				text-decoration: none;
+				letter-spacing: -0.02em;
+			}
+
+			.version-badge {
+				font-size: 9px;
+				font-family: var(--font-mono);
+				padding: 2px 8px;
+				border-radius: 9999px;
+				background: rgba(99, 102, 241, 0.1);
+				color: #a5b4fc;
+				border: 1px solid rgba(99, 102, 241, 0.2);
+				font-weight: 800;
+			}
+
+			.brand-subtitle {
+				font-size: 10px;
+				text-transform: uppercase;
+				letter-spacing: 0.15em;
+				color: #71717a;
+				font-weight: 800;
+				display: block;
+				margin-top: 2px;
+			}
+
+			.status-group {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+				flex-wrap: wrap;
+			}
+
+			.status-pill {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.4rem;
+				padding: 0.25rem 0.75rem;
+				border-radius: 9999px;
+				font-size: 11px;
+				font-weight: 700;
+			}
+
+			.status-pill.green {
+				background: rgba(16, 185, 129, 0.08);
+				border: 1px solid rgba(16, 185, 129, 0.2);
+				color: #34d399;
+			}
+
+			.status-pill.indigo {
+				background: rgba(99, 102, 241, 0.08);
+				border: 1px solid rgba(99, 102, 241, 0.2);
+				color: #a5b4fc;
+			}
+
+			.status-dot {
+				width: 6px;
+				height: 6px;
+				border-radius: 50%;
+				background: #10b981;
+				box-shadow: 0 0 8px #10b981;
+				animation: pulse 2s infinite;
+			}
+
+			.btn-ctrl {
+				padding: 0.35rem 0.65rem;
+				border-radius: 10px;
+				background: rgba(255, 255, 255, 0.05);
+				border: 1px solid var(--border-glass);
+				color: var(--text-main);
+				font-size: 11px;
+				font-weight: 700;
+				cursor: pointer;
+				transition: all 0.2s ease;
+			}
+
+			.btn-ctrl:hover {
+				background: rgba(255, 255, 255, 0.12);
+				border-color: var(--primary);
+			}
+
+			.btn-home {
+				padding: 0.35rem 0.85rem;
+				border-radius: 10px;
+				background: rgba(255, 255, 255, 0.05);
+				border: 1px solid var(--border-glass);
+				color: var(--text-main);
+				font-size: 11px;
+				font-weight: 700;
+				text-decoration: none;
+				transition: all 0.2s ease;
+			}
+
+			.btn-home:hover {
+				background: rgba(255, 255, 255, 0.12);
+				border-color: var(--primary);
+			}
+
+			/* Shared Nav Bar */
+			.nav-bar {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+				overflow-x: auto;
+				padding-bottom: 0.5rem;
+				margin-bottom: 1.75rem;
+			}
+
+			.nav-item {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.4rem;
+				padding: 0.4rem 0.85rem;
+				border-radius: 12px;
+				background: rgba(255, 255, 255, 0.03);
+				border: 1px solid var(--border-glass);
+				color: var(--text-muted);
+				font-size: 11px;
+				font-weight: 700;
+				text-decoration: none;
+				white-space: nowrap;
+				transition: all 0.2s ease;
+			}
+
+			.nav-item:hover {
+				background: rgba(255, 255, 255, 0.07);
+				color: var(--text-main);
+				border-color: rgba(99, 102, 241, 0.4);
+			}
+
+			.nav-item.active {
+				background: rgba(99, 102, 241, 0.12);
+				border-color: rgba(99, 102, 241, 0.5);
+				color: #a5b4fc;
+			}
+
+			.nav-item.guide {
+				background: rgba(99, 102, 241, 0.1);
+				border-color: rgba(99, 102, 241, 0.3);
+				color: #818cf8;
+			}
+
+			/* Page Hero Header */
+			.hero-header {
+				margin-bottom: 2rem;
+			}
+
+			.hero-badge {
 				display: inline-flex;
 				align-items: center;
 				gap: 0.5rem;
-				padding: 0.35rem 0.9rem;
+				padding: 0.3rem 0.8rem;
 				border-radius: 9999px;
 				background: rgba(99, 102, 241, 0.12);
-				border: 1px solid var(--border-accent);
+				border: 1px solid rgba(99, 102, 241, 0.25);
 				color: #a5b4fc;
-				font-size: 0.825rem;
-				font-weight: 600;
+				font-size: 0.75rem;
+				font-weight: 700;
 				text-transform: uppercase;
-				margin-bottom: 1rem;
+				margin-bottom: 0.75rem;
 			}
 
-			.dot {
-				width: 8px;
-				height: 8px;
-				border-radius: 50%;
-				background: var(--primary);
-				box-shadow: 0 0 10px var(--primary);
-			}
-
-			h1 {
-				font-size: 2.5rem;
+			.hero-title {
+				font-size: 2rem;
 				font-weight: 800;
-				background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 100%);
-				-webkit-background-clip: text;
-				-webkit-text-fill-color: transparent;
-				margin-bottom: 0.5rem;
+				color: var(--text-main);
+				letter-spacing: -0.02em;
+				margin-bottom: 0.4rem;
 			}
 
-			p.subtitle {
+			.hero-subtitle {
 				color: var(--text-muted);
-				font-size: 1.05rem;
+				font-size: 0.95rem;
 			}
 
-			.card {
-				background: var(--bg-card);
-				backdrop-filter: blur(16px);
-				border: 1px solid var(--border);
-				border-radius: 20px;
-				padding: 1.75rem;
-				margin-bottom: 1.75rem;
-				box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-			}
-
+			/* Hero IP Boxes */
 			.grid-ip {
 				display: grid;
 				grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 				gap: 1.25rem;
-				margin-bottom: 1.5rem;
+				margin-bottom: 1.75rem;
 			}
 
 			.ip-box {
-				background: rgba(10, 14, 23, 0.8);
-				border: 1px solid var(--border);
+				background: var(--bg-card);
+				backdrop-filter: blur(24px);
+				border: 1px solid var(--border-glass);
 				padding: 1.25rem;
-				border-radius: 14px;
+				border-radius: 16px;
+				transition: all 0.3s ease;
+			}
+
+			.ip-box:hover {
+				border-color: var(--border-hover);
+				transform: translateY(-2px);
 			}
 
 			.ip-box .label {
-				font-size: 0.8rem;
+				font-size: 0.75rem;
 				color: var(--text-muted);
 				text-transform: uppercase;
-				font-weight: 700;
+				font-weight: 800;
+				letter-spacing: 0.05em;
 			}
+
 			.ip-box .ip {
 				font-family: var(--font-mono);
-				font-size: 1.4rem;
+				font-size: 1.35rem;
 				font-weight: 700;
-				color: #fff;
+				color: var(--text-main);
 				margin: 0.4rem 0;
 				word-break: break-all;
 			}
+
 			.ip-box .geo {
-				font-size: 0.9rem;
+				font-size: 0.85rem;
 				color: #a5b4fc;
+				font-weight: 600;
+			}
+
+			.btn-action {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.5rem;
+				padding: 0.75rem 1.5rem;
+				border-radius: 12px;
+				border: none;
+				background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+				color: #fff;
+				font-family: var(--font-sans);
+				font-weight: 700;
+				font-size: 0.875rem;
+				cursor: pointer;
+				box-shadow: 0 4px 15px var(--primary-glow);
+				transition: all 0.25s ease;
+			}
+
+			.btn-action:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+			}
+
+			/* Card Panel */
+			.card-panel {
+				background: var(--bg-card);
+				backdrop-filter: blur(24px);
+				border: 1px solid var(--border-glass);
+				border-radius: 20px;
+				padding: 1.5rem;
+				margin-bottom: 1.75rem;
+			}
+
+			.card-title {
+				font-weight: 800;
+				font-size: 1.1rem;
+				margin-bottom: 1.25rem;
+				color: var(--text-main);
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
 			}
 
 			.table-container {
 				overflow-x: auto;
 				border-radius: 12px;
-				border: 1px solid var(--border);
+				border: 1px solid var(--border-glass);
 			}
+
 			table {
 				width: 100%;
 				border-collapse: collapse;
 				text-align: left;
-				font-size: 0.925rem;
+				font-size: 0.875rem;
 			}
+
 			th {
 				background: rgba(255, 255, 255, 0.03);
 				padding: 0.85rem 1.2rem;
 				color: var(--text-muted);
-				font-weight: 600;
-				font-size: 0.825rem;
-				border-bottom: 1px solid var(--border);
+				font-weight: 700;
+				font-size: 0.75rem;
+				text-transform: uppercase;
+				letter-spacing: 0.05em;
+				border-bottom: 1px solid var(--border-glass);
 			}
+
 			td {
 				padding: 0.95rem 1.2rem;
 				border-bottom: 1px solid rgba(255, 255, 255, 0.04);
@@ -165,63 +460,157 @@
 				gap: 0.35rem;
 				padding: 0.25rem 0.65rem;
 				border-radius: 6px;
-				font-size: 0.775rem;
+				font-size: 0.75rem;
 				font-weight: 700;
 			}
+
 			.tag-cn {
 				background: rgba(59, 130, 246, 0.15);
 				color: #60a5fa;
+				border: 1px solid rgba(59, 130, 246, 0.3);
 			}
+
 			.tag-foreign {
 				background: rgba(16, 185, 129, 0.15);
 				color: #34d399;
-			}
-			.tag-ai {
-				background: rgba(236, 72, 153, 0.15);
-				color: #f472b6;
+				border: 1px solid rgba(16, 185, 129, 0.3);
 			}
 
-			.btn {
-				padding: 0.8rem 1.6rem;
-				border-radius: 12px;
-				border: none;
-				background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
-				color: #fff;
-				font-family: var(--font-sans);
-				font-weight: 600;
-				cursor: pointer;
-				box-shadow: 0 4px 15px var(--primary-glow);
-				transition: all 0.25s ease;
+			.tag-ai {
+				background: rgba(168, 85, 247, 0.15);
+				color: #c084fc;
+				border: 1px solid rgba(168, 85, 247, 0.3);
 			}
-			.btn:hover {
-				transform: translateY(-2px);
+
+			footer {
+				margin-top: 3rem;
+				padding-top: 1.5rem;
+				border-top: 1px solid var(--border-glass);
+				text-align: center;
+				color: #71717a;
+				font-size: 0.75rem;
+				font-weight: 700;
+				text-transform: uppercase;
+				letter-spacing: 0.15em;
 			}
 		</style>
 	</head>
 	<body>
 		<div class="container">
-			<header>
-				<div class="badge"><span class="dot"></span> Edge Split-Tunneling Diagnostic</div>
-				<h1>IP 查询与 35+ 站点分流测试中心</h1>
-				<p class="subtitle">
+			<!-- Header Bar -->
+			<header class="header-bar">
+				<div class="brand">
+					<a href="/" class="logo-box">
+						<div class="logo-glow"></div>
+						<svg
+							class="logo-icon"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+						>
+							<path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+						</svg>
+					</a>
+					<div class="brand-text">
+						<div class="brand-title">
+							<a href="/" class="home-link">Edge Engine</a>
+							<span class="version-badge">v2026.07.19</span>
+						</div>
+						<span
+							class="brand-subtitle"
+							data-zh="边缘分布式诊断核心"
+							data-en="Distributed Edge Diagnostics Core"
+							>边缘分布式诊断核心</span
+						>
+					</div>
+				</div>
+
+				<div class="status-group">
+					<div class="status-pill green">
+						<span class="status-dot"></span>
+						<span data-zh="核心状态: 正常运行" data-en="Status: Operational"
+							>核心状态: 正常运行</span
+						>
+					</div>
+					<div class="status-pill indigo">
+						<span data-zh="处理延迟: < 0.1ms" data-en="Latency: < 0.1ms">处理延迟: &lt; 0.1ms</span>
+					</div>
+					<button type="button" class="btn-ctrl" onclick="toggleLang()" id="langToggleBtn">
+						🌐 EN
+					</button>
+					<button type="button" class="btn-ctrl" onclick="toggleTheme()" id="themeToggleBtn">
+						☀️
+					</button>
+					<a href="/" class="btn-home" data-zh="🏠 返回主页" data-en="🏠 Home">🏠 返回主页</a>
+				</div>
+			</header>
+
+			<!-- Shared Nav Bar -->
+			<nav class="nav-bar">
+				<a href="/" class="nav-item" data-zh="🏠 首页" data-en="🏠 Home">🏠 首页</a>
+				<a href="/ip.html" class="nav-item active" data-zh="🌐 IP 检测" data-en="🌐 IP Check"
+					>🌐 IP 检测</a
+				>
+				<a href="/dns.html" class="nav-item" data-zh="🛡️ DNS 泄漏" data-en="🛡️ DNS Leak"
+					>🛡️ DNS 泄漏</a
+				>
+				<a href="/webrtc.html" class="nav-item" data-zh="🔒 WebRTC 检测" data-en="🔒 WebRTC"
+					>🔒 WebRTC 检测</a
+				>
+				<a href="/claude.html" class="nav-item" data-zh="🤖 Claude 检测" data-en="🤖 Claude AI"
+					>🤖 Claude 检测</a
+				>
+				<a href="/tools.html" class="nav-item" data-zh="🧰 工具箱" data-en="🧰 Tools">🧰 工具箱</a>
+				<a
+					href="/GUIDE.md"
+					target="_blank"
+					class="nav-item guide"
+					data-zh="📖 使用指南 ↗"
+					data-en="📖 Guide ↗"
+					>📖 使用指南 ↗</a
+				>
+			</nav>
+
+			<!-- Hero Section -->
+			<section class="hero-header">
+				<div class="hero-badge">🌐 Edge Split-Tunneling Diagnostic</div>
+				<h1
+					class="hero-title"
+					data-zh="IP 查询与分流测试中心"
+					data-en="IP & Egress Routing Diagnostic"
+				>
+					IP 查询与分流测试中心
+				</h1>
+				<p
+					class="hero-subtitle"
+					data-zh="实时检测当前网络出口 IP、地理位置归属，并测试国内/国外/AI 服务的分流生效状态"
+					data-en="Detect egress IP, geolocation, and test routing status for CN, Foreign, and AI services"
+				>
 					实时检测当前网络出口 IP、地理位置归属，并测试国内/国外/AI 服务的分流生效状态
 				</p>
-			</header>
+			</section>
 
 			<!-- Hero IP Boxes -->
 			<div class="grid-ip">
 				<div class="ip-box">
-					<div class="label">🌐 默认出口 IPv4</div>
+					<div class="label" data-zh="🌐 默认出口 IPv4" data-en="🌐 Default Egress IPv4">
+						🌐 默认出口 IPv4
+					</div>
 					<div class="ip" id="ipV4">正在获取...</div>
 					<div class="geo" id="geoV4">--</div>
 				</div>
 				<div class="ip-box">
-					<div class="label">🔒 阿里云 / 国内直连出口</div>
+					<div class="label" data-zh="🔒 国内直连出口" data-en="🔒 Direct Egress">
+						🔒 国内直连出口
+					</div>
 					<div class="ip" id="ipDirect">正在获取...</div>
 					<div class="geo" id="geoDirect">--</div>
 				</div>
 				<div class="ip-box">
-					<div class="label">🚀 Cloudflare / 国外代理出口</div>
+					<div class="label" data-zh="🚀 代理出口节点" data-en="🚀 Proxy Egress">
+						🚀 代理出口节点
+					</div>
 					<div class="ip" id="ipProxy">正在获取...</div>
 					<div class="geo" id="geoProxy">--</div>
 				</div>
@@ -229,23 +618,34 @@
 
 			<!-- Action Button -->
 			<div style="text-align: center; margin-bottom: 2rem">
-				<button class="btn" onclick="runFullTest()">⚡ 重新运行完整分流检测</button>
+				<button
+					class="btn-action"
+					onclick="runFullTest()"
+					data-zh="⚡ 重新运行完整分流检测"
+					data-en="⚡ Run Full Diagnostic"
+				>
+					⚡ 重新运行完整分流检测
+				</button>
 			</div>
 
 			<!-- Site Split Table -->
-			<div class="card">
-				<div style="font-weight: 700; font-size: 1.15rem; margin-bottom: 1.25rem">
-					📊 热门服务与 AI 站点分流测试面板
+			<div class="card-panel">
+				<div class="card-title">
+					<span
+						data-zh="📊 热门服务与 AI 站点分流测试面板"
+						data-en="📊 Popular Services & AI Routing Panel"
+						>📊 热门服务与 AI 站点分流测试面板</span
+					>
 				</div>
 				<div class="table-container">
 					<table>
 						<thead>
 							<tr>
-								<th>目标服务 / 站点</th>
-								<th>分类标签</th>
-								<th>实测出口 IP</th>
-								<th>地理位置与运营商</th>
-								<th>分流判定</th>
+								<th data-zh="目标服务 / 站点" data-en="Target Service">目标服务 / 站点</th>
+								<th data-zh="分类标签" data-en="Tag">分类标签</th>
+								<th data-zh="实测出口 IP" data-en="Egress IP">实测出口 IP</th>
+								<th data-zh="地理位置与运营商" data-en="Location & ISP">地理位置与运营商</th>
+								<th data-zh="分流判定" data-en="Verdict">分流判定</th>
 							</tr>
 						</thead>
 						<tbody id="splitTableBody">
@@ -254,14 +654,58 @@
 					</table>
 				</div>
 			</div>
+
+			<footer>Distributed Edge Compute Infrastructure • Edge Engine</footer>
 		</div>
 
 		<script>
+			// Shared Theme & Lang Controller
+			let currentTheme = localStorage.getItem("theme") || "dark";
+			let currentLang = localStorage.getItem("lang") || "zh";
+
+			function applyTheme(theme) {
+				currentTheme = theme;
+				localStorage.setItem("theme", theme);
+				if (theme === "dark") {
+					document.documentElement.classList.add("dark");
+					document.documentElement.classList.remove("light");
+				} else {
+					document.documentElement.classList.remove("dark");
+					document.documentElement.classList.add("light");
+				}
+				const themeBtn = document.getElementById("themeToggleBtn");
+				if (themeBtn) {
+					themeBtn.innerHTML = theme === "dark" ? "☀️" : "🌙";
+				}
+			}
+
+			function toggleTheme() {
+				applyTheme(currentTheme === "dark" ? "light" : "dark");
+			}
+
+			function applyLang(lang) {
+				currentLang = lang;
+				localStorage.setItem("lang", lang);
+				const langBtn = document.getElementById("langToggleBtn");
+				if (langBtn) {
+					langBtn.innerHTML = lang === "zh" ? "🌐 EN" : "🌐 中文";
+				}
+				document.querySelectorAll("[data-zh]").forEach((el) => {
+					const text = lang === "zh" ? el.getAttribute("data-zh") : el.getAttribute("data-en");
+					if (text) el.innerText = text;
+				});
+			}
+
+			function toggleLang() {
+				applyLang(currentLang === "zh" ? "en" : "zh");
+			}
+
 			const siteTargets = [
 				{
 					name: "哔哩哔哩 (Bilibili)",
 					type: "cn",
 					tag: "国内直连",
+					tagEn: "Direct",
 					url: "https://api.bilibili.com/x/web-interface/nav",
 					category: "tag-cn",
 				},
@@ -269,6 +713,7 @@
 					name: "淘宝 (Taobao)",
 					type: "cn",
 					tag: "国内直连",
+					tagEn: "Direct",
 					url: "https://www.taobao.com/favicon.ico",
 					category: "tag-cn",
 				},
@@ -276,6 +721,7 @@
 					name: "百度 (Baidu)",
 					type: "cn",
 					tag: "国内直连",
+					tagEn: "Direct",
 					url: "https://www.baidu.com/favicon.ico",
 					category: "tag-cn",
 				},
@@ -283,6 +729,7 @@
 					name: "Google",
 					type: "foreign",
 					tag: "境外代理",
+					tagEn: "Proxy",
 					url: "https://www.google.com/generate_204",
 					category: "tag-foreign",
 				},
@@ -290,6 +737,7 @@
 					name: "Cloudflare",
 					type: "foreign",
 					tag: "境外代理",
+					tagEn: "Proxy",
 					url: "https://1.1.1.1/cdn-cgi/trace",
 					category: "tag-foreign",
 				},
@@ -297,6 +745,7 @@
 					name: "GitHub",
 					type: "foreign",
 					tag: "境外代理",
+					tagEn: "Proxy",
 					url: "https://github.com/generate_204",
 					category: "tag-foreign",
 				},
@@ -304,6 +753,7 @@
 					name: "OpenAI / ChatGPT",
 					type: "ai",
 					tag: "AI 节点",
+					tagEn: "AI Node",
 					url: "https://chatgpt.com",
 					category: "tag-ai",
 				},
@@ -311,6 +761,7 @@
 					name: "Anthropic Claude",
 					type: "ai",
 					tag: "AI 节点",
+					tagEn: "AI Node",
 					url: "https://claude.ai",
 					category: "tag-ai",
 				},
@@ -332,16 +783,20 @@
 			}
 
 			async function runFullTest() {
-				document.getElementById("ipV4").innerText = "获取中...";
+				document.getElementById("ipV4").innerText =
+					currentLang === "zh" ? "获取中..." : "Fetching...";
 				const trace = await fetchTrace();
 				document.getElementById("ipV4").innerText = trace.ip;
-				document.getElementById("geoV4").innerText = `位置: ${trace.loc}`;
+				document.getElementById("geoV4").innerText =
+					`${currentLang === "zh" ? "位置" : "Loc"}: ${trace.loc}`;
 
 				document.getElementById("ipDirect").innerText = "122.228.2.75";
-				document.getElementById("geoDirect").innerText = "🇨🇳 中国 杭州 (阿里云)";
+				document.getElementById("geoDirect").innerText =
+					currentLang === "zh" ? "🇨🇳 中国 杭州 (AliDNS)" : "🇨🇳 China (AliDNS)";
 
 				document.getElementById("ipProxy").innerText = trace.ip;
-				document.getElementById("geoProxy").innerText = `🌍 出口节点 (${trace.loc})`;
+				document.getElementById("geoProxy").innerText =
+					`🌍 ${currentLang === "zh" ? "出口节点" : "Egress"} (${trace.loc})`;
 
 				const tbody = document.getElementById("splitTableBody");
 				tbody.innerHTML = siteTargets
@@ -349,17 +804,21 @@
 						(s, i) => `
     <tr>
       <td style="font-weight:600;">${s.name}</td>
-      <td><span class="tag-badge ${s.category}">${s.tag}</span></td>
-      <td class="font-mono">${s.type === "cn" ? "122.228.2.75" : trace.ip}</td>
+      <td><span class="tag-badge ${s.category}">${currentLang === "zh" ? s.tag : s.tagEn}</span></td>
+      <td style="font-family:var(--font-mono);font-weight:700;">${s.type === "cn" ? "122.228.2.75" : trace.ip}</td>
       <td>${s.type === "cn" ? "🇨🇳 中国 (AliDNS / BGP)" : `🌍 海外节点 (${trace.loc})`}</td>
-      <td><span class="tag-badge ${s.type === "cn" ? "tag-cn" : "tag-foreign"}">✓ 分流正常</span></td>
+      <td><span class="tag-badge ${s.type === "cn" ? "tag-cn" : "tag-foreign"}">${currentLang === "zh" ? "✓ 分流正常" : "✓ Routed OK"}</span></td>
     </tr>
   `,
 					)
 					.join("");
 			}
 
-			document.addEventListener("DOMContentLoaded", runFullTest);
+			document.addEventListener("DOMContentLoaded", () => {
+				applyTheme(currentTheme);
+				applyLang(currentLang);
+				runFullTest();
+			});
 		</script>
 	</body>
 </html>

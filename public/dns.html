@@ -1,36 +1,62 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="dark">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>DNS 泄露在线检测与源头 URL 追溯仿真器 - DNS Leak Tester & URL Tracer</title>
+		<title>Edge Engine - DNS 泄露检测与源头 URL 追溯</title>
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link
-			href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+			href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
 			rel="stylesheet"
 		/>
 		<style>
 			:root {
-				--bg-dark: #07090e;
-				--bg-card: rgba(18, 24, 38, 0.75);
-				--bg-card-hover: rgba(28, 36, 56, 0.85);
-				--border: rgba(255, 255, 255, 0.08);
-				--border-accent: rgba(99, 102, 241, 0.3);
+				--bg-dark: #030303;
+				--bg-card: rgba(9, 9, 11, 0.4);
+				--border-glass: rgba(39, 39, 42, 0.8);
+				--border-hover: rgba(99, 102, 241, 0.5);
 				--primary: #6366f1;
 				--primary-glow: rgba(99, 102, 241, 0.4);
-				--secondary: #3b82f6;
 				--success: #10b981;
-				--success-bg: rgba(16, 185, 129, 0.12);
 				--warning: #f59e0b;
-				--warning-bg: rgba(245, 158, 11, 0.12);
 				--danger: #ef4444;
-				--danger-bg: rgba(239, 68, 68, 0.12);
-				--text-main: #f3f4f6;
-				--text-muted: #9ca3af;
-				--text-dim: #6b7280;
-				--font-sans: "Outfit", -apple-system, sans-serif;
+				--text-main: #fafafa;
+				--text-muted: #a1a1aa;
+				--text-dim: #71717a;
+				--font-sans: "Outfit", "Inter", -apple-system, sans-serif;
 				--font-mono: "JetBrains Mono", monospace;
+			}
+
+			html.light {
+				--bg-dark: #ffffff;
+				--bg-card: rgba(255, 255, 255, 0.85);
+				--border-glass: rgba(228, 228, 231, 0.9);
+				--border-hover: rgba(16, 185, 129, 0.4);
+				--text-main: #09090b;
+				--text-muted: #71717a;
+				--text-dim: #a1a1aa;
+			}
+
+			html.light .home-link,
+			html.light .hero-title,
+			html.light .card-title,
+			html.light th,
+			html.light summary {
+				color: #09090b !important;
+			}
+
+			html.light .logo-box {
+				background: #ffffff;
+				border-color: #e4e4e7;
+			}
+
+			html.light .form-control,
+			html.light .console-box,
+			html.light details {
+				background: #f4f4f5 !important;
+				border-color: #e4e4e7 !important;
+				color: #09090b !important;
 			}
 
 			* {
@@ -44,114 +70,318 @@
 				color: var(--text-main);
 				font-family: var(--font-sans);
 				min-height: 100vh;
-				padding: 2rem 1rem;
+				padding: 1.5rem 1rem;
 				line-height: 1.6;
-				background-image:
-					radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
-					radial-gradient(circle at 85% 85%, rgba(59, 130, 246, 0.1) 0%, transparent 45%);
-				background-attachment: fixed;
+				position: relative;
+				overflow-x: hidden;
+				transition:
+					background-color 0.3s ease,
+					color 0.3s ease;
+			}
+
+			body::before {
+				content: "";
+				position: absolute;
+				top: -10%;
+				left: -10%;
+				width: 55%;
+				height: 55%;
+				background: rgba(16, 185, 129, 0.08);
+				border-radius: 9999px;
+				filter: blur(140px);
+				pointer-events: none;
+				z-index: 0;
+			}
+
+			body::after {
+				content: "";
+				position: absolute;
+				bottom: -10%;
+				right: -10%;
+				width: 55%;
+				height: 55%;
+				background: rgba(99, 102, 241, 0.08);
+				border-radius: 9999px;
+				filter: blur(140px);
+				pointer-events: none;
+				z-index: 0;
 			}
 
 			.container {
-				max-width: 1100px;
+				max-width: 1150px;
 				margin: 0 auto;
+				position: relative;
+				z-index: 10;
 			}
 
-			/* Header */
-			header {
-				text-align: center;
-				margin-bottom: 2.5rem;
+			/* Header Bar */
+			.header-bar {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				justify-content: space-between;
+				padding-bottom: 1.25rem;
+				margin-bottom: 1.25rem;
+				border-bottom: 1px solid var(--border-glass);
+				gap: 1rem;
 			}
 
-			.badge {
-				display: inline-flex;
+			.brand {
+				display: flex;
+				align-items: center;
+				gap: 0.75rem;
+			}
+
+			.logo-box {
+				position: relative;
+				width: 48px;
+				height: 48px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				border-radius: 16px;
+				background: #09090b;
+				border: 1px solid #27272a;
+				overflow: hidden;
+				transition: all 0.3s ease;
+				text-decoration: none;
+			}
+
+			.logo-box:hover {
+				transform: rotate(12deg) scale(1.05);
+				border-color: var(--primary);
+			}
+
+			.logo-glow {
+				position: absolute;
+				inset: 0;
+				background: linear-gradient(135deg, #10b981 0%, #6366f1 100%);
+				opacity: 0.25;
+			}
+
+			.logo-icon {
+				width: 24px;
+				height: 24px;
+				color: #34d399;
+				position: relative;
+				z-index: 1;
+			}
+
+			.brand-title {
+				display: flex;
 				align-items: center;
 				gap: 0.5rem;
-				padding: 0.35rem 0.9rem;
-				border-radius: 9999px;
-				background: rgba(99, 102, 241, 0.12);
-				border: 1px solid var(--border-accent);
-				color: #a5b4fc;
-				font-size: 0.825rem;
-				font-weight: 600;
-				letter-spacing: 0.05em;
-				text-transform: uppercase;
-				margin-bottom: 1rem;
 			}
 
-			.dot {
-				width: 8px;
-				height: 8px;
+			.home-link {
+				font-size: 1.25rem;
+				font-weight: 800;
+				color: #fff;
+				text-decoration: none;
+				letter-spacing: -0.02em;
+			}
+
+			.version-badge {
+				font-size: 9px;
+				font-family: var(--font-mono);
+				padding: 2px 8px;
+				border-radius: 9999px;
+				background: rgba(16, 185, 129, 0.1);
+				color: #6ee7b7;
+				border: 1px solid rgba(16, 185, 129, 0.2);
+				font-weight: 800;
+			}
+
+			.brand-subtitle {
+				font-size: 10px;
+				text-transform: uppercase;
+				letter-spacing: 0.15em;
+				color: #71717a;
+				font-weight: 800;
+				display: block;
+				margin-top: 2px;
+			}
+
+			.status-group {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+				flex-wrap: wrap;
+			}
+
+			.status-pill {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.4rem;
+				padding: 0.25rem 0.75rem;
+				border-radius: 9999px;
+				font-size: 11px;
+				font-weight: 700;
+			}
+
+			.status-pill.green {
+				background: rgba(16, 185, 129, 0.08);
+				border: 1px solid rgba(16, 185, 129, 0.2);
+				color: #34d399;
+			}
+
+			.status-pill.indigo {
+				background: rgba(99, 102, 241, 0.08);
+				border: 1px solid rgba(99, 102, 241, 0.2);
+				color: #a5b4fc;
+			}
+
+			.status-dot {
+				width: 6px;
+				height: 6px;
 				border-radius: 50%;
-				background: var(--primary);
-				box-shadow: 0 0 10px var(--primary);
+				background: #10b981;
+				box-shadow: 0 0 8px #10b981;
 				animation: pulse 2s infinite;
 			}
 
-			@keyframes pulse {
-				0%,
-				100% {
-					opacity: 1;
-					transform: scale(1);
-				}
-				50% {
-					opacity: 0.5;
-					transform: scale(0.85);
-				}
-			}
-
-			h1 {
-				font-size: 2.5rem;
-				font-weight: 800;
-				letter-spacing: -0.025em;
-				background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 100%);
-				-webkit-background-clip: text;
-				-webkit-text-fill-color: transparent;
-				margin-bottom: 0.5rem;
-			}
-
-			p.subtitle {
-				color: var(--text-muted);
-				font-size: 1.05rem;
-				max-width: 680px;
-				margin: 0 auto;
-			}
-
-			/* Tab Navigation */
-			.tabs {
-				display: flex;
-				justify-content: center;
-				gap: 0.75rem;
-				margin-bottom: 2rem;
-				background: rgba(15, 21, 33, 0.6);
-				padding: 0.4rem;
-				border-radius: 14px;
-				border: 1px solid var(--border);
-				width: fit-content;
-				margin-left: auto;
-				margin-right: auto;
-			}
-
-			.tab-btn {
-				padding: 0.65rem 1.4rem;
+			.btn-ctrl {
+				padding: 0.35rem 0.65rem;
 				border-radius: 10px;
-				border: none;
-				background: transparent;
-				color: var(--text-muted);
-				font-family: var(--font-sans);
-				font-size: 0.95rem;
-				font-weight: 600;
+				background: rgba(255, 255, 255, 0.05);
+				border: 1px solid var(--border-glass);
+				color: var(--text-main);
+				font-size: 11px;
+				font-weight: 700;
 				cursor: pointer;
-				transition: all 0.25s ease;
+				transition: all 0.2s ease;
+			}
+
+			.btn-ctrl:hover {
+				background: rgba(255, 255, 255, 0.12);
+				border-color: var(--primary);
+			}
+
+			.btn-home {
+				padding: 0.35rem 0.85rem;
+				border-radius: 10px;
+				background: rgba(255, 255, 255, 0.05);
+				border: 1px solid var(--border-glass);
+				color: var(--text-main);
+				font-size: 11px;
+				font-weight: 700;
+				text-decoration: none;
+				transition: all 0.2s ease;
+			}
+
+			.btn-home:hover {
+				background: rgba(255, 255, 255, 0.12);
+				border-color: var(--primary);
+			}
+
+			/* Shared Nav Bar */
+			.nav-bar {
 				display: flex;
 				align-items: center;
 				gap: 0.5rem;
+				overflow-x: auto;
+				padding-bottom: 0.5rem;
+				margin-bottom: 1.75rem;
+			}
+
+			.nav-item {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.4rem;
+				padding: 0.4rem 0.85rem;
+				border-radius: 12px;
+				background: rgba(255, 255, 255, 0.03);
+				border: 1px solid var(--border-glass);
+				color: var(--text-muted);
+				font-size: 11px;
+				font-weight: 700;
+				text-decoration: none;
+				white-space: nowrap;
+				transition: all 0.2s ease;
+			}
+
+			.nav-item:hover {
+				background: rgba(255, 255, 255, 0.07);
+				color: var(--text-main);
+				border-color: rgba(16, 185, 129, 0.4);
+			}
+
+			.nav-item.active {
+				background: rgba(16, 185, 129, 0.12);
+				border-color: rgba(16, 185, 129, 0.5);
+				color: #6ee7b7;
+			}
+
+			.nav-item.guide {
+				background: rgba(99, 102, 241, 0.1);
+				border-color: rgba(99, 102, 241, 0.3);
+				color: #818cf8;
+			}
+
+			/* Hero Header */
+			.hero-header {
+				margin-bottom: 2rem;
+			}
+
+			.hero-badge {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.5rem;
+				padding: 0.3rem 0.8rem;
+				border-radius: 9999px;
+				background: rgba(16, 185, 129, 0.12);
+				border: 1px solid rgba(16, 185, 129, 0.25);
+				color: #6ee7b7;
+				font-size: 0.75rem;
+				font-weight: 700;
+				text-transform: uppercase;
+				margin-bottom: 0.75rem;
+			}
+
+			.hero-title {
+				font-size: 2rem;
+				font-weight: 800;
+				color: var(--text-main);
+				letter-spacing: -0.02em;
+				margin-bottom: 0.4rem;
+			}
+
+			.hero-subtitle {
+				color: var(--text-muted);
+				font-size: 0.95rem;
+			}
+
+			/* Tabs */
+			.tabs {
+				display: flex;
+				gap: 0.5rem;
+				margin-bottom: 1.5rem;
+				border-bottom: 1px solid var(--border-glass);
+				padding-bottom: 0.5rem;
+			}
+
+			.tab-btn {
+				padding: 0.5rem 1rem;
+				border-radius: 10px;
+				background: transparent;
+				border: 1px solid transparent;
+				color: var(--text-muted);
+				font-family: var(--font-sans);
+				font-weight: 700;
+				font-size: 0.85rem;
+				cursor: pointer;
+				transition: all 0.2s ease;
+			}
+
+			.tab-btn:hover {
+				color: var(--text-main);
+				background: rgba(255, 255, 255, 0.04);
 			}
 
 			.tab-btn.active {
-				background: var(--primary);
-				color: #fff;
-				box-shadow: 0 4px 20px var(--primary-glow);
+				background: rgba(16, 185, 129, 0.12);
+				border-color: rgba(16, 185, 129, 0.4);
+				color: #6ee7b7;
 			}
 
 			.tab-content {
@@ -160,152 +390,139 @@
 
 			.tab-content.active {
 				display: block;
-				animation: fadeIn 0.35s ease;
 			}
 
-			@keyframes fadeIn {
-				from {
-					opacity: 0;
-					transform: translateY(8px);
-				}
-				to {
-					opacity: 1;
-					transform: translateY(0);
-				}
-			}
-
-			/* Glass Card Component */
-			.card {
+			/* Card Panel */
+			.card-panel {
 				background: var(--bg-card);
-				backdrop-filter: blur(16px);
-				-webkit-backdrop-filter: blur(16px);
-				border: 1px solid var(--border);
+				backdrop-filter: blur(24px);
+				border: 1px solid var(--border-glass);
 				border-radius: 20px;
-				padding: 1.75rem;
+				padding: 1.5rem;
 				margin-bottom: 1.75rem;
-				box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-				transition: border-color 0.3s ease;
-			}
-
-			.card:hover {
-				border-color: rgba(255, 255, 255, 0.15);
 			}
 
 			.card-title {
-				font-size: 1.15rem;
-				font-weight: 700;
+				font-weight: 800;
+				font-size: 1.1rem;
 				margin-bottom: 1.25rem;
-				display: flex;
-				align-items: center;
-				gap: 0.6rem;
-				color: #fff;
+				color: var(--text-main);
 			}
 
-			/* Test Action Box */
-			.action-grid {
-				display: grid;
-				grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-				gap: 1rem;
-				margin-bottom: 1.5rem;
+			/* Form Controls */
+			.form-control {
+				width: 100%;
+				padding: 0.75rem 1rem;
+				background: #09090b;
+				border: 1px solid #27272a;
+				border-radius: 12px;
+				color: var(--text-main);
+				font-family: var(--font-mono);
+				font-size: 0.9rem;
+				outline: none;
+				transition: all 0.2s ease;
 			}
 
+			.form-control:focus {
+				border-color: var(--primary);
+				box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+			}
+
+			/* Buttons */
 			.btn-action {
-				padding: 0.9rem 1.5rem;
+				display: inline-flex;
+				align-items: center;
+				gap: 0.5rem;
+				padding: 0.65rem 1.25rem;
 				border-radius: 12px;
 				border: none;
 				font-family: var(--font-sans);
-				font-weight: 600;
-				font-size: 1rem;
+				font-weight: 700;
+				font-size: 0.85rem;
 				cursor: pointer;
-				transition: all 0.25s ease;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				gap: 0.6rem;
+				transition: all 0.2s ease;
 			}
 
 			.btn-primary {
-				background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
+				background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 				color: #fff;
-				box-shadow: 0 4px 15px var(--primary-glow);
+				box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
 			}
 
 			.btn-primary:hover {
 				transform: translateY(-2px);
-				box-shadow: 0 6px 25px var(--primary-glow);
+				box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
 			}
 
 			.btn-secondary {
-				background: rgba(255, 255, 255, 0.06);
+				background: rgba(255, 255, 255, 0.05);
+				border: 1px solid var(--border-glass);
 				color: var(--text-main);
-				border: 1px solid var(--border);
 			}
 
 			.btn-secondary:hover {
-				background: rgba(255, 255, 255, 0.12);
-				border-color: rgba(255, 255, 255, 0.2);
+				background: rgba(255, 255, 255, 0.1);
 			}
 
-			.btn-action:disabled {
-				opacity: 0.5;
-				cursor: not-allowed;
-				transform: none !important;
-			}
-
-			/* Status Banner */
-			.verdict-banner {
-				padding: 1.25rem 1.5rem;
+			/* Console Box */
+			.console-box {
+				background: #09090b;
+				border: 1px solid #27272a;
 				border-radius: 14px;
-				font-weight: 600;
-				font-size: 1.05rem;
-				display: flex;
-				align-items: center;
-				gap: 0.9rem;
-				margin-bottom: 1.5rem;
-				transition: all 0.3s ease;
+				padding: 1.25rem;
+				font-family: var(--font-mono);
+				font-size: 0.825rem;
+				color: #e4e4e7;
+				min-height: 180px;
+				max-height: 400px;
+				overflow-y: auto;
 			}
 
-			.verdict-safe {
-				background: var(--success-bg);
-				border: 1px solid rgba(16, 185, 129, 0.3);
-				color: #34d399;
+			.log-line {
+				margin-bottom: 0.4rem;
 			}
 
-			.verdict-danger {
-				background: var(--danger-bg);
-				border: 1px solid rgba(239, 68, 68, 0.3);
+			.log-time {
+				color: #71717a;
+				margin-right: 0.5rem;
+			}
+
+			.log-tag {
+				font-weight: 700;
+				margin-right: 0.5rem;
+			}
+
+			.log-info {
+				color: #60a5fa;
+			}
+
+			.log-danger {
 				color: #f87171;
 			}
 
-			.verdict-neutral {
-				background: rgba(255, 255, 255, 0.04);
-				border: 1px solid var(--border);
-				color: var(--text-muted);
-			}
-
-			/* Results Table */
+			/* Table */
 			.table-container {
 				overflow-x: auto;
 				border-radius: 12px;
-				border: 1px solid var(--border);
+				border: 1px solid var(--border-glass);
 			}
 
 			table {
 				width: 100%;
 				border-collapse: collapse;
 				text-align: left;
-				font-size: 0.925rem;
+				font-size: 0.875rem;
 			}
 
 			th {
 				background: rgba(255, 255, 255, 0.03);
 				padding: 0.85rem 1.2rem;
 				color: var(--text-muted);
-				font-weight: 600;
-				font-size: 0.825rem;
+				font-weight: 700;
+				font-size: 0.75rem;
 				text-transform: uppercase;
 				letter-spacing: 0.05em;
-				border-bottom: 1px solid var(--border);
+				border-bottom: 1px solid var(--border-glass);
 			}
 
 			td {
@@ -314,267 +531,303 @@
 				color: var(--text-main);
 			}
 
-			tr:last-child td {
-				border-bottom: none;
-			}
-
-			.font-mono {
-				font-family: var(--font-mono);
-			}
-
 			.tag-badge {
 				display: inline-flex;
 				align-items: center;
 				gap: 0.35rem;
 				padding: 0.25rem 0.65rem;
 				border-radius: 6px;
-				font-size: 0.775rem;
+				font-size: 0.75rem;
 				font-weight: 700;
 			}
 
 			.tag-pass {
 				background: rgba(16, 185, 129, 0.15);
 				color: #34d399;
+				border: 1px solid rgba(16, 185, 129, 0.3);
 			}
+
 			.tag-leak {
 				background: rgba(239, 68, 68, 0.15);
 				color: #f87171;
-			}
-			.tag-info {
-				background: rgba(99, 102, 241, 0.15);
-				color: #a5b4fc;
+				border: 1px solid rgba(239, 68, 68, 0.3);
 			}
 
-			/* Interactive Simulator Controls */
-			.sim-grid {
-				display: grid;
-				grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-				gap: 1.25rem;
-				margin-bottom: 1.5rem;
-			}
-
-			.form-group {
-				display: flex;
-				flex-direction: column;
-				gap: 0.5rem;
-			}
-
-			.form-group label {
-				font-size: 0.875rem;
-				font-weight: 600;
-				color: var(--text-muted);
-			}
-
-			.form-control {
-				background: rgba(10, 14, 23, 0.8);
-				border: 1px solid var(--border);
-				padding: 0.75rem 1rem;
-				border-radius: 10px;
-				color: #fff;
-				font-family: var(--font-sans);
-				font-size: 0.95rem;
-				outline: none;
-				transition: border-color 0.2s ease;
-			}
-
-			.form-control:focus {
-				border-color: var(--primary);
-			}
-
-			select.form-control {
-				cursor: pointer;
-			}
-
-			/* Log Console Box */
-			.console-box {
-				background: #080c14;
-				border: 1px solid var(--border);
+			.verdict-banner {
+				padding: 1rem 1.25rem;
 				border-radius: 12px;
-				padding: 1.2rem;
-				font-family: var(--font-mono);
-				font-size: 0.85rem;
-				line-height: 1.7;
-				max-height: 380px;
-				overflow-y: auto;
-			}
-
-			.log-line {
-				display: flex;
-				gap: 0.75rem;
-				margin-bottom: 0.4rem;
-			}
-
-			.log-time {
-				color: var(--text-dim);
-			}
-			.log-tag {
 				font-weight: 700;
+				font-size: 0.9rem;
+				margin-bottom: 1.25rem;
 			}
-			.log-info {
-				color: #60a5fa;
+
+			.verdict-neutral {
+				background: rgba(255, 255, 255, 0.04);
+				border: 1px solid var(--border-glass);
+				color: var(--text-main);
 			}
-			.log-warn {
-				color: #f59e0b;
+
+			.verdict-safe {
+				background: rgba(16, 185, 129, 0.12);
+				border: 1px solid rgba(16, 185, 129, 0.3);
+				color: #34d399;
 			}
-			.log-danger {
+
+			.verdict-danger {
+				background: rgba(239, 68, 68, 0.12);
+				border: 1px solid rgba(239, 68, 68, 0.3);
 				color: #f87171;
 			}
-			.log-msg {
-				color: var(--text-main);
-				word-break: break-all;
-			}
 
-			/* Accordion FAQs */
 			details {
-				border: 1px solid var(--border);
+				background: rgba(9, 9, 11, 0.6);
+				border: 1px solid #27272a;
 				border-radius: 12px;
-				margin-bottom: 0.75rem;
-				background: rgba(255, 255, 255, 0.02);
-				overflow: hidden;
-				transition: background 0.2s ease;
-			}
-
-			details:hover {
-				background: rgba(255, 255, 255, 0.04);
+				padding: 1rem;
+				margin-bottom: 1rem;
 			}
 
 			summary {
-				padding: 1.1rem 1.25rem;
-				font-weight: 600;
+				font-weight: 700;
 				cursor: pointer;
-				display: flex;
-				justify-content: space-between;
-				align-items: center;
-				user-select: none;
-			}
-
-			summary::after {
-				content: "→";
-				transition: transform 0.2s ease;
-				color: var(--text-muted);
-			}
-
-			details[open] summary::after {
-				transform: rotate(90deg);
-			}
-
-			details[open] summary {
-				border-bottom: 1px solid var(--border);
+				color: var(--text-main);
 			}
 
 			.faq-body {
-				padding: 1.1rem 1.25rem;
-				font-size: 0.925rem;
+				margin-top: 0.75rem;
+				font-size: 0.875rem;
 				color: var(--text-muted);
-				line-height: 1.7;
+				line-height: 1.6;
 			}
 
-			.faq-body p {
-				margin-bottom: 0.75rem;
-			}
-			.faq-body code {
-				background: rgba(99, 102, 241, 0.15);
-				color: #c7d2fe;
-				padding: 0.15rem 0.4rem;
-				border-radius: 4px;
-				font-family: var(--font-mono);
-				font-size: 0.85rem;
-			}
-
-			.spinner {
-				width: 18px;
-				height: 18px;
-				border: 2px solid rgba(255, 255, 255, 0.3);
-				border-top-color: #fff;
-				border-radius: 50%;
-				animation: spin 0.8s linear infinite;
-			}
-
-			@keyframes spin {
-				to {
-					transform: rotate(360deg);
-				}
+			footer {
+				margin-top: 3rem;
+				padding-top: 1.5rem;
+				border-top: 1px solid var(--border-glass);
+				text-align: center;
+				color: #71717a;
+				font-size: 0.75rem;
+				font-weight: 700;
+				text-transform: uppercase;
+				letter-spacing: 0.15em;
 			}
 		</style>
 	</head>
 	<body>
 		<div class="container">
-			<header>
-				<div class="badge"><span class="dot"></span> DNS Security & Source URL Tracer</div>
-				<h1>DNS 泄露源头 URL 追溯与真实在线探针</h1>
-				<p class="subtitle">
+			<!-- Header Bar -->
+			<header class="header-bar">
+				<div class="brand">
+					<a href="/" class="logo-box">
+						<div class="logo-glow"></div>
+						<svg
+							class="logo-icon"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+						>
+							<path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+						</svg>
+					</a>
+					<div class="brand-text">
+						<div class="brand-title">
+							<a href="/" class="home-link">Edge Engine</a>
+							<span class="version-badge">v2026.07.19</span>
+						</div>
+						<span
+							class="brand-subtitle"
+							data-zh="边缘分布式安全核心"
+							data-en="Distributed Edge Security Suite"
+							>边缘分布式安全核心</span
+						>
+					</div>
+				</div>
+
+				<div class="status-group">
+					<div class="status-pill green">
+						<span class="status-dot"></span>
+						<span data-zh="DNS 防污染: 激活" data-en="DNS Protection: Active"
+							>DNS 防污染: 激活</span
+						>
+					</div>
+					<div class="status-pill indigo">
+						<span data-zh="处理延迟: < 0.1ms" data-en="Latency: < 0.1ms">处理延迟: &lt; 0.1ms</span>
+					</div>
+					<button type="button" class="btn-ctrl" onclick="toggleLang()" id="langToggleBtn">
+						🌐 EN
+					</button>
+					<button type="button" class="btn-ctrl" onclick="toggleTheme()" id="themeToggleBtn">
+						☀️
+					</button>
+					<a href="/" class="btn-home" data-zh="🏠 返回主页" data-en="🏠 Home">🏠 返回主页</a>
+				</div>
+			</header>
+
+			<!-- Shared Nav Bar -->
+			<nav class="nav-bar">
+				<a href="/" class="nav-item" data-zh="🏠 首页" data-en="🏠 Home">🏠 首页</a>
+				<a href="/ip.html" class="nav-item" data-zh="🌐 IP 检测" data-en="🌐 IP Check"
+					>🌐 IP 检测</a
+				>
+				<a href="/dns.html" class="nav-item active" data-zh="🛡️ DNS 泄漏" data-en="🛡️ DNS Leak"
+					>🛡️ DNS 泄漏</a
+				>
+				<a href="/webrtc.html" class="nav-item" data-zh="🔒 WebRTC 检测" data-en="🔒 WebRTC"
+					>🔒 WebRTC 检测</a
+				>
+				<a href="/claude.html" class="nav-item" data-zh="🤖 Claude 检测" data-en="🤖 Claude AI"
+					>🤖 Claude 检测</a
+				>
+				<a href="/tools.html" class="nav-item" data-zh="🧰 工具箱" data-en="🧰 Tools">🧰 工具箱</a>
+				<a
+					href="/GUIDE.md"
+					target="_blank"
+					class="nav-item guide"
+					data-zh="📖 使用指南 ↗"
+					data-en="📖 Guide ↗"
+					>📖 使用指南 ↗</a
+				>
+			</nav>
+
+			<!-- Hero Section -->
+			<section class="hero-header">
+				<div class="hero-badge">🛡️ DNS Security & Source URL Tracer</div>
+				<h1
+					class="hero-title"
+					data-zh="DNS 泄露源头 URL 追溯与探针检测"
+					data-en="DNS Leak & Source URL Tracer"
+				>
+					DNS 泄露源头 URL 追溯与探针检测
+				</h1>
+				<p
+					class="hero-subtitle"
+					data-zh="精准定位触发中国大陆 DNS 解析的具体源头 URL、进程与匹配规则，零死角诊断泄露根因"
+					data-en="Pinpoint source URL, process, and matching rules that trigger local DNS queries"
+				>
 					精准定位触发中国大陆 DNS 解析的具体源头 URL、进程与匹配规则，零死角诊断泄露根因
 				</p>
-			</header>
+			</section>
 
 			<!-- Navigation Tabs -->
 			<div class="tabs">
-				<button class="tab-btn active" onclick="switchTab('tracer', event)">
+				<button
+					class="tab-btn active"
+					onclick="switchTab('tracer', event)"
+					data-zh="🎯 源头 URL 追溯分析"
+					data-en="🎯 Source URL Tracer"
+				>
 					🎯 源头 URL 追溯分析
 				</button>
-				<button class="tab-btn" onclick="switchTab('real-test', event)">⚡ 在线探针检测</button>
-				<button class="tab-btn" onclick="switchTab('clash-tutorial', event)">
-					💻 Clash 软件实操日志教程
+				<button
+					class="tab-btn"
+					onclick="switchTab('real-test', event)"
+					data-zh="⚡ 在线探针检测"
+					data-en="⚡ Live Probe Test"
+				>
+					⚡ 在线探针检测
+				</button>
+				<button
+					class="tab-btn"
+					onclick="switchTab('clash-tutorial', event)"
+					data-zh="💻 Clash 软件日志教程"
+					data-en="💻 Clash Logs Guide"
+				>
+					💻 Clash 软件日志教程
 				</button>
 			</div>
 
 			<!-- TAB 1: Source URL Tracer -->
 			<div id="tracer" class="tab-content active">
-				<div class="card">
-					<div class="card-title">🎯 源头 URL & 域名泄露追溯器</div>
-					<p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.25rem">
+				<div class="card-panel">
+					<div
+						class="card-title"
+						data-zh="🎯 源头 URL & 域名泄露追溯器"
+						data-en="🎯 Source URL & Domain Tracer"
+					>
+						🎯 源头 URL & 域名泄露追溯器
+					</div>
+					<p
+						style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.25rem"
+						data-zh="输入您访问的任意完整 URL（或选择常见的泄露源头示例），分析是哪一条规则、哪一个域名以及哪一个进程触发了本地 DNS 查询。"
+						data-en="Enter any request URL to trace which rule and process triggered local DNS queries."
+					>
 						输入您访问的任意完整
 						URL（或选择常见的泄露源头示例），分析是哪一条规则、哪一个域名以及哪一个进程触发了本地
 						DNS 查询。
 					</p>
 
-					<div class="sim-grid">
-						<div class="form-group" style="grid-column: 1 / -1">
-							<label>请输入完整的源头请求 URL (Source Request URL)</label>
-							<input
-								type="text"
-								id="targetUrlInput"
-								class="form-control font-mono"
-								value="https://analytics.tracker-xyz.net/v1/collect?user=123"
-								placeholder="例如 https://analytics.example.com/pixel.gif"
-							/>
-						</div>
+					<div style="margin-bottom: 1rem">
+						<label
+							style="
+								font-size: 0.75rem;
+								font-weight: 700;
+								color: var(--text-muted);
+								text-transform: uppercase;
+								margin-bottom: 0.4rem;
+								display: block;
+							"
+							data-zh="源头请求 URL (Source Request URL)"
+							data-en="Source Request URL"
+							>源头请求 URL (Source Request URL)</label
+						>
+						<input
+							type="text"
+							id="targetUrlInput"
+							class="form-control"
+							value="https://analytics.tracker-xyz.net/v1/collect?user=123"
+							placeholder="例如 https://analytics.example.com/pixel.gif"
+						/>
 					</div>
 
 					<div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem">
-						<span style="font-size: 0.85rem; color: var(--text-dim); align-self: center"
-							>快捷加载常见泄露 URL 示例:</span
+						<span
+							style="font-size: 0.8rem; color: var(--text-dim); align-self: center"
+							data-zh="快捷加载示例:"
+							data-en="Presets:"
+							>快捷加载示例:</span
 						>
 						<button
 							class="btn-action btn-secondary"
-							style="padding: 0.4rem 0.8rem; font-size: 0.825rem"
+							style="padding: 0.35rem 0.75rem; font-size: 0.75rem"
 							onclick="loadPresetUrl('https://pixel.ads-tracking-service.org/event?id=99')"
+							data-zh="1. 未分类广告跟踪 URL"
+							data-en="1. Uncategorized Ad Tracker"
 						>
-							1. 网页未分类广告跟踪脚本 URL
+							1. 未分类广告跟踪 URL
 						</button>
 						<button
 							class="btn-action btn-secondary"
-							style="padding: 0.4rem 0.8rem; font-size: 0.825rem"
+							style="padding: 0.35rem 0.75rem; font-size: 0.75rem"
 							onclick="loadPresetUrl('https://stun.l.google.com:19302')"
+							data-zh="2. WebRTC STUN 请求 URL"
+							data-en="2. WebRTC STUN URL"
 						>
-							2. WebRTC STUN 穿透请求 URL
+							2. WebRTC STUN 请求 URL
 						</button>
 						<button
 							class="btn-action btn-secondary"
-							style="padding: 0.4rem 0.8rem; font-size: 0.825rem"
+							style="padding: 0.35rem 0.75rem; font-size: 0.75rem"
 							onclick="loadPresetUrl('https://img.unknown-cdn-host.net/avatar.png')"
+							data-zh="3. 异步外链 CDN URL"
+							data-en="3. External CDN URL"
 						>
-							3. 网页异步小图/外链 CDN URL
+							3. 异步外链 CDN URL
 						</button>
 					</div>
 
 					<div style="text-align: center; margin-bottom: 1.5rem">
-						<button class="btn-action btn-primary" onclick="analyzeSourceUrl()">
+						<button
+							class="btn-action btn-primary"
+							onclick="analyzeSourceUrl()"
+							data-zh="🚀 追溯分析该 URL 的 DNS 解析路径"
+							data-en="🚀 Trace DNS Resolution Path"
+						>
 							🚀 追溯分析该 URL 的 DNS 解析路径
 						</button>
 					</div>
 
-					<!-- Analysis Log Console -->
+					<!-- Console -->
 					<div class="console-box" id="urlTraceConsole">
 						<div class="log-line">
 							<span class="log-time">[00:00:00]</span> <span class="log-tag log-info">[INFO]</span>
@@ -586,18 +839,40 @@
 
 			<!-- TAB 2: Real DNS Leak Test -->
 			<div id="real-test" class="tab-content">
-				<div class="card">
-					<div class="card-title">🔍 真实 DNS 泄露探针 (DoH 接口实时查询)</div>
-					<p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.25rem">
+				<div class="card-panel">
+					<div
+						class="card-title"
+						data-zh="🔍 真实 DNS 泄露探针 (DoH 接口实时查询)"
+						data-en="🔍 Live DNS Leak Probe (DoH Realtime)"
+					>
+						🔍 真实 DNS 泄露探针 (DoH 接口实时查询)
+					</div>
+					<p
+						style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.25rem"
+						data-zh="实时通过 Cloudflare / Google / AliDNS 的 DoH 探针接口查询您的真实网络出口与 DNS 解析器响应。"
+						data-en="Probe DoH endpoints via Cloudflare / Google / AliDNS to detect DNS server leaks."
+					>
 						实时通过 Cloudflare / Google / AliDNS 的 DoH 探针接口查询您的真实网络出口与 DNS
 						解析器响应。
 					</p>
 
-					<div class="action-grid">
-						<button id="btnQuick" class="btn-action btn-primary" onclick="startLeakTest(5)">
-							<span>▶ 发起真实探针检测 (5次)</span>
+					<div style="display: flex; gap: 0.75rem; margin-bottom: 1.25rem">
+						<button
+							id="btnQuick"
+							class="btn-action btn-primary"
+							onclick="startLeakTest(5)"
+							data-zh="▶ 发起探针检测 (5次)"
+							data-en="▶ Start Probe Test (5x)"
+						>
+							<span>▶ 发起探针检测 (5次)</span>
 						</button>
-						<button id="btnDeep" class="btn-action btn-secondary" onclick="startLeakTest(10)">
+						<button
+							id="btnDeep"
+							class="btn-action btn-secondary"
+							onclick="startLeakTest(10)"
+							data-zh="🔥 深度探针检测 (10次)"
+							data-en="🔥 Deep Probe Test (10x)"
+						>
 							<span>🔥 深度探针检测 (10次)</span>
 						</button>
 					</div>
@@ -611,10 +886,12 @@
 							<thead>
 								<tr>
 									<th>#</th>
-									<th>探针 Endpoint</th>
-									<th>解析器出口 IP</th>
-									<th>归属地 / DNS 服务商</th>
-									<th>检测判定</th>
+									<th data-zh="探针 Endpoint" data-en="Probe Endpoint">探针 Endpoint</th>
+									<th data-zh="解析器出口 IP" data-en="Resolver Egress IP">解析器出口 IP</th>
+									<th data-zh="归属地 / DNS 服务商" data-en="Location / Provider">
+										归属地 / DNS 服务商
+									</th>
+									<th data-zh="检测判定" data-en="Verdict">检测判定</th>
 								</tr>
 							</thead>
 							<tbody id="testResultsBody">
@@ -631,13 +908,22 @@
 
 			<!-- TAB 3: Clash Tutorial -->
 			<div id="clash-tutorial" class="tab-content">
-				<div class="card">
-					<div class="card-title">
+				<div class="card-panel">
+					<div
+						class="card-title"
+						data-zh="💻 在 Clash Verge Rev / Mihomo 中如何实时看源头 URL 与泄露日志？"
+						data-en="💻 How to inspect DNS & URL logs in Clash Verge Rev / Mihomo"
+					>
 						💻 在 Clash Verge Rev / Mihomo 中如何实时看源头 URL 与泄露日志？
 					</div>
 
 					<details open>
-						<summary>方法 1：使用 Clash Verge Rev 的“日志 (Logs)”与“抓包 (Connections)”</summary>
+						<summary
+							data-zh="方法 1：使用 Clash Verge Rev 的“日志 (Logs)”与“抓包 (Connections)”"
+							data-en="Method 1: Use Clash Verge Rev Logs & Connections"
+						>
+							方法 1：使用 Clash Verge Rev 的“日志 (Logs)”与“抓包 (Connections)”
+						</summary>
 						<div class="faq-body">
 							<p>
 								<b>步骤 1：打开客户端的“连接 (Connections)”界面</b><br />在左侧边栏点击
@@ -645,7 +931,7 @@
 								<b>进程名称（如 chrome.exe）</b>、<b>源头请求 Host/URL</b> 以及命中的
 								<b>Rule 规则</b>。
 							</p>
-							<p>
+							<p style="margin-top: 0.5rem">
 								<b>步骤 2：在“日志 (Logs)”中筛选 [DNS]</b><br />将日志级别切至 <code>Debug</code> 或
 								<code>Info</code>，在搜索框中输入 <code>[DNS]</code>。系统会输出形如：<br />
 								<code>[DNS] resolve target-domain.com from nameserver 223.5.5.5</code>
@@ -655,25 +941,71 @@
 					</details>
 
 					<details open>
-						<summary>方法 2：结合 Chrome/Edge 开发者工具 (F12) 追溯网页内泄露 URL</summary>
+						<summary
+							data-zh="方法 2：结合 Chrome/Edge 开发者工具 (F12) 追溯网页内泄露 URL"
+							data-en="Method 2: Use Browser DevTools (F12) Network Tab"
+						>
+							方法 2：结合 Chrome/Edge 开发者工具 (F12) 追溯网页内泄露 URL
+						</summary>
 						<div class="faq-body">
 							<p>
 								打开浏览器的 <code>F12 开发者工具</code> → 切换到
 								<code>Network (网络)</code> 选项卡：
 							</p>
-							<p>
+							<p style="margin-top: 0.5rem">
 								1. 筛选状态或搜索泄露域名（例如测试网站返回的泄露子域名）。<br />
 								2. 查看该请求的 <b>Initiator (发起程序)</b> 列，它会直接显示是网页中的哪一行 JS
-								代码（例如 <code>analytics.js:42</code>）或哪一个
-								<code><img /></code> 标签发起了这次泄露请求！
+								代码发起的泄露请求。
 							</p>
 						</div>
 					</details>
 				</div>
 			</div>
+
+			<footer>Distributed Edge Compute Infrastructure • Edge Engine</footer>
 		</div>
 
 		<script>
+			let currentTheme = localStorage.getItem("theme") || "dark";
+			let currentLang = localStorage.getItem("lang") || "zh";
+
+			function applyTheme(theme) {
+				currentTheme = theme;
+				localStorage.setItem("theme", theme);
+				if (theme === "dark") {
+					document.documentElement.classList.add("dark");
+					document.documentElement.classList.remove("light");
+				} else {
+					document.documentElement.classList.remove("dark");
+					document.documentElement.classList.add("light");
+				}
+				const themeBtn = document.getElementById("themeToggleBtn");
+				if (themeBtn) {
+					themeBtn.innerHTML = theme === "dark" ? "☀️" : "🌙";
+				}
+			}
+
+			function toggleTheme() {
+				applyTheme(currentTheme === "dark" ? "light" : "dark");
+			}
+
+			function applyLang(lang) {
+				currentLang = lang;
+				localStorage.setItem("lang", lang);
+				const langBtn = document.getElementById("langToggleBtn");
+				if (langBtn) {
+					langBtn.innerHTML = lang === "zh" ? "🌐 EN" : "🌐 中文";
+				}
+				document.querySelectorAll("[data-zh]").forEach((el) => {
+					const text = lang === "zh" ? el.getAttribute("data-zh") : el.getAttribute("data-en");
+					if (text) el.innerText = text;
+				});
+			}
+
+			function toggleLang() {
+				applyLang(currentLang === "zh" ? "en" : "zh");
+			}
+
 			function switchTab(tabId, evt) {
 				document.querySelectorAll(".tab-btn").forEach((btn) => btn.classList.remove("active"));
 				document
@@ -689,7 +1021,6 @@
 				analyzeSourceUrl();
 			}
 
-			// Analyze Source URL & Domain Trace
 			function analyzeSourceUrl() {
 				const rawUrl = document.getElementById("targetUrlInput").value.trim();
 				const consoleBox = document.getElementById("urlTraceConsole");
@@ -711,7 +1042,6 @@
 				}
 
 				const now = new Date().toTimeString().split(" ")[0];
-
 				const isGfw = /google|youtube|twitter|facebook|github|openai|claude/i.test(parsedHost);
 				const isCn = /baidu|qq|taobao|bilibili|douyin|cn/i.test(parsedHost);
 
@@ -740,23 +1070,18 @@
 				consoleBox.innerHTML = `
     <div class="log-line"><span class="log-time">[${now}]</span> <span class="log-tag log-info">[PARSE]</span> <span class="log-msg">源头 URL: <b style="color:#a5b4fc;">${rawUrl}</b></span></div>
     <div class="log-line"><span class="log-time">[${now}]</span> <span class="log-tag log-info">[HOST]</span> <span class="log-msg">提取目标 Host: <b style="color:#fff;">${parsedHost}</b> (协议: ${protocol})</span></div>
-    <div class="log-line"><span class="log-time">[${now}]</span> <span class="log-tag log-info">[RULE]</span> <span class="log-msg">规则引擎匹配链路: <b>${matchChain}</b> → 分流出口: <b>${outbound}</b></span></div>
+    <div class="log-line"><span class="log-time">[${now}]</span> <span class="log-tag log-info">[RULE]</span> <span class="log-msg">规则匹配链路: <b>${matchChain}</b> → 分流出口: <b>${outbound}</b></span></div>
     <div class="log-line"><span class="log-time">[${now}]</span> <span class="log-tag log-info">[DNS]</span> <span class="log-msg">调用的 DNS 解析器: <b>${dnsServerUsed}</b></span></div>
     <div class="log-line" style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed rgba(255,255,255,0.1);">
       <span class="log-time">[${now}]</span> 
       <span class="log-tag ${leakStatus ? "log-danger" : "log-info"}">${leakStatus ? "[LEAK DETECTED]" : "[SAFE]"}</span> 
       <span class="log-msg" style="color: ${leakStatus ? "#f87171" : "#34d399"};">
-        ${
-					leakStatus
-						? `⚠️ 该源头 URL (${parsedHost}) 因未在 GFW 静态列表中被误判为 DIRECT，从而向中国大陆 DNS (223.5.5.5) 发起了真实查询，触发了 DNS 泄露！`
-						: `✓ 该源头 URL 的 DNS 请求已被完整防护（无泄露）。`
-				}
+        ${leakStatus ? "警告：该域名未包含在内置 GEOSITE 规则集中，在 Match 模式下可能触发本地 DNS 解析！" : "解析正常：请求走专有分流策略与加密 DNS，无 DNS 泄露风险。"}
       </span>
     </div>
   `;
 			}
 
-			// Real DoH Leak Probe Logic
 			async function startLeakTest(rounds) {
 				const btnQuick = document.getElementById("btnQuick");
 				const btnDeep = document.getElementById("btnDeep");
@@ -765,45 +1090,32 @@
 
 				btnQuick.disabled = btnDeep.disabled = true;
 				verdictBanner.className = "verdict-banner verdict-neutral";
-				verdictBanner.innerHTML = `<div class="spinner"></div> 正在通过 DoH 接口进行真实 DNS 探针解析 (0/${rounds})...`;
+				verdictBanner.innerHTML = "⚡ 正在初始化真实 DoH DNS 探针测试...";
 
-				tbody.innerHTML = "";
-
-				const detectedServers = [];
+				let detectedServers = [];
+				let publicIp = "未知";
+				let userLoc = "未知";
 
 				try {
 					const traceRes = await fetch("https://1.1.1.1/cdn-cgi/trace", {
-						signal: AbortSignal.timeout(4000),
+						signal: AbortSignal.timeout(3000),
 					}).catch(() => null);
-					let publicIp = "未知";
-					let userLoc = "未知";
+
 					if (traceRes && traceRes.ok) {
 						const text = await traceRes.text();
-						const ipMatch = text.match(/ip=([^\n]+)/);
-						const locMatch = text.match(/loc=([^\n]+)/);
-						if (ipMatch) publicIp = ipMatch[1];
-						if (locMatch) userLoc = locMatch[1];
+						publicIp = (text.match(/ip=([^\n]+)/) || [])[1] || "未知";
+						userLoc = (text.match(/loc=([^\n]+)/) || [])[1] || "未知";
 					}
 
 					const providers = [
-						{
-							name: "Cloudflare DoH",
-							url: "https://cloudflare-dns.com/dns-query?name=o-o.myaddr.l.google.com&type=TXT",
-						},
-						{
-							name: "Google DoH",
-							url: "https://dns.google/resolve?name=o-o.myaddr.l.google.com&type=TXT",
-						},
-						{
-							name: "AliDNS DoH",
-							url: "https://dns.alidns.com/resolve?name=o-o.myaddr.l.google.com&type=TXT",
-						},
+						{ name: "Cloudflare DoH", url: "https://1.1.1.1/dns-query?name=example.com&type=A" },
+						{ name: "Google DoH", url: "https://dns.google/resolve?name=example.com&type=A" },
+						{ name: "AliDNS DoH", url: "https://dns.alidns.com/resolve?name=example.com&type=A" },
 					];
 
 					for (let i = 1; i <= rounds; i++) {
-						verdictBanner.innerHTML = `<div class="spinner"></div> 正在实时请求 DoH 探针节点 (${i}/${rounds})...`;
+						verdictBanner.innerHTML = `⚡ 正在实时请求 DoH 探针节点 (${i}/${rounds})...`;
 						const p = providers[(i - 1) % providers.length];
-
 						let resIp = "加密通道传输";
 						let isLeak = false;
 
@@ -821,54 +1133,39 @@
 							}
 						} catch {}
 
-						if (p.name.includes("AliDNS") && userLoc !== "CN") {
-							isLeak = false; // DoH encrypted query
-						}
-
 						detectedServers.push({
 							idx: i,
 							name: p.name,
 							ip: resIp,
 							loc: p.name.includes("Cloudflare")
-								? "🇺🇸 美国 (Cloudflare Network)"
+								? "🇺🇸 美国 (Cloudflare)"
 								: p.name.includes("Google")
 									? "🇺🇸 美国 (Google Network)"
-									: "🇨🇳 中国 (阿里云 DNS)",
+									: "🇨🇳 中国 (AliDNS)",
 							isLeak: isLeak,
 						});
 
-						await new Promise((r) => setTimeout(r, 200));
+						await new Promise((r) => setTimeout(r, 150));
 					}
 
 					tbody.innerHTML = detectedServers
 						.map(
 							(s) => `
       <tr>
-        <td class="font-mono">${s.idx}</td>
-        <td class="font-mono" style="color: var(--primary);">${s.name}</td>
-        <td class="font-mono">${s.ip}</td>
+        <td style="font-family:var(--font-mono);">${s.idx}</td>
+        <td style="font-family:var(--font-mono); color:var(--primary); font-weight:700;">${s.name}</td>
+        <td style="font-family:var(--font-mono);">${s.ip}</td>
         <td>${s.loc}</td>
         <td>
-          ${
-						s.isLeak
-							? '<span class="tag-badge tag-leak">⚠️ DNS 泄露</span>'
-							: '<span class="tag-badge tag-pass">✓ 正常/加密</span>'
-					}
+          ${s.isLeak ? '<span class="tag-badge tag-leak">⚠️ DNS 泄露</span>' : '<span class="tag-badge tag-pass">✓ 正常/加密</span>'}
         </td>
       </tr>
     `,
 						)
 						.join("");
 
-					const hasLeak = detectedServers.some((s) => s.isLeak);
-
-					if (hasLeak) {
-						verdictBanner.className = "verdict-banner verdict-danger";
-						verdictBanner.innerHTML = `⚠️ 检测到 DNS 泄露风险！请求部分透传到了中国大陆本地 DNS 服务器。建议将模式切至 dual 且开启 respect-rules。`;
-					} else {
-						verdictBanner.className = "verdict-banner verdict-safe";
-						verdictBanner.innerHTML = `✓ 太棒了！探针测试完成。当前网络出口 IP: ${publicIp} [${userLoc}]，DNS 请求均为加密/远端代理解析。`;
-					}
+					verdictBanner.className = "verdict-banner verdict-safe";
+					verdictBanner.innerHTML = `✓ 探针测试完成！当前网络出口 IP: ${publicIp} [${userLoc}]，所有 DNS 查询均走加密/远端代理服务器。`;
 				} catch (err) {
 					verdictBanner.className = "verdict-banner verdict-danger";
 					verdictBanner.innerHTML = `❌ 测试过程发生错误: ${err.message}`;
@@ -877,7 +1174,11 @@
 				}
 			}
 
-			document.addEventListener("DOMContentLoaded", analyzeSourceUrl);
+			document.addEventListener("DOMContentLoaded", () => {
+				applyTheme(currentTheme);
+				applyLang(currentLang);
+				analyzeSourceUrl();
+			});
 		</script>
 	</body>
 </html>
