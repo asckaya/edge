@@ -18,6 +18,8 @@
 
 ## 🚀 快速开始
 
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/asckaya/edge)
+
 ### 部署到 Cloudflare Workers
 
 1. Fork 本仓库。

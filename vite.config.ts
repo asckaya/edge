@@ -42,6 +42,9 @@ export default defineConfig({
 			"@typescript-eslint/restrict-template-expressions": "off",
 		},
 	},
+	optimizeDeps: {
+		exclude: ["@tanstack/react-start"],
+	},
 	plugins: [
 		tailwindcss(),
 		markdownCharset(),

@@ -18,6 +18,8 @@ A worker-first proxy subscription orchestration engine running on Cloudflare Wor
 
 ## 🚀 Quick Start
 
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/asckaya/edge)
+
 ### Deploy to Cloudflare Workers
 
 1. Fork this repo.
