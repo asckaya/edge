@@ -12,22 +12,17 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v6
-
-      - uses: actions/setup-node@v7
+      - uses: voidzero-dev/setup-vp@v1
         with:
-          node-version: "22"
-          cache: "pnpm"
+          node-version: "24"
 
-      - run: pnpm install --frozen-lockfile
+      - run: vp install
 
       # Generate src/routeTree.gen.ts (gitignored, produced by the TanStack
       # Start vite plugin at build time) before type-checking so tsc can
       # resolve the './routeTree.gen' module imported by src/router.tsx.
-      - run: pnpm build
+      - run: vp build
 
-      - run: pnpm check
+      - run: vp check
 
-      - run: pnpm lint
-
-      - run: pnpm test
+      - run: vp test
