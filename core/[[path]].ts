@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { type EventContext, handle } from "hono/cloudflare-pages";
 import { cors } from "hono/cors";
 import * as v from "valibot";
+import { version } from "../package.json";
 import type { EdgeEnv } from "./src/env";
 import { shortlinkApp } from "./src/routes/shortlink";
 import { RequestParamsSchema } from "./src/types";
@@ -55,6 +56,9 @@ function extractCustomProxyNames(nodes: Array<{ name: string }>, rawLines: strin
 }
 
 app.use("*", cors());
+
+// ---------- Version API ----------
+app.get("/api/version", (c) => c.json({ version }));
 
 // ---------- Short link API ----------
 app.route("/", shortlinkApp);

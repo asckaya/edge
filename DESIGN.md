@@ -75,7 +75,7 @@ Every page (homepage and subpages) MUST render the standardized isometric header
 		<div class="brand-text">
 			<div class="brand-title">
 				<a href="/" class="home-link">Edge Engine</a>
-				<span class="version-badge">v2026.07.19</span>
+				<span class="version-badge">v2026.08.05</span>
 			</div>
 			<span
 				class="brand-subtitle"

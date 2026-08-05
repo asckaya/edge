@@ -433,7 +433,7 @@
 					<div class="brand-text">
 						<div class="brand-title">
 							<a href="/" class="home-link">Edge Engine</a>
-							<span class="version-badge">v2026.07.19</span>
+							<span class="version-badge"></span>
 						</div>
 						<span
 							class="brand-subtitle"
@@ -626,6 +626,16 @@
 		</div>
 
 		<script>
+			fetch("/api/version")
+				.then((r) => r.json())
+				.then((d) => {
+					if (d.version)
+						document
+							.querySelectorAll(".version-badge")
+							.forEach((e) => (e.textContent = `v${d.version}`));
+				})
+				.catch(() => {});
+
 			let currentTheme = localStorage.getItem("theme") || "dark";
 			let currentLang = localStorage.getItem("lang") || "zh";
 
