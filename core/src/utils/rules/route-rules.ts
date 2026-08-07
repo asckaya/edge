@@ -295,15 +295,18 @@ export const GRANULAR_SERVICE_OUTBOUNDS: Record<string, string> = {
 	xvideos: "🔞 XVideos",
 	xnxx: "🔞 XNXX",
 	onlyfans: "🔞 OnlyFans",
+
+	// Google, Apple, Microsoft, Emby
+	google: "🔍 Google",
+	apple: "🍏 Apple",
+	microsoft: "Ⓜ️ Microsoft",
+	onedrive: "☁️ OneDrive",
+	emby: "🎥 EMBY 专线",
 };
 
 export function getGranularOutbound(tag: string, fallbackGroup: string): string {
 	return GRANULAR_SERVICE_OUTBOUNDS[tag] ?? fallbackGroup;
 }
-
-export const GRANULAR_SCENARIO_GROUPS: string[] = Array.from(
-	new Set(Object.values(GRANULAR_SERVICE_OUTBOUNDS)),
-);
 
 /**
  * ROUTE_RULES_GRANULAR: Granular split routing rules (per-service outbounds).
@@ -342,14 +345,34 @@ export const ROUTE_RULES_GRANULAR: RouteRuleDefinition[] = [
 	})),
 
 	// Google / Apple / Microsoft
-	{ rule_set: "google", action: "route", outbound: GROUP_TAGS.GOOGLE },
-	{ rule_set: "google-ip", action: "route", outbound: GROUP_TAGS.GOOGLE },
+	{
+		rule_set: "google",
+		action: "route",
+		outbound: getGranularOutbound("google", GROUP_TAGS.GOOGLE),
+	},
+	{
+		rule_set: "google-ip",
+		action: "route",
+		outbound: getGranularOutbound("google", GROUP_TAGS.GOOGLE),
+	},
 	{ rule_set: "apple-cn", action: "route", outbound: GROUP_TAGS.CN_SERVICES },
-	{ rule_set: "apple-tvplus", action: "route", outbound: GROUP_TAGS.APPLE_VIDEO },
-	{ rule_set: "apple", action: "route", outbound: GROUP_TAGS.APPLE },
+	{
+		rule_set: "apple-tvplus",
+		action: "route",
+		outbound: getGranularOutbound("apple-tvplus", GROUP_TAGS.APPLE_VIDEO),
+	},
+	{ rule_set: "apple", action: "route", outbound: getGranularOutbound("apple", GROUP_TAGS.APPLE) },
 	{ rule_set: "microsoft@cn", action: "route", outbound: GROUP_TAGS.CN_SERVICES },
-	{ rule_set: "onedrive", action: "route", outbound: GROUP_TAGS.MICROSOFT },
-	{ rule_set: "microsoft", action: "route", outbound: GROUP_TAGS.MICROSOFT },
+	{
+		rule_set: "onedrive",
+		action: "route",
+		outbound: getGranularOutbound("onedrive", GROUP_TAGS.MICROSOFT),
+	},
+	{
+		rule_set: "microsoft",
+		action: "route",
+		outbound: getGranularOutbound("microsoft", GROUP_TAGS.MICROSOFT),
+	},
 
 	// Communication & Social
 	...GEOX_CATEGORIES_GRANULAR.COMMUNICATION.geosite.map((tag) => ({
@@ -357,15 +380,19 @@ export const ROUTE_RULES_GRANULAR: RouteRuleDefinition[] = [
 		action: "route" as const,
 		outbound: getGranularOutbound(tag, GROUP_TAGS.TELEGRAM),
 	})),
-	{ rule_set: "telegram-ip", action: "route", outbound: GROUP_TAGS.TELEGRAM },
+	{
+		rule_set: "telegram-ip",
+		action: "route",
+		outbound: getGranularOutbound("telegram", GROUP_TAGS.TELEGRAM),
+	},
 
 	{
 		rule_set: "youtube",
 		action: "route",
 		outbound: getGranularOutbound("youtube", GROUP_TAGS.YOUTUBE),
 	},
-	{ rule_set: "emby", action: "route", outbound: GROUP_TAGS.EMBY },
-	{ rule_set: "emby-ip", action: "route", outbound: GROUP_TAGS.EMBY },
+	{ rule_set: "emby", action: "route", outbound: getGranularOutbound("emby", GROUP_TAGS.EMBY) },
+	{ rule_set: "emby-ip", action: "route", outbound: getGranularOutbound("emby", GROUP_TAGS.EMBY) },
 
 	// Media / Streaming
 	...GEOX_CATEGORIES_GRANULAR.MEDIA.geosite
@@ -457,5 +484,25 @@ export const ROUTE_RULES_GRANULAR: RouteRuleDefinition[] = [
 	// Fallback
 	{ rule_set: "geolocation-!cn", action: "route", outbound: GROUP_TAGS.NON_CN },
 ];
+
+export const GRANULAR_SCENARIO_GROUPS: string[] = Array.from(
+	new Set([
+		GROUP_TAGS.FINAL,
+		...ROUTE_RULES_GRANULAR.filter(
+			(r) =>
+				r.action === "route" &&
+				r.outbound &&
+				![
+					GROUP_TAGS.CN_SERVICES,
+					GROUP_TAGS.AD_BLOCK,
+					GROUP_TAGS.DIRECT,
+					GROUP_TAGS.REJECT,
+					GROUP_TAGS.PROXY,
+					GROUP_TAGS.PRIVATE_NET,
+					GROUP_TAGS.BT_PT,
+				].includes(r.outbound),
+		).map((r) => r.outbound as string),
+	]),
+);
 
 export const ROUTE_RULES = ROUTE_RULES_CATEGORY;
