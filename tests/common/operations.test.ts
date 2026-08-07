@@ -433,7 +433,7 @@ describe("routeTailscaleTraffic", () => {
 			{ domain_suffix: ["example.com"], action: "route", outbound: "Original" },
 		];
 		const result = routeTailscaleTraffic(rules, "Tailscale Node");
-		expect(result[1]).toEqual(rules[0]);
+		expect(result[2]).toEqual(rules[0]);
 	});
 
 	test("does not mutate input array", () => {

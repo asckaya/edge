@@ -1,4 +1,4 @@
-import { DIRECT_TAG, GROUP_TAGS } from "../shared-constants";
+import { GROUP_TAGS } from "../shared-constants";
 import { GEOX_CATEGORIES_GRANULAR } from "./categories";
 import type { RouteRuleDefinition } from "./types";
 
@@ -19,7 +19,6 @@ export const ROUTE_RULES_CATEGORY: RouteRuleDefinition[] = [
 		rules: [{ protocol: "udp" }, { port: 443 }, { rule_set: "cn-ip", invert: true }],
 		action: "reject",
 	},
-	{ domain_suffix: ["ts.net"], action: "route", outbound: DIRECT_TAG },
 	{ rule_set: "private-ip", action: "route", outbound: GROUP_TAGS.PRIVATE_NET },
 	{ rule_set: "private", action: "route", outbound: GROUP_TAGS.PRIVATE_NET },
 	{ rule_set: "advertising", action: "route", outbound: GROUP_TAGS.AD_BLOCK },
@@ -323,7 +322,6 @@ export const ROUTE_RULES_GRANULAR: RouteRuleDefinition[] = [
 		rules: [{ protocol: "udp" }, { port: 443 }, { rule_set: "cn-ip", invert: true }],
 		action: "reject",
 	},
-	{ domain_suffix: ["ts.net"], action: "route", outbound: DIRECT_TAG },
 	{ rule_set: "private-ip", action: "route", outbound: GROUP_TAGS.PRIVATE_NET },
 	{ rule_set: "private", action: "route", outbound: GROUP_TAGS.PRIVATE_NET },
 	{ rule_set: "advertising", action: "route", outbound: GROUP_TAGS.AD_BLOCK },

@@ -209,15 +209,25 @@ export function routeTailscaleTraffic(
 	outbound: string,
 	noResolve = false,
 ): RouteRuleDefinition[] {
+	let hasTsNet = false;
 	const rewrittenRules = rules.flatMap((rule) => {
 		if (!rule.domain_suffix?.includes("ts.net")) return [rule];
 
+		hasTsNet = true;
 		const otherSuffixes = rule.domain_suffix.filter((suffix) => suffix !== "ts.net");
 		const result: RouteRuleDefinition[] = [];
 		if (otherSuffixes.length > 0) result.push({ ...rule, domain_suffix: otherSuffixes });
 		result.push({ ...rule, domain_suffix: ["ts.net"], action: "route", outbound });
 		return result;
 	});
+
+	if (!hasTsNet) {
+		rewrittenRules.unshift({
+			domain_suffix: ["ts.net"],
+			action: "route",
+			outbound,
+		});
+	}
 
 	return [
 		{

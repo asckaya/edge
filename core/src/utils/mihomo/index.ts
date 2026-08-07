@@ -107,7 +107,12 @@ export function buildMihomoConfig(options: BuildMihomoOptions): string {
 	let activeRules = resolveRouteRules({ isWhite, isBlack, isDual, rules: rulesMode });
 	const activeDefinitions = getReferencedRuleSetDefinitions(activeRules);
 
-	const tplFooter = isStash ? configStashFooter : configMihomoFooter;
+	const tailscaleDnsPolicy =
+		tailscaleProxyNames.length > 0 ? '    "+.ts.net": "100.100.100.100"\n' : "";
+	const tplFooter = (isStash ? configStashFooter : configMihomoFooter).replace(
+		/{{TAILSCALE_NAMESERVER_POLICY}}/g,
+		tailscaleDnsPolicy,
+	);
 	const tplRuleProviders = renderMihomoRuleProviders(activeDefinitions, ghProxy, isStash);
 
 	// 1. Prepare airport and self-hosted groups

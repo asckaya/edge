@@ -26,8 +26,7 @@ dns:
     - 'rule-set:fake-ip-filter'
   nameserver-policy:
     "geosite:category-ads-all": rcode://success
-    "+.ts.net": "100.100.100.100"
-    "+.arpa": "10.0.0.1"
+{{TAILSCALE_NAMESERVER_POLICY}}    "+.arpa": "10.0.0.1"
     "geosite:cn":
       - https://doh.pub/dns-query
       - https://dns.alidns.com/dns-query
