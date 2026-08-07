@@ -1,9 +1,11 @@
+import type { ConfigRules } from "../../types";
 import {
 	CORE_GROUPS,
 	DIRECT_REDIRECT_GROUPS,
 	GROUP_TAGS,
 	SCENARIO_GROUPS,
 } from "../shared-constants";
+import { GRANULAR_SCENARIO_GROUPS } from "../rules/route-rules";
 import type { MihomoGroupDefinition } from "./types";
 
 // Scenario group → layout. Groups not listed here use the `default` layout.
@@ -18,13 +20,19 @@ const GROUP_LAYOUTS: Record<string, MihomoGroupDefinition["layout"]> = {
 	[GROUP_TAGS.SPEEDTEST]: "proxy-direct",
 };
 
-// Full-mode scenario group list (same order as the prior inline expansion at
-// group-builder.ts:88-91): SCENARIO_GROUPS + DIRECT_REDIRECT_GROUPS + CORE_GROUPS
-// minus DIRECT/REJECT/PROXY (which are top-level, not scenario selectors).
-export const MIHOMO_GROUP_DEFINITIONS: MihomoGroupDefinition[] = [
-	...SCENARIO_GROUPS,
-	...DIRECT_REDIRECT_GROUPS,
-	...CORE_GROUPS.filter(
-		(g) => ![GROUP_TAGS.DIRECT, GROUP_TAGS.REJECT, GROUP_TAGS.PROXY].includes(g),
-	),
-].map((name) => ({ name, layout: GROUP_LAYOUTS[name] ?? "default" }));
+export function getMihomoGroupDefinitions(
+	rulesMode: ConfigRules = "category",
+): MihomoGroupDefinition[] {
+	const scenarios = rulesMode === "granular" ? GRANULAR_SCENARIO_GROUPS : SCENARIO_GROUPS;
+	return [
+		...scenarios,
+		...DIRECT_REDIRECT_GROUPS,
+		...CORE_GROUPS.filter(
+			(g) => ![GROUP_TAGS.DIRECT, GROUP_TAGS.REJECT, GROUP_TAGS.PROXY].includes(g),
+		),
+	].map((name) => ({ name, layout: GROUP_LAYOUTS[name] ?? "default" }));
+}
+
+// Full-mode scenario group list for category rules
+export const MIHOMO_GROUP_DEFINITIONS: MihomoGroupDefinition[] =
+	getMihomoGroupDefinitions("category");

@@ -128,8 +128,186 @@ export const ROUTE_RULES_CATEGORY: RouteRuleDefinition[] = [
 	{ rule_set: "geolocation-!cn", action: "route", outbound: GROUP_TAGS.NON_CN },
 ];
 
+export const GRANULAR_SERVICE_OUTBOUNDS: Record<string, string> = {
+	// AI Services
+	openai: "🤖 OpenAI",
+	anthropic: "🧠 Anthropic",
+	"google-gemini": "♊ Gemini",
+	perplexity: "🔍 Perplexity",
+	xai: "⚡ xAI (Grok)",
+	cursor: "💻 Cursor",
+	windsurf: "🏄 Windsurf",
+	trae: "⚡ Trae",
+	manus: "📜 Manus",
+	"jetbrains-ai": "🧠 JetBrains AI",
+	openrouter: "🌐 OpenRouter",
+	poe: "💬 Poe",
+	midjourney: "🎨 Midjourney",
+	claude: "🧠 Claude",
+	coze: "🤖 Coze",
+	"meta-ai": "🌐 Meta AI",
+	deepseek: "🐳 DeepSeek",
+	groq: "⚡ Groq",
+
+	// Web3 & Finance
+	bybit: "📈 Bybit",
+	bitget: "📈 Bitget",
+	binance: "📈 Binance",
+	okx: "📈 OKX",
+	coinbase: "📈 Coinbase",
+	kraken: "🐙 Kraken",
+	gate: "📈 Gate.io",
+	kucoin: "📈 KuCoin",
+	htx: "📈 HTX (Huobi)",
+	mexc: "📈 MEXC",
+	crypto: "💳 Crypto.com",
+	metamask: "🦊 MetaMask",
+	uniswap: "🦄 Uniswap",
+	opensea: "⛵ OpenSea",
+	paypal: "💳 PayPal",
+	stripe: "💳 Stripe",
+	wise: "🚀 Wise",
+	revolut: "💳 Revolut",
+
+	// Dev Tools
+	github: "🐙 GitHub",
+	gitlab: "🦊 GitLab",
+	gitee: "🔴 Gitee",
+	docker: "🐳 Docker",
+	jetbrains: "🧠 JetBrains",
+	"microsoft-dev": "Ⓜ️ Microsoft Dev",
+	"google-dev": "🔍 Google Dev",
+	"apple-dev": "🍏 Apple Dev",
+	"android-dev": "🤖 Android Dev",
+	stackoverflow: "📚 StackOverflow",
+	npm: "📦 NPM",
+	pypi: "🐍 PyPI",
+	huggingface: "🤗 HuggingFace",
+	v2ex: "💬 V2EX",
+	sourceforge: "📦 SourceForge",
+	maven: "📦 Maven",
+	"go-dev": "🐹 Go Dev",
+	"rust-lang": "🦀 Rust",
+	cargo: "📦 Cargo",
+	deno: "🦕 Deno",
+	bun: "🥟 Bun",
+	rubygems: "💎 RubyGems",
+	packagist: "📦 Packagist",
+	cocoapods: "📦 CocoaPods",
+	hashicorp: "🛠️ HashiCorp",
+	postman: "🚀 Postman",
+	sentry: "🛡️ Sentry",
+	datadog: "🐶 DataDog",
+	vercel: "▲ Vercel",
+	netlify: "🌐 Netlify",
+	supabase: "⚡ Supabase",
+	firebase: "🔥 Firebase",
+	render: "🚀 Render",
+	railway: "🚂 Railway",
+	replit: "🌀 Replit",
+
+	// Media & Streaming
+	youtube: "📹 YouTube",
+	netflix: "🎬 Netflix",
+	disney: "🏰 Disney+",
+	hbo: "🎬 HBO",
+	hulu: "🎬 Hulu",
+	primevideo: "🎬 Prime Video",
+	"apple-tvplus": "🎬 Apple TV+",
+	spotify: "🎵 Spotify",
+	twitch: "💜 Twitch",
+	tiktok: "🎵 TikTok",
+	paramountplus: "🎬 Paramount+",
+	discoveryplus: "🎬 Discovery+",
+	abema: "📺 AbemaTV",
+	bahamut: "🎮 巴哈姆特",
+	dmm: "🔞 DMM",
+	niconico: "📺 Niconico",
+	tvb: "📺 TVB",
+	"bilibili@!cn": "📺 Bilibili 海外",
+	"iqiyi@!cn": "🎬 爱奇艺海外",
+	wetv: "🎬 WeTV",
+
+	// Social & Communication
+	twitter: "🐦 Twitter (X)",
+	facebook: "📘 Facebook",
+	instagram: "📷 Instagram",
+	reddit: "🤖 Reddit",
+	quora: "💬 Quora",
+	tumblr: "🍷 Tumblr",
+	pinterest: "📌 Pinterest",
+	linkedin: "💼 LinkedIn",
+	medium: "📝 Medium",
+	vk: "🌐 VK",
+	pixiv: "🎨 Pixiv",
+	threads: "🌀 Threads",
+	telegram: "📲 Telegram",
+	signal: "🔒 Signal",
+	line: "💬 Line",
+	whatsapp: "💬 WhatsApp",
+	discord: "💬 Discord",
+
+	// Games
+	steam: "🎮 Steam",
+	epic: "🎮 Epic Games",
+	nintendo: "🎮 Nintendo",
+	playstation: "🎮 PlayStation",
+	xbox: "🎮 Xbox",
+	ea: "🎮 EA",
+	ubisoft: "🎮 Ubisoft",
+	blizzard: "🎮 Blizzard",
+	riot: "🎮 Riot Games",
+	roblox: "🎮 Roblox",
+
+	// Productivity & Security
+	notion: "📝 Notion",
+	figma: "🎨 Figma",
+	tutanota: "✉️ Tuta",
+	"1password": "🔒 1Password",
+	bitwarden: "🔒 Bitwarden",
+	lastpass: "🔒 LastPass",
+	teamviewer: "🖥️ TeamViewer",
+	anydesk: "🖥️ AnyDesk",
+	todesk: "🖥️ ToDesk",
+	slack: "💬 Slack",
+	trello: "📋 Trello",
+	zoom: "📹 Zoom",
+	proton: "✉️ Proton",
+
+	// Scholar, News, Cloud & Shopping
+	arxiv: "🎓 ArXiv",
+	sciencedirect: "📚 ScienceDirect",
+	springer: "📚 Springer",
+	ieee: "🎓 IEEE",
+	researchgate: "🎓 ResearchGate",
+	bloomberg: "📰 Bloomberg",
+	reuters: "📰 Reuters",
+	nytimes: "📰 NYTimes",
+	wsj: "📰 WSJ",
+	bbc: "📰 BBC",
+	cnn: "📰 CNN",
+	amazon: "🛒 Amazon",
+	ebay: "🛒 eBay",
+	dropbox: "☁️ Dropbox",
+	mega: "☁️ MEGA",
+	"google-drive": "☁️ Google Drive",
+	icloud: "☁️ iCloud",
+	pornhub: "🔞 Pornhub",
+	xvideos: "🔞 XVideos",
+	xnxx: "🔞 XNXX",
+	onlyfans: "🔞 OnlyFans",
+};
+
+export function getGranularOutbound(tag: string, fallbackGroup: string): string {
+	return GRANULAR_SERVICE_OUTBOUNDS[tag] ?? fallbackGroup;
+}
+
+export const GRANULAR_SCENARIO_GROUPS: string[] = Array.from(
+	new Set(Object.values(GRANULAR_SERVICE_OUTBOUNDS)),
+);
+
 /**
- * ROUTE_RULES_GRANULAR: Granular split routing rules.
+ * ROUTE_RULES_GRANULAR: Granular split routing rules (per-service outbounds).
  */
 export const ROUTE_RULES_GRANULAR: RouteRuleDefinition[] = [
 	{ action: "sniff" },
@@ -155,14 +333,14 @@ export const ROUTE_RULES_GRANULAR: RouteRuleDefinition[] = [
 	...GEOX_CATEGORIES_GRANULAR.AI.geosite.map((tag) => ({
 		rule_set: tag,
 		action: "route" as const,
-		outbound: GROUP_TAGS.AI_SERVICES,
+		outbound: getGranularOutbound(tag, GROUP_TAGS.AI_SERVICES),
 	})),
 
 	// Dev Tools
 	...GEOX_CATEGORIES_GRANULAR.DEV.geosite.map((tag) => ({
 		rule_set: tag,
 		action: "route" as const,
-		outbound: GROUP_TAGS.DEV_TOOLS,
+		outbound: getGranularOutbound(tag, GROUP_TAGS.DEV_TOOLS),
 	})),
 
 	// Google / Apple / Microsoft
@@ -179,11 +357,15 @@ export const ROUTE_RULES_GRANULAR: RouteRuleDefinition[] = [
 	...GEOX_CATEGORIES_GRANULAR.COMMUNICATION.geosite.map((tag) => ({
 		rule_set: tag,
 		action: "route" as const,
-		outbound: GROUP_TAGS.TELEGRAM,
+		outbound: getGranularOutbound(tag, GROUP_TAGS.TELEGRAM),
 	})),
 	{ rule_set: "telegram-ip", action: "route", outbound: GROUP_TAGS.TELEGRAM },
 
-	{ rule_set: "youtube", action: "route", outbound: GROUP_TAGS.YOUTUBE },
+	{
+		rule_set: "youtube",
+		action: "route",
+		outbound: getGranularOutbound("youtube", GROUP_TAGS.YOUTUBE),
+	},
 	{ rule_set: "emby", action: "route", outbound: GROUP_TAGS.EMBY },
 	{ rule_set: "emby-ip", action: "route", outbound: GROUP_TAGS.EMBY },
 
@@ -193,15 +375,19 @@ export const ROUTE_RULES_GRANULAR: RouteRuleDefinition[] = [
 		.map((tag) => ({
 			rule_set: tag,
 			action: "route" as const,
-			outbound: GROUP_TAGS.STREAMING,
+			outbound: getGranularOutbound(tag, GROUP_TAGS.STREAMING),
 		})),
-	{ rule_set: "netflix-ip", action: "route", outbound: GROUP_TAGS.STREAMING },
+	{
+		rule_set: "netflix-ip",
+		action: "route",
+		outbound: getGranularOutbound("netflix", GROUP_TAGS.STREAMING),
+	},
 
 	// Social Media
 	...GEOX_CATEGORIES_GRANULAR.SOCIAL.geosite.map((tag) => ({
 		rule_set: tag,
 		action: "route" as const,
-		outbound: GROUP_TAGS.SOCIAL_MEDIA,
+		outbound: getGranularOutbound(tag, GROUP_TAGS.SOCIAL_MEDIA),
 	})),
 
 	// Games
@@ -211,42 +397,42 @@ export const ROUTE_RULES_GRANULAR: RouteRuleDefinition[] = [
 		.map((tag) => ({
 			rule_set: tag,
 			action: "route" as const,
-			outbound: GROUP_TAGS.GAMING,
+			outbound: getGranularOutbound(tag, GROUP_TAGS.GAMING),
 		})),
 
 	// Scholar
 	...GEOX_CATEGORIES_GRANULAR.SCHOLAR.geosite.map((tag) => ({
 		rule_set: tag,
 		action: "route" as const,
-		outbound: GROUP_TAGS.EDUCATION,
+		outbound: getGranularOutbound(tag, GROUP_TAGS.EDUCATION),
 	})),
 
 	// Productivity
 	...GEOX_CATEGORIES_GRANULAR.PRODUCTIVITY.geosite.map((tag) => ({
 		rule_set: tag,
 		action: "route" as const,
-		outbound: GROUP_TAGS.PRODUCTIVITY,
+		outbound: getGranularOutbound(tag, GROUP_TAGS.PRODUCTIVITY),
 	})),
 
 	// Finance
 	...GEOX_CATEGORIES_GRANULAR.FINANCE.geosite.map((tag) => ({
 		rule_set: tag,
 		action: "route" as const,
-		outbound: GROUP_TAGS.FINANCE,
+		outbound: getGranularOutbound(tag, GROUP_TAGS.FINANCE),
 	})),
 
 	// News
 	...GEOX_CATEGORIES_GRANULAR.NEWS.geosite.map((tag) => ({
 		rule_set: tag,
 		action: "route" as const,
-		outbound: GROUP_TAGS.NEWS,
+		outbound: getGranularOutbound(tag, GROUP_TAGS.NEWS),
 	})),
 
 	// Porn
 	...GEOX_CATEGORIES_GRANULAR.PORN.geosite.map((tag) => ({
 		rule_set: tag,
 		action: "route" as const,
-		outbound: GROUP_TAGS.ADULT,
+		outbound: getGranularOutbound(tag, GROUP_TAGS.ADULT),
 	})),
 
 	// P2P
@@ -257,7 +443,7 @@ export const ROUTE_RULES_GRANULAR: RouteRuleDefinition[] = [
 	...GEOX_CATEGORIES_GRANULAR.CLOUD.geosite.map((tag) => ({
 		rule_set: tag,
 		action: "route" as const,
-		outbound: GROUP_TAGS.CLOUD,
+		outbound: getGranularOutbound(tag, GROUP_TAGS.CLOUD),
 	})),
 	{ rule_set: "cloudflare-ip", action: "route", outbound: GROUP_TAGS.CLOUD },
 

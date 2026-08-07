@@ -1,5 +1,6 @@
+import type { ConfigRules } from "../../types";
 import { DIRECT_TAG, GROUP_TAGS, HEALTH_CHECK_URL, REGION_GROUPS } from "../shared-constants";
-import { MIHOMO_GROUP_DEFINITIONS } from "./definitions";
+import { getMihomoGroupDefinitions } from "./definitions";
 import type { MihomoGroupLayout } from "./types";
 
 export interface GroupOptions {
@@ -118,6 +119,7 @@ export function renderMihomoGroups(
 	options: GroupOptions,
 	airportGroupsYaml = "",
 	isMinimal = false,
+	rulesMode: ConfigRules = "category",
 ): string {
 	const { providerNames, autoGroupNames, selfHostedGroup, tailscaleGroup, isStash, isSingleSub } =
 		options;
@@ -198,7 +200,7 @@ export function renderMihomoGroups(
 					"include-all-proxies": isStash ? true : undefined,
 				},
 			]
-		: MIHOMO_GROUP_DEFINITIONS.map(({ name, layout }) => {
+		: getMihomoGroupDefinitions(rulesMode).map(({ name, layout }) => {
 				const { proxies, use, filter } = buildMihomoGroupOutbounds(
 					layout,
 					scenarioProxies,

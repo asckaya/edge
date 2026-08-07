@@ -40,6 +40,7 @@ export async function buildSingBoxConfig(
 		isWhite,
 		isBlack,
 		isDual,
+		rulesMode,
 	);
 	const dns = buildDns(tailscaleNodes[0]?.name);
 	const route = buildRoute({ isWhite, isBlack, isDual, rules: rulesMode, ghProxy });

@@ -1,5 +1,7 @@
+import type { ConfigRules } from "../../types";
+import { GRANULAR_SCENARIO_GROUPS } from "../rules/route-rules";
 import { GROUP_TAGS, PROXY_SELECTOR_TAG, SCENARIO_GROUPS } from "../shared-constants";
-import { GROUP_DEFINITIONS } from "./definitions";
+import { getSingBoxGroupDefinitions } from "./definitions";
 import {
 	buildGroupChoices,
 	buildGroupOutbounds,
@@ -30,6 +32,7 @@ export function buildOutbounds(
 	isWhite = false,
 	isBlack = false,
 	isDual = false,
+	rulesMode: ConfigRules = "category",
 ): Record<string, unknown>[] {
 	const nodeOutbounds = taggedNodes
 		.map((tn) => toSingBoxOutbound(tn.node, tn.tag))
@@ -59,10 +62,12 @@ export function buildOutbounds(
 
 	selectorOutbounds.push(...regionGroups.map((r) => buildUrlTest(r.tag, r.nodeTags)));
 
-	let groups = GROUP_DEFINITIONS;
+	let groups = getSingBoxGroupDefinitions(rulesMode);
 	if (isDual || isWhite || isBlack) {
-		const scenarioSet = new Set(SCENARIO_GROUPS);
-		groups = GROUP_DEFINITIONS.filter((g) => !scenarioSet.has(g.tag));
+		const scenarioSet = new Set(
+			rulesMode === "granular" ? GRANULAR_SCENARIO_GROUPS : SCENARIO_GROUPS,
+		);
+		groups = groups.filter((g) => !scenarioSet.has(g.tag));
 	}
 
 	for (const g of groups) {

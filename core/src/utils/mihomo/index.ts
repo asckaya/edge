@@ -140,6 +140,7 @@ export function buildMihomoConfig(options: BuildMihomoOptions): string {
 		},
 		airportAndSelfHostedYaml,
 		useMinimalTemplates,
+		rulesMode,
 	);
 
 	if (tailscaleProxyNames.length > 0) {

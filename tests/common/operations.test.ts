@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { GEOX_ALLOWED_BLACK, GEOX_ALLOWED_WHITE } from "../../core/src/utils/rules/categories";
-import { ROUTE_RULES } from "../../core/src/utils/rules/route-rules";
+import { GRANULAR_SCENARIO_GROUPS, ROUTE_RULES } from "../../core/src/utils/rules/route-rules";
 import { RULE_SET_DEFINITIONS } from "../../core/src/utils/rules/rule-sets";
 import type { RouteRuleDefinition } from "../../core/src/utils/rules/types";
 import {
@@ -481,6 +481,23 @@ describe("ROUTE_RULES drift detection (vs RULE_SET_DEFINITIONS)", () => {
 			for (const r of rule.rules || []) visit(r as RouteRuleDefinition);
 		};
 		for (const rule of ROUTE_RULES) visit(rule);
+		expect(unknown).toEqual([]);
+	});
+
+	test("every outbound referenced in ROUTE_RULES_GRANULAR is a known group tag or granular outbound", () => {
+		const granularRules = resolveRouteRules({ rules: "granular" });
+		const knownOutbounds = new Set<string>([
+			DIRECT_TAG,
+			...Object.values(GROUP_TAGS),
+			PROXY_SELECTOR_TAG,
+			...GRANULAR_SCENARIO_GROUPS,
+		]);
+		const unknown: string[] = [];
+		const visit = (rule: RouteRuleDefinition): void => {
+			if (rule.outbound && !knownOutbounds.has(rule.outbound)) unknown.push(rule.outbound);
+			for (const r of rule.rules || []) visit(r as RouteRuleDefinition);
+		};
+		for (const rule of granularRules) visit(rule);
 		expect(unknown).toEqual([]);
 	});
 
