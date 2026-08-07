@@ -174,13 +174,14 @@ export function collectReferencedRuleSets(rules: RouteRuleDefinition[]): Set<str
 	const referenced = new Set<string>();
 
 	const visit = (rule: RouteRuleDefinition): void => {
-		const ruleSets = Array.isArray(rule.rule_set)
-			? rule.rule_set
-			: rule.rule_set
-				? [rule.rule_set]
-				: [];
-		for (const tag of ruleSets) referenced.add(tag);
-		for (const nestedRule of rule.rules || []) visit(nestedRule as RouteRuleDefinition);
+		if (typeof rule.rule_set === "string") {
+			referenced.add(rule.rule_set);
+		} else if (Array.isArray(rule.rule_set)) {
+			for (const tag of rule.rule_set) referenced.add(tag);
+		}
+		if (rule.rules) {
+			for (const nestedRule of rule.rules) visit(nestedRule as RouteRuleDefinition);
+		}
 	};
 
 	for (const rule of rules) visit(rule);

@@ -619,7 +619,7 @@ export const PROTOCOL_PARSERS: Record<string, ProtocolParser> = {
 		if (maxStreams != null) node["max-streams"] = maxStreams;
 		return node;
 	},
-	shadowtls: (url, { name, hostname, mainPortNum }) => {
+	shadowtls: (url, { name, hostname, mainPortNum, password: ctxPassword }) => {
 		const node: Record<string, unknown> = {
 			name,
 			type: "shadowtls",
@@ -632,12 +632,65 @@ export const PROTOCOL_PARSERS: Record<string, ProtocolParser> = {
 			const n = parseInt(version, 10);
 			node.version = Number.isNaN(n) ? version : n;
 		}
-		pickStr(url, node, "password", "sni", "detour");
+		const pwd = ctxPassword || url.searchParams.get("password");
+		if (pwd) node.password = pwd;
+		pickStr(url, node, "sni", "detour");
 		if (boolParam(url, "insecure")) node["skip-cert-verify"] = true;
 		const pinned = url.searchParams.get("pinned_certchain_sha256");
 		if (pinned) node["server-cert-fingerprint"] = pinned;
 		return node;
 	},
+	vmess: (url, { name, hostname, mainPortNum }) => {
+		const raw = url.href
+			.replace(/^vmess:\/\//i, "")
+			.split("?")[0]
+			.split("#")[0]
+			.trim();
+		try {
+			const vmessData = JSON.parse(Buffer.from(raw, "base64").toString("utf-8"));
+			const node: Record<string, unknown> = {
+				name: vmessData.ps || name || "VMess-Proxy",
+				type: "vmess",
+				server: vmessData.add || hostname,
+				port: vmessData.port || mainPortNum,
+				uuid: vmessData.id,
+				alterId: vmessData.aid || 0,
+				cipher: vmessData.scy || "auto",
+				udp: true,
+				tls: vmessData.tls === "tls",
+				"skip-cert-verify":
+					vmessData.allowInsecure === "1" ||
+					vmessData.allowInsecure === 1 ||
+					vmessData.allowInsecure === true,
+			};
+			if (vmessData.sni) node.servername = vmessData.sni;
+			if (vmessData.net === "ws") {
+				node.network = "ws";
+				node["ws-opts"] = {
+					path: vmessData.path || "/",
+					...(vmessData.host ? { headers: { Host: vmessData.host } } : {}),
+				};
+			} else if (vmessData.net === "grpc") {
+				node.network = "grpc";
+				node["grpc-opts"] = { serviceName: vmessData.path || "" };
+			}
+			if (vmessData.alpn) node.alpn = String(vmessData.alpn).split(",");
+			if (vmessData.fp) node["client-fingerprint"] = vmessData.fp;
+			if (vmessData["packet-encoding"]) node["packet-encoding"] = vmessData["packet-encoding"];
+			if (vmessData["global-padding"] != null) node["global-padding"] = vmessData["global-padding"];
+			if (vmessData["authenticated-length"] != null)
+				node["authenticated-length"] = vmessData["authenticated-length"];
+			if (vmessData["reality-opts"]) node["reality-opts"] = vmessData["reality-opts"];
+			if (vmessData.fingerprint) node.fingerprint = vmessData.fingerprint;
+			if (vmessData.smux != null) node.smux = vmessData.smux;
+			return node;
+		} catch {
+			return { name, type: "vmess", server: hostname, port: mainPortNum };
+		}
+	},
 };
 PROTOCOL_PARSERS.wg = PROTOCOL_PARSERS.wireguard as ProtocolParser;
 PROTOCOL_PARSERS.shadowsocks = PROTOCOL_PARSERS.ss as ProtocolParser;
+PROTOCOL_PARSERS.socks5 = PROTOCOL_PARSERS.socks as ProtocolParser;
+PROTOCOL_PARSERS.socks5h = PROTOCOL_PARSERS.socks as ProtocolParser;
+PROTOCOL_PARSERS.https = PROTOCOL_PARSERS.http as ProtocolParser;

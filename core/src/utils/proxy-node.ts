@@ -67,6 +67,8 @@ export const KEY_MAPPINGS: Record<string, string> = {
 	server_cert_fingerprint: "server-cert-fingerprint",
 };
 
+export const KEY_MAPPING_ENTRIES = Object.entries(KEY_MAPPINGS);
+
 export function coerceProxyNode(input: unknown): LooseProxyNode | null {
 	if (!input || typeof input !== "object") return null;
 
@@ -75,7 +77,7 @@ export function coerceProxyNode(input: unknown): LooseProxyNode | null {
 	if (!node.name && node.tag) node.name = String(node.tag);
 	if (node.server_port != null && node.port == null) node.port = node.server_port;
 
-	for (const [fromKey, toKey] of Object.entries(KEY_MAPPINGS)) {
+	for (const [fromKey, toKey] of KEY_MAPPING_ENTRIES) {
 		if (node[fromKey] !== undefined && node[toKey] === undefined) {
 			node[toKey] = node[fromKey];
 		}

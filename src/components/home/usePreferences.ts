@@ -16,16 +16,13 @@ export function usePreferences() {
 	const [mounted, setMounted] = useState(false);
 
 	useEffect(() => {
-		const timer = setTimeout(() => {
-			const savedTheme = localStorage.getItem("theme") as Theme | null;
-			const savedLang = localStorage.getItem("lang") as Language | null;
-			const initialTheme = savedTheme || "dark";
-			setTheme(initialTheme);
-			applyDocumentTheme(initialTheme);
-			if (savedLang) setLang(savedLang);
-			setMounted(true);
-		}, 0);
-		return () => clearTimeout(timer);
+		const savedTheme = localStorage.getItem("theme") as Theme | null;
+		const savedLang = localStorage.getItem("lang") as Language | null;
+		const initialTheme = savedTheme || "dark";
+		setTheme(initialTheme);
+		applyDocumentTheme(initialTheme);
+		if (savedLang) setLang(savedLang);
+		setMounted(true);
 	}, []);
 
 	const toggleTheme = (event: MouseEvent<HTMLButtonElement>) => {

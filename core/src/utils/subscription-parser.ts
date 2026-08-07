@@ -40,7 +40,7 @@ function stripBom(input: string): string {
 }
 
 function decodeBase64Text(collapsed: string): string | null {
-	if (!collapsed || collapsed.length < 16 || !BASE64_PATTERN.test(collapsed)) return null;
+	if (!collapsed || collapsed.length < 4 || !BASE64_PATTERN.test(collapsed)) return null;
 	return Buffer.from(collapsed, "base64").toString("utf-8");
 }
 
@@ -71,23 +71,43 @@ export function parseSubscriptionContent(input: string): LooseProxyNode[] {
 	const raw = stripBom(input);
 	if (!raw) return [];
 
-	// Fast path: plain URI list (contains "://"). Skips base64 decode + YAML parse.
-	if (raw.includes("://")) {
-		const uriNodes = parseUriList(raw);
-		if (uriNodes.length > 0) return uriNodes;
+	// 1. Priority: structured configs (YAML/JSON with proxies or outbounds, or JSON array/object)
+	const isLikelyStructured =
+		raw.startsWith("{") || raw.startsWith("[") || /^\s*(proxies|outbounds):/m.test(raw);
+
+	if (isLikelyStructured) {
+		const structuredNodes = parseStructuredProxyList(raw);
+		if (structuredNodes.length > 0) return structuredNodes;
 	}
 
-	const decoded = decodeBase64Text(raw.replace(/\s+/g, ""));
-	if (!decoded) return parseStructuredProxyList(raw);
-
-	const decodedRaw = stripBom(decoded);
-	if (!decodedRaw) return [];
-
-	if (decodedRaw.includes("://")) {
-		const decodedUriNodes = parseUriList(decodedRaw);
-		if (decodedUriNodes.length > 0) return decodedUriNodes;
+	// 2. Base64 decode attempt
+	const collapsed = raw.replace(/\s+/g, "");
+	if (collapsed.length >= 4 && BASE64_PATTERN.test(collapsed)) {
+		const decoded = decodeBase64Text(collapsed);
+		if (decoded) {
+			const decodedRaw = stripBom(decoded);
+			if (decodedRaw) {
+				const isDecodedStructured =
+					decodedRaw.startsWith("{") ||
+					decodedRaw.startsWith("[") ||
+					/^\s*(proxies|outbounds):/m.test(decodedRaw);
+				if (isDecodedStructured) {
+					const decodedStructured = parseStructuredProxyList(decodedRaw);
+					if (decodedStructured.length > 0) return decodedStructured;
+				}
+				const decodedUriNodes = parseUriList(decodedRaw);
+				if (decodedUriNodes.length > 0) return decodedUriNodes;
+				const decodedStructuredFallback = parseStructuredProxyList(decodedRaw);
+				if (decodedStructuredFallback.length > 0) return decodedStructuredFallback;
+			}
+		}
 	}
-	return parseStructuredProxyList(decodedRaw);
+
+	// 3. Fallback: plain URI list or structured parse
+	const uriNodes = parseUriList(raw);
+	if (uriNodes.length > 0) return uriNodes;
+
+	return parseStructuredProxyList(raw);
 }
 
 function isLoopbackPlaceholderNode(node: LooseProxyNode): boolean {

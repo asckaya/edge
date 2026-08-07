@@ -127,11 +127,10 @@ export default function ActionBox({
 		setShortening(true);
 		setShortenError(null);
 		try {
-			// Strip type/mode from the stored target so the short link is kernel-agnostic.
-			// type/mode are resolved at access time via UA detection or explicit ?type= override.
+			// Strip type from the stored target so the short link is kernel-agnostic (resolved via UA).
+			// Preserve mode so user's routing depth selection (dual/white/black) is retained.
 			const strippedUrl = new URL(resultUrl);
 			strippedUrl.searchParams.delete("type");
-			strippedUrl.searchParams.delete("mode");
 
 			const resp = await fetch("/api/shorten", {
 				method: "POST",

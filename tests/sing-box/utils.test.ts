@@ -58,7 +58,7 @@ describe("Sing-box Kernel - Utils", () => {
 
 		const res = await callWorker("http://localhost/?type=sing-box&Airport=http://sub.com");
 		const json = (await res.json()) as { outbounds: Array<{ tag: string }> };
-		expect(json.outbounds.some((item) => item.tag === "🇯🇵 Airport 01 (node-1)")).toBe(true);
+		expect(json.outbounds.some((item) => item.tag === "🏳️ Airport 01 (node-1)")).toBe(true);
 	});
 
 	test("Renaming Prefers Hints", async () => {

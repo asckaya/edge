@@ -154,6 +154,9 @@ export const ROUTE_RULES_GRANULAR: RouteRuleDefinition[] = [
 	{ rule_set: "private", action: "route", outbound: GROUP_TAGS.PRIVATE_NET },
 	{ rule_set: "advertising", action: "route", outbound: GROUP_TAGS.AD_BLOCK },
 	{ rule_set: "adblockfilters", action: "route", outbound: GROUP_TAGS.AD_BLOCK },
+	{ rule_set: "category-speedtest", action: "route", outbound: GROUP_TAGS.SPEEDTEST },
+	{ rule_set: "category-ntp", action: "route", outbound: GROUP_TAGS.NTP_SERVICES },
+	{ rule_set: "category-ip-geo-detect", action: "route", outbound: GROUP_TAGS.PROXY },
 
 	// AI Services
 	...GEOX_CATEGORIES_GRANULAR.AI.geosite.map((tag) => ({

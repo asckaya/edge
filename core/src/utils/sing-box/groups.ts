@@ -1,7 +1,7 @@
 import type { LooseProxyNode } from "../proxy-node";
 import { HEALTH_CHECK_URL, PROXY_SELECTOR_TAG } from "../shared-constants";
 import type { ResolvedSubscription } from "../subscription-parser";
-import { GROUP_DEFINITIONS, REGION_DEFINITIONS } from "./definitions";
+import { getSingBoxGroupDefinitions, REGION_DEFINITIONS } from "./definitions";
 import { buildGeoNodeLabel } from "./geo";
 import { createUniqueTag, extractCountryCodeFromName, normalizeProxyList } from "./tags";
 import {
@@ -112,11 +112,13 @@ export function buildGroupOutbounds(
 	return proxyChoices;
 }
 
-export async function buildTaggedNodes(
+export function buildTaggedNodes(
 	subscriptions: ResolvedSubscription[],
 	customNodes: LooseProxyNode[],
 	tailscaleNodes: LooseProxyNode[] = [],
+	rulesMode: "category" | "granular" = "category",
 ) {
+	const groupDefs = getSingBoxGroupDefinitions(rulesMode);
 	const usedTags = new Set<string>([
 		PROXY_SELECTOR_TAG,
 		DOWNLOAD_SELECTOR_TAG,
@@ -129,30 +131,18 @@ export async function buildTaggedNodes(
 		LOCAL_DNS_TAG,
 		REMOTE_DNS_TAG,
 		FAKEIP_DNS_TAG,
-		...GROUP_DEFINITIONS.map((g) => g.tag),
+		...groupDefs.map((g) => g.tag),
 	]);
 	const taggedNodes: TaggedNode[] = [];
 	const providerSelectors: ProviderSelector[] = [];
 	const isSingleSub = subscriptions.length === 1;
 
-	const preparedSubscriptions = await Promise.all(
-		subscriptions.map(async (sub) => {
-			const nodes = normalizeProxyList(sub.nodes);
-			if (nodes.length === 0) return null;
-			const labels = await Promise.all(
-				nodes.map((node, index) =>
-					node.__subscriptionAlert
-						? Promise.resolve(String(node.name))
-						: buildGeoNodeLabel(sub.name, index + 1, node),
-				),
-			);
-			return { sub, nodes, labels };
-		}),
-	);
-
-	for (const prepared of preparedSubscriptions) {
-		if (!prepared) continue;
-		const { sub, nodes, labels } = prepared;
+	for (const sub of subscriptions) {
+		const nodes = normalizeProxyList(sub.nodes);
+		if (nodes.length === 0) continue;
+		const labels = nodes.map((node, index) =>
+			node.__subscriptionAlert ? String(node.name) : buildGeoNodeLabel(sub.name, index + 1, node),
+		);
 		const selectTag = isSingleSub ? "" : createUniqueTag(`📡 ${sub.name}`, usedTags);
 		const autoTag = isSingleSub ? "" : createUniqueTag(`⚡ ${sub.name} 自动选择`, usedTags);
 		const nodeTags = nodes.map((n, i) => {
@@ -171,8 +161,6 @@ export async function buildTaggedNodes(
 
 	const tailscaleNodeTags = normalizeProxyList(tailscaleNodes).map((n) => {
 		const t = createUniqueTag(String(n.name), usedTags);
-		// Note: We don't push Tailscale node to taggedNodes because toSingBoxOutbound returns null for tailscale type.
-		// Instead, it is defined in config.endpoints at root level.
 		return t;
 	});
 

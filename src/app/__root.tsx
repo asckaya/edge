@@ -19,7 +19,7 @@ export const Route = createRootRoute({
 
 function RootComponent() {
 	return (
-		<html lang="en" className="font-inter font-outfit scroll-smooth">
+		<html lang="en" className="scroll-smooth">
 			<head>
 				<HeadContent />
 			</head>

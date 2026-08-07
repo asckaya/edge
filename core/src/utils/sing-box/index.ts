@@ -24,7 +24,7 @@ export async function buildSingBoxConfig(
 	}
 
 	const { taggedNodes, providerSelectors, selfHostedNodeTags, tailscaleNodeTags } =
-		await buildTaggedNodes(subscriptions, otherCustomNodes, tailscaleNodes);
+		buildTaggedNodes(subscriptions, otherCustomNodes, tailscaleNodes, rulesMode);
 
 	if (taggedNodes.length === 0 && tailscaleNodes.length === 0 && wireguardNodes.length === 0) {
 		throw new Error(

@@ -7,7 +7,7 @@ describe("sing-box group preparation", () => {
 		vi.unstubAllGlobals();
 	});
 
-	test("skips geo network lookups when node names already contain country hints", async () => {
+	test("extracts country flags offline without geo network lookups", () => {
 		const fetchMock = vi.fn(() => Promise.resolve(new Response("{}", { status: 500 })));
 		vi.stubGlobal("fetch", fetchMock);
 		const node = coerceProxyNode({
@@ -21,7 +21,7 @@ describe("sing-box group preparation", () => {
 		expect(node).not.toBeNull();
 		if (node === null) throw new Error("test setup failed: node is null");
 
-		const result = await buildTaggedNodes(
+		const result = buildTaggedNodes(
 			[{ name: "Airport", url: "https://subscription.example.com", nodes: [node] }],
 			[],
 		);
@@ -30,18 +30,8 @@ describe("sing-box group preparation", () => {
 		expect(result.taggedNodes[0].tag).toBe("🇯🇵 Airport 01 (🇯🇵 Tokyo 01)");
 	});
 
-	test("resolves unhinted node locations from the node host", async () => {
-		const fetchMock = vi.fn((input: RequestInfo | URL) => {
-			const url = String(input);
-			if (url.includes("cloudflare-dns.com")) {
-				return new Response(JSON.stringify({ Answer: [{ data: "1.1.1.1" }] }), {
-					headers: { "Content-Type": "application/json" },
-				});
-			}
-			return new Response(JSON.stringify({ country: "JP" }), {
-				headers: { "Content-Type": "application/json" },
-			});
-		});
+	test("handles unhinted node locations purely offline without network calls", () => {
+		const fetchMock = vi.fn();
 		vi.stubGlobal("fetch", fetchMock);
 		const node = coerceProxyNode({
 			name: "Node One",
@@ -54,50 +44,12 @@ describe("sing-box group preparation", () => {
 		expect(node).not.toBeNull();
 		if (node === null) throw new Error("test setup failed: node is null");
 
-		const result = await buildTaggedNodes(
+		const result = buildTaggedNodes(
 			[{ name: "Airport", url: "https://subscription.example.com", nodes: [node] }],
 			[],
 		);
 
-		expect(fetchMock).toHaveBeenCalledTimes(2);
-		expect(result.taggedNodes[0].tag).toBe("🇯🇵 Airport 01 (Node One)");
-	});
-
-	test("deduplicates concurrent geo lookups for the same host", async () => {
-		const fetchMock = vi.fn((input: RequestInfo | URL) => {
-			const url = String(input);
-			return url.includes("cloudflare-dns.com")
-				? new Response(JSON.stringify({ Answer: [{ data: "8.8.8.8" }] }), {
-						headers: { "Content-Type": "application/json" },
-					})
-				: new Response(JSON.stringify({ country: "US" }), {
-						headers: { "Content-Type": "application/json" },
-					});
-		});
-		vi.stubGlobal("fetch", fetchMock);
-		const server = `shared-${Date.now()}.edgeengine.dev`;
-		const nodes = ["One", "Two"].map((name) => {
-			const n = coerceProxyNode({
-				name,
-				type: "trojan",
-				server,
-				port: 443,
-				password: "secret",
-				udp: true,
-			});
-			if (n === null) throw new Error("test setup failed: coerceProxyNode returned null");
-			return n;
-		});
-
-		const result = await buildTaggedNodes(
-			[{ name: "Airport", url: "https://subscription.example.com", nodes }],
-			[],
-		);
-
-		expect(fetchMock).toHaveBeenCalledTimes(2);
-		expect(result.taggedNodes.map(({ tag }) => tag)).toEqual([
-			"🇺🇸 Airport 01 (One)",
-			"🇺🇸 Airport 02 (Two)",
-		]);
+		expect(fetchMock).not.toHaveBeenCalled();
+		expect(result.taggedNodes[0].tag).toBe("🏳️ Airport 01 (Node One)");
 	});
 });
