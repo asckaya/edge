@@ -24,9 +24,12 @@ function formatYamlList(items: Array<string | undefined>): string {
 	return `[${items.filter((item): item is string => Boolean(item)).join(", ")}]`;
 }
 
+import { getGroupIcon } from "../group-icons";
+
 interface MihomoGroup {
 	name: string;
 	type: string;
+	icon?: string;
 	proxies?: string;
 	use?: string;
 	url?: string;
@@ -39,9 +42,11 @@ interface MihomoGroup {
 function convertGroupsToYaml(groups: MihomoGroup[]): string {
 	return `${groups
 		.map((g) => {
+			const icon = g.icon ?? getGroupIcon(g.name);
 			const parts = [
 				`  - name: ${g.name}`,
 				`    type: ${g.type}`,
+				icon ? `    icon: "${icon}"` : "",
 				g.proxies ? `    proxies: ${g.proxies}` : "",
 				g.use ? `    use: ${g.use}` : "",
 				g.url ? `    url: ${g.url}` : "",
