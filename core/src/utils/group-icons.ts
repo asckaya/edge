@@ -158,29 +158,51 @@ export const GROUP_ICONS: Record<string, string> = {
 	"🇬🇧 英国节点": `${ICON_BASE}UK.png`,
 	"🇩🇪 德国节点": `${ICON_BASE}DE.png`,
 
-	// Category Groups
+	// Category Groups (Emoji & Plain)
 	"💬 AI 服务": `${ICON_BASE}ChatGPT.png`,
+	"AI 服务": `${ICON_BASE}ChatGPT.png`,
 	"📹 油管视频": `${ICON_BASE}YouTube.png`,
+	油管视频: `${ICON_BASE}YouTube.png`,
 	"🔍 谷歌服务": `${ICON_BASE}Google_Search.png`,
+	谷歌服务: `${ICON_BASE}Google_Search.png`,
 	"📲 电报消息": `${ICON_BASE}Telegram.png`,
+	电报消息: `${ICON_BASE}Telegram.png`,
 	"🐱 开发工具": `${ICON_BASE}GitHub.png`,
+	开发工具: `${ICON_BASE}GitHub.png`,
 	"Ⓜ️ 微软服务": `${ICON_BASE}Microsoft.png`,
+	微软服务: `${ICON_BASE}Microsoft.png`,
 	"🍏 苹果服务": `${ICON_BASE}Apple.png`,
+	苹果服务: `${ICON_BASE}Apple.png`,
 	"🎬 苹果视频": `${ICON_BASE}Apple_TV.png`,
+	苹果视频: `${ICON_BASE}Apple_TV.png`,
 	"🌐 社交媒体": `${ICON_BASE}Twitter.png`,
+	社交媒体: `${ICON_BASE}Twitter.png`,
 	"🎬 流媒体": `${ICON_BASE}Netflix.png`,
+	流媒体: `${ICON_BASE}Netflix.png`,
 	"🎥 EMBY 专线": `${ICON_BASE}Emby.png`,
+	"EMBY 专线": `${ICON_BASE}Emby.png`,
 	"🎮 游戏平台": `${ICON_BASE}Steam.png`,
+	游戏平台: `${ICON_BASE}Steam.png`,
 	"🎮 游戏下载": `${ICON_BASE}Game.png`,
+	游戏下载: `${ICON_BASE}Game.png`,
 	"📚 教育资源": `${ICON_BASE}Scholar.png`,
+	教育资源: `${ICON_BASE}Scholar.png`,
 	"🛠️ 生产力工具": `${ICON_BASE}Work.png`,
+	生产力工具: `${ICON_BASE}Work.png`,
 	"💰 金融服务": `${ICON_BASE}Card.png`,
+	金融服务: `${ICON_BASE}Card.png`,
 	"📰 新闻资讯": `${ICON_BASE}News.png`,
+	新闻资讯: `${ICON_BASE}News.png`,
 	"🔞 成人内容": `${ICON_BASE}Pornhub.png`,
+	成人内容: `${ICON_BASE}Pornhub.png`,
 	"☁️ 云服务": `${ICON_BASE}Cloud.png`,
+	云服务: `${ICON_BASE}Cloud.png`,
 	"🌐 非中国": `${ICON_BASE}Global.png`,
+	非中国: `${ICON_BASE}Global.png`,
 	"🛒 购物网站": `${ICON_BASE}Shopping.png`,
+	购物网站: `${ICON_BASE}Shopping.png`,
 	"🧪 测速专线": `${ICON_BASE}Speedtest.png`,
+	测速专线: `${ICON_BASE}Speedtest.png`,
 };
 
 // Build complete icon map dynamically from SERVICE_METADATA
@@ -189,5 +211,11 @@ for (const [, meta] of Object.entries(SERVICE_METADATA)) {
 }
 
 export function getGroupIcon(groupName: string): string | undefined {
-	return GROUP_ICONS[groupName];
+	if (GROUP_ICONS[groupName]) {
+		return GROUP_ICONS[groupName];
+	}
+	const cleanName = groupName
+		.replace(/^[\p{Extended_Pictographic}\p{Regional_Indicator}\s]+/u, "")
+		.trim();
+	return GROUP_ICONS[cleanName];
 }
