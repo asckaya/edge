@@ -223,8 +223,15 @@ describe("filterAndMapRouteRules", () => {
 });
 
 describe("resolveRouteRules (per-mode memoization)", () => {
-	test("full mode returns ROUTE_RULES unchanged", () => {
+	test("full mode returns ROUTE_RULES unchanged by default (category mode)", () => {
 		expect(resolveRouteRules({})).toBe(ROUTE_RULES);
+	});
+
+	test("granular mode returns ROUTE_RULES_GRANULAR rules", () => {
+		const granularRules = resolveRouteRules({ rules: "granular" });
+		expect(granularRules).not.toBe(ROUTE_RULES);
+		expect(granularRules.some((r) => r.rule_set === "twitter")).toBe(true);
+		expect(granularRules.some((r) => r.rule_set === "spotify")).toBe(true);
 	});
 
 	test("white mode returns a filtered array (subset of full rules)", () => {

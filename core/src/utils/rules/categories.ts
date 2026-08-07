@@ -2,7 +2,7 @@ import type { GeoXCategory } from "./types";
 
 const geoipTags = (cat: GeoXCategory): string[] => (cat.geoip ?? []).map((t) => `${t}-ip`);
 
-export const GEOX_CATEGORIES = {
+export const GEOX_CATEGORIES_CATEGORY = {
 	ADVERTISING: {
 		geosite: ["category-ads-all", "adblockfilters"],
 	},
@@ -24,6 +24,7 @@ export const GEOX_CATEGORIES = {
 			"trae",
 			"manus",
 			"jetbrains-ai",
+			"openrouter",
 		],
 	},
 	MEDIA: {
@@ -49,7 +50,7 @@ export const GEOX_CATEGORIES = {
 		geoip: ["telegram"],
 	},
 	SOCIAL: {
-		geosite: ["category-social-media-!cn", "category-forums"],
+		geosite: ["category-social-media-!cn", "category-forums", "pixiv", "threads"],
 	},
 	DEV: {
 		geosite: [
@@ -60,6 +61,12 @@ export const GEOX_CATEGORIES = {
 			"gitlab",
 			"github",
 			"docker",
+			"gitee",
+			"stackoverflow",
+			"npm",
+			"pypi",
+			"huggingface",
+			"v2ex",
 		],
 	},
 	GAMES: {
@@ -71,7 +78,17 @@ export const GEOX_CATEGORIES = {
 		],
 	},
 	FINANCE: {
-		geosite: ["category-cryptocurrency", "paypal", "category-finance", "category-bank-cn"],
+		geosite: [
+			"category-cryptocurrency",
+			"paypal",
+			"bybit",
+			"bitget",
+			"binance",
+			"okx",
+			"coinbase",
+			"category-finance",
+			"category-bank-cn",
+		],
 	},
 	PRODUCTIVITY: {
 		geosite: [
@@ -80,6 +97,7 @@ export const GEOX_CATEGORIES = {
 			"notion",
 			"figma",
 			"tutanota",
+			"proton",
 		],
 	},
 	SCHOLAR: {
@@ -125,6 +143,8 @@ export const GEOX_CATEGORIES = {
 			"category-ip-geo-detect",
 			"category-android-app-download",
 			"category-ecommerce",
+			"amazon",
+			"ebay",
 		],
 		geoip: ["cloudflare"],
 	},
@@ -132,6 +152,231 @@ export const GEOX_CATEGORIES = {
 		geosite: ["dropbox", "mega"],
 	},
 } satisfies Record<string, GeoXCategory>;
+
+export const GEOX_CATEGORIES_GRANULAR = {
+	ADVERTISING: {
+		geosite: ["advertising", "adblockfilters"],
+	},
+	PRIVATE: {
+		geosite: ["private"],
+		geoip: ["private"],
+	},
+	AI: {
+		geosite: [
+			"openai",
+			"anthropic",
+			"google-gemini",
+			"perplexity",
+			"xai",
+			"cursor",
+			"windsurf",
+			"trae",
+			"manus",
+			"jetbrains-ai",
+			"poe",
+			"midjourney",
+			"claude",
+			"coze",
+			"meta-ai",
+			"deepseek",
+			"groq",
+			"openrouter",
+		],
+	},
+	MEDIA: {
+		geosite: [
+			"youtube",
+			"netflix",
+			"disney",
+			"hbo",
+			"hulu",
+			"primevideo",
+			"apple-tvplus",
+			"spotify",
+			"twitch",
+			"tiktok",
+			"paramountplus",
+			"discoveryplus",
+			"abema",
+			"bahamut",
+			"dmm",
+			"niconico",
+			"tvb",
+			"bilibili@!cn",
+			"iqiyi@!cn",
+			"wetv",
+		],
+		geoip: ["netflix", "google"],
+	},
+	EMBY: {
+		geosite: ["emby"],
+		geoip: ["emby"],
+	},
+	COMMUNICATION: {
+		geosite: ["telegram", "signal", "line", "whatsapp", "discord"],
+		geoip: ["telegram"],
+	},
+	SOCIAL: {
+		geosite: [
+			"twitter",
+			"facebook",
+			"instagram",
+			"reddit",
+			"quora",
+			"tumblr",
+			"pinterest",
+			"linkedin",
+			"medium",
+			"vk",
+			"pixiv",
+			"threads",
+		],
+	},
+	DEV: {
+		geosite: [
+			"github",
+			"gitlab",
+			"gitee",
+			"docker",
+			"jetbrains",
+			"microsoft-dev",
+			"google-dev",
+			"apple-dev",
+			"android-dev",
+			"stackoverflow",
+			"npm",
+			"pypi",
+			"huggingface",
+			"v2ex",
+			"sourceforge",
+			"maven",
+			"go-dev",
+			"rust-lang",
+			"cargo",
+			"deno",
+			"bun",
+			"rubygems",
+			"packagist",
+			"cocoapods",
+			"hashicorp",
+			"postman",
+			"sentry",
+			"datadog",
+			"vercel",
+			"netlify",
+			"supabase",
+			"firebase",
+			"render",
+			"railway",
+			"replit",
+		],
+	},
+	GAMES: {
+		geosite: [
+			"steam",
+			"steam@cn",
+			"epic",
+			"nintendo",
+			"playstation",
+			"xbox",
+			"ea",
+			"ubisoft",
+			"blizzard",
+			"riot",
+			"roblox",
+		],
+	},
+	FINANCE: {
+		geosite: [
+			"bybit",
+			"bitget",
+			"binance",
+			"okx",
+			"coinbase",
+			"kraken",
+			"gate",
+			"kucoin",
+			"htx",
+			"mexc",
+			"crypto",
+			"metamask",
+			"uniswap",
+			"opensea",
+			"paypal",
+			"stripe",
+			"wise",
+			"revolut",
+		],
+	},
+	PRODUCTIVITY: {
+		geosite: [
+			"notion",
+			"figma",
+			"tutanota",
+			"1password",
+			"bitwarden",
+			"lastpass",
+			"teamviewer",
+			"anydesk",
+			"todesk",
+			"slack",
+			"trello",
+			"zoom",
+			"proton",
+		],
+	},
+	SCHOLAR: {
+		geosite: ["arxiv", "sciencedirect", "springer", "ieee", "researchgate"],
+	},
+	CN: {
+		geosite: [
+			"cn",
+			"apple-cn",
+			"microsoft@cn",
+			"baidu",
+			"alibaba",
+			"tencent",
+			"bytedance",
+			"bilibili",
+			"jd",
+			"taobao",
+			"weibo",
+			"zhihu",
+			"163",
+		],
+		geoip: ["cn"],
+	},
+	NON_CN: {
+		geosite: ["geolocation-!cn"],
+	},
+	NEWS: {
+		geosite: ["bloomberg", "reuters", "nytimes", "wsj", "bbc", "cnn"],
+	},
+	PORN: {
+		geosite: ["pornhub", "xvideos", "xnxx", "onlyfans"],
+	},
+	P2P: {
+		geosite: ["category-public-tracker", "category-pt"],
+	},
+	INFRA: {
+		geosite: [
+			"cloudflare",
+			"apple",
+			"google",
+			"microsoft",
+			"onedrive",
+			"win-update",
+			"amazon",
+			"ebay",
+		],
+		geoip: ["cloudflare"],
+	},
+	CLOUD: {
+		geosite: ["dropbox", "mega", "google-drive", "icloud"],
+	},
+} satisfies Record<string, GeoXCategory>;
+
+export const GEOX_CATEGORIES = GEOX_CATEGORIES_CATEGORY;
 
 /**
  * Deriving mode-specific allowed tag lists from categories.
@@ -149,6 +394,15 @@ export const GEOX_ALLOWED_WHITE = [
 	"category-netdisk-cn",
 	"category-scholar-cn",
 	"category-bank-cn",
+];
+
+export const GEOX_ALLOWED_WHITE_GRANULAR = [
+	...GEOX_CATEGORIES_GRANULAR.ADVERTISING.geosite,
+	...GEOX_CATEGORIES_GRANULAR.PRIVATE.geosite,
+	...geoipTags(GEOX_CATEGORIES_GRANULAR.PRIVATE),
+	...GEOX_CATEGORIES_GRANULAR.CN.geosite,
+	...geoipTags(GEOX_CATEGORIES_GRANULAR.CN),
+	"win-update",
 ];
 
 export const GEOX_ALLOWED_BLACK = [
@@ -171,18 +425,39 @@ export const GEOX_ALLOWED_BLACK = [
 	...GEOX_CATEGORIES.NON_CN.geosite,
 ];
 
+export const GEOX_ALLOWED_BLACK_GRANULAR = [
+	...GEOX_CATEGORIES_GRANULAR.ADVERTISING.geosite,
+	...GEOX_CATEGORIES_GRANULAR.PRIVATE.geosite,
+	...geoipTags(GEOX_CATEGORIES_GRANULAR.PRIVATE),
+	...GEOX_CATEGORIES_GRANULAR.AI.geosite,
+	...GEOX_CATEGORIES_GRANULAR.MEDIA.geosite,
+	...geoipTags(GEOX_CATEGORIES_GRANULAR.MEDIA),
+	...GEOX_CATEGORIES_GRANULAR.EMBY.geosite,
+	...geoipTags(GEOX_CATEGORIES_GRANULAR.EMBY),
+	...GEOX_CATEGORIES_GRANULAR.COMMUNICATION.geosite,
+	...geoipTags(GEOX_CATEGORIES_GRANULAR.COMMUNICATION),
+	...GEOX_CATEGORIES_GRANULAR.SOCIAL.geosite,
+	...GEOX_CATEGORIES_GRANULAR.DEV.geosite,
+	...GEOX_CATEGORIES_GRANULAR.GAMES.geosite,
+	...GEOX_CATEGORIES_GRANULAR.SCHOLAR.geosite,
+	...GEOX_CATEGORIES_GRANULAR.PRODUCTIVITY.geosite,
+	...GEOX_CATEGORIES_GRANULAR.CLOUD.geosite,
+	...GEOX_CATEGORIES_GRANULAR.NON_CN.geosite,
+];
+
 /**
  * Rule-sets that should bypass local DNS (routed to fakeip / remote DNS) due
  * to censorship or DNS pollution concerns. Derived from GEOX_CATEGORIES so
  * new entries automatically propagate to DNS rules.
- *
- * - AI: only `!cn` aggregators (CN AI sites resolve locally)
- * - NON_CN: all entries
- * - DEV: all entries except `github`/`docker` (already covered by the
- *   `category-dev` aggregator)
  */
 export const DNS_FAKEIP_RULE_SETS: string[] = [
 	...GEOX_CATEGORIES.AI.geosite.filter((t) => t.endsWith("!cn")),
 	...GEOX_CATEGORIES.NON_CN.geosite,
 	...GEOX_CATEGORIES.DEV.geosite.filter((t) => t !== "github" && t !== "docker"),
+];
+
+export const DNS_FAKEIP_RULE_SETS_GRANULAR: string[] = [
+	...GEOX_CATEGORIES_GRANULAR.AI.geosite,
+	...GEOX_CATEGORIES_GRANULAR.NON_CN.geosite,
+	...GEOX_CATEGORIES_GRANULAR.DEV.geosite,
 ];

@@ -28,8 +28,8 @@ const server = {
 		if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/s/")) {
 			return app.fetch(request, env, ctx);
 		}
-		// Dynamic config rendering for query requests
-		if (url.searchParams.toString() !== "") {
+		// Dynamic config rendering for root requests with query parameters
+		if (url.pathname === "/" && url.searchParams.toString() !== "") {
 			return app.fetch(request, env, ctx);
 		}
 		// Serve static assets from Cloudflare Assets if available

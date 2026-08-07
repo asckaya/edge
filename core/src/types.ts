@@ -325,12 +325,16 @@ export type ProxyNode = v.InferOutput<typeof AnyProxySchema>;
 
 export const CONFIG_TYPES = ["mihomo", "stash", "sing-box"] as const;
 export const CONFIG_MODES = ["full", "dual", "white", "black"] as const;
+export const CONFIG_RULES = ["category", "granular"] as const;
 
 export const ConfigTypeSchema = v.picklist(CONFIG_TYPES);
 export type ConfigType = v.InferOutput<typeof ConfigTypeSchema>;
 
 export const ConfigModeSchema = v.picklist(CONFIG_MODES);
 export type ConfigMode = v.InferOutput<typeof ConfigModeSchema>;
+
+export const ConfigRulesSchema = v.picklist(CONFIG_RULES);
+export type ConfigRules = v.InferOutput<typeof ConfigRulesSchema>;
 
 export interface Subscription {
 	name: string;
@@ -340,6 +344,7 @@ export interface Subscription {
 export const RequestParamsSchema = v.object({
 	type: v.optional(ConfigTypeSchema, "mihomo"),
 	mode: v.optional(ConfigModeSchema, "full"),
+	rules: v.optional(ConfigRulesSchema, "category"),
 	secret: v.optional(v.string(), "edge-default"),
 	proxies: v.optional(v.string(), ""),
 	gh_proxy: v.optional(v.union([v.literal(""), v.pipe(v.string(), v.url())]), ""),

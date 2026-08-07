@@ -1,4 +1,4 @@
-import type { ConfigMode } from "../../types";
+import type { ConfigMode, ConfigRules } from "../../types";
 import type { LooseProxyNode } from "../proxy-node";
 import type { ResolvedSubscription } from "../subscription-parser";
 
@@ -29,6 +29,7 @@ export interface BuildSingBoxOptions {
 	customNodes: LooseProxyNode[];
 	ghProxy?: string | null;
 	mode: ConfigMode;
+	rules?: ConfigRules;
 }
 
 export interface TaggedNode {

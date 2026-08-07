@@ -1,6 +1,6 @@
 import type { Subscription } from "@/lib/subscriptions";
 import { normalizeNonEmptyLines } from "@/lib/subscriptions";
-import type { ConfigMode, ConfigType } from "../../core/src/types";
+import type { ConfigMode, ConfigRules, ConfigType } from "../../core/src/types";
 
 /**
  * Parse a frontend `configType` (e.g. `'sing-box-dual'`, `'mihomo'`) into the
@@ -30,6 +30,7 @@ export interface BuildConfigUrlOptions {
 	origin: string;
 	/** Frontend `configType` string, e.g. `'sing-box-dual'`. */
 	configType: string;
+	rules?: ConfigRules;
 	secret: string;
 	subscriptions: Subscription[];
 	proxiesText: string;
@@ -46,6 +47,7 @@ export interface BuildConfigUrlOptions {
 export function buildConfigUrl({
 	origin,
 	configType,
+	rules,
 	secret,
 	subscriptions,
 	proxiesText,
@@ -54,6 +56,9 @@ export function buildConfigUrl({
 	const url = new URL(origin);
 	url.searchParams.set("type", parseConfigType(configType));
 	url.searchParams.set("mode", parseConfigMode(configType));
+	if (rules && rules !== "category") {
+		url.searchParams.set("rules", rules);
+	}
 	url.searchParams.set("secret", secret);
 
 	for (const sub of subscriptions) {

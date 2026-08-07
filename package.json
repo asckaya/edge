@@ -1,12 +1,12 @@
 {
 	"name": "edge",
-	"version": "2026.08.05",
+	"version": "2026.08.07",
 	"private": true,
 	"type": "module",
 	"scripts": {
 		"test": "vp test",
 		"check": "vp check",
-		"dev": "vp dev",
+		"dev": "vite",
 		"build": "vp build",
 		"preview": "vp preview",
 		"lint": "vp lint",

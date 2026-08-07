@@ -10,6 +10,7 @@ import {
 	Terminal,
 } from "lucide-react";
 import { useState } from "react";
+import type { ConfigRules } from "../../core/src/types";
 import InteractiveCard from "@/components/home/InteractiveCard";
 import { buildConfigUrl } from "@/lib/build-url";
 import type {
@@ -22,6 +23,7 @@ interface ActionBoxProps {
 	proxiesText: string;
 	subs: Subscription[];
 	configType: string;
+	rules?: ConfigRules;
 	ghProxy?: string;
 	secret: string;
 	lang?: "zh" | "en";
@@ -77,6 +79,7 @@ export default function ActionBox({
 	proxiesText,
 	subs,
 	configType,
+	rules,
 	ghProxy,
 	secret,
 	lang = "zh",
@@ -105,6 +108,7 @@ export default function ActionBox({
 		const url = buildConfigUrl({
 			origin: window.location.origin,
 			configType,
+			rules,
 			secret,
 			subscriptions: subs,
 			proxiesText,

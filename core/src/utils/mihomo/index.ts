@@ -27,6 +27,7 @@ export function buildMihomoConfig(options: BuildMihomoOptions): string {
 		ghProxy,
 		isStash,
 		mode,
+		rules: rulesMode,
 	} = options;
 	const { isWhite, isBlack, isDual } = configModeFlags(mode);
 
@@ -103,7 +104,7 @@ export function buildMihomoConfig(options: BuildMihomoOptions): string {
 		.replace(/{{MMDB_URL}}/g, selectedGeoUrls.mmdb)
 		.replace(/{{ASN_URL}}/g, selectedGeoUrls.asn);
 
-	let activeRules = resolveRouteRules({ isWhite, isBlack, isDual });
+	let activeRules = resolveRouteRules({ isWhite, isBlack, isDual, rules: rulesMode });
 	const activeDefinitions = getReferencedRuleSetDefinitions(activeRules);
 
 	const tplFooter = isStash ? configStashFooter : configMihomoFooter;

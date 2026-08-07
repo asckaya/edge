@@ -1,3 +1,4 @@
+import type { ConfigRules } from "../../types";
 import { GEODATA_URLS, GEODATA_URLS_LITE } from "../../../templates/shared/geox";
 import { applyGithubProxy } from "../gh-proxy";
 import type { RouteRuleDefinition, RuleSetDefinition } from "../rules/types";
@@ -25,6 +26,7 @@ interface BuildRouteOptions {
 	isWhite?: boolean;
 	isBlack?: boolean;
 	isDual?: boolean;
+	rules?: ConfigRules;
 	ghProxy?: string | null;
 }
 
@@ -43,10 +45,11 @@ export function buildRoute({
 	isWhite = false,
 	isBlack = false,
 	isDual = false,
+	rules,
 	ghProxy,
 }: BuildRouteOptions = {}): SingBoxRoute {
 	const selectedGeoUrls = isWhite || isBlack ? GEODATA_URLS_LITE : GEODATA_URLS;
-	const activeRules = resolveRouteRules({ isWhite, isBlack, isDual });
+	const activeRules = resolveRouteRules({ isWhite, isBlack, isDual, rules });
 	const filteredDefinitions = getReferencedRuleSetDefinitions(activeRules);
 
 	const remoteRuleSets = filteredDefinitions.map((d) => {

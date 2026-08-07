@@ -14,7 +14,7 @@ import { fetchSubscriptionNodes, parseSubscriptionContent } from "./src/utils/su
 
 export const app = new Hono<{ Bindings: EdgeEnv }>();
 
-const RESERVED_QUERY_KEYS = new Set(["secret", "proxies", "type", "mode", "gh_proxy"]);
+const RESERVED_QUERY_KEYS = new Set(["secret", "proxies", "type", "mode", "rules", "gh_proxy"]);
 
 function buildRequestParams(searchParams: URLSearchParams, userAgent: string) {
 	const subscriptions = [];
@@ -31,6 +31,7 @@ function buildRequestParams(searchParams: URLSearchParams, userAgent: string) {
 
 	return {
 		...normalizeConfigTarget(searchParams.get("type"), searchParams.get("mode"), userAgent),
+		rules: searchParams.get("rules") ?? undefined,
 		secret: searchParams.get("secret") ?? undefined,
 		proxies: searchParams.get("proxies") ?? undefined,
 		gh_proxy: searchParams.get("gh_proxy") ?? undefined,
@@ -82,6 +83,7 @@ app.get("*", async (c) => {
 	const {
 		type: configType,
 		mode,
+		rules,
 		secret: providedSecret,
 		proxies: customProxiesRaw,
 		gh_proxy: ghProxy,
@@ -115,6 +117,7 @@ app.get("*", async (c) => {
 			customNodes,
 			ghProxy,
 			mode,
+			rules,
 		});
 
 		return c.json(finalConfig, 200, { "Cache-Control": "no-cache" });
@@ -135,6 +138,7 @@ app.get("*", async (c) => {
 		ghProxy,
 		isStash,
 		mode,
+		rules,
 	});
 
 	return c.text(finalYaml, 200, {

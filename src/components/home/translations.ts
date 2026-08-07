@@ -33,6 +33,11 @@ export const HOME_TRANSLATIONS = {
 		toolsSuiteDesc: "Subconverter、Base64 编解码与链接转换工具",
 		docGuide: "使用指南 & AI 文档",
 		docGuideDesc: "查看 Edge Engine 完整文档、API 参数与节点编排规则",
+		ruleGranularity: "规则粒度 (Rule Granularity)",
+		rulesCategory: "分类聚合 (Category)",
+		rulesGranular: "精细拆分 (Granular)",
+		rulesCategoryDesc: "规则文件少、加载快，推荐移动端使用",
+		rulesGranularDesc: "将 category 展开为独立服务规则集，可针对具体服务单独指派策略组",
 	},
 	en: {
 		rawProxies: "Custom Proxies (Raw Proxies)",
@@ -66,6 +71,11 @@ export const HOME_TRANSLATIONS = {
 		toolsSuiteDesc: "Subconverter, Base64 encoder/decoder, and URI converters",
 		docGuide: "Guide & AI Docs",
 		docGuideDesc: "Read complete Edge Engine docs, API params, and routing rules",
+		ruleGranularity: "Rule Granularity",
+		rulesCategory: "Category",
+		rulesGranular: "Granular",
+		rulesCategoryDesc: "Compact & fast, recommended for mobile",
+		rulesGranularDesc: "Expand categories into per-service rule-sets for fine-grained control",
 	},
 } as const;
 

@@ -34,6 +34,7 @@ A worker-first proxy subscription orchestration engine running on Cloudflare Wor
 | ----------- | -------- | ----------------------------------------------------------------------------------- |
 | `type`      | no       | Config format: `mihomo`, `stash`, `sing-box`. Inferred from `User-Agent` if omitted |
 | `mode`      | no       | Routing mode: `full`, `dual`, `white`, `black` (default `full`)                     |
+| `rules`     | no       | Rule granularity: `category` (aggregated, default), `granular` (fine-grained)       |
 | `secret`    | no       | Dashboard/API password (default `edge-default`)                                     |
 | `proxies`   | no       | Self-hosted node URIs (one per line, any of the 18 protocols)                       |
 | `gh_proxy`  | no       | GitHub rule-source mirror prefix (e.g. `https://mirror.ghproxy.com/`)               |
@@ -42,7 +43,7 @@ A worker-first proxy subscription orchestration engine running on Cloudflare Wor
 **Example:**
 
 ```text
-https://your-edge.workers.dev/?type=mihomo&mode=dual&secret=xxx&MySub=https://airport.url
+https://your-edge.workers.dev/?type=mihomo&mode=dual&rules=granular&secret=xxx&MySub=https://airport.url
 ```
 
 When `type` is omitted, the UA is matched case-insensitively:
@@ -115,17 +116,16 @@ Legacy combined values (e.g. `type=mihomo-dual`) still work.
 ## 💻 Local development
 
 ```bash
-pnpm install
-pnpm dev            # Vite dev server (SSR + HMR)
-pnpm build          # Production build (prerenders / to .output/public)
-pnpm preview        # Preview the production build
-pnpm test           # Run all tests (25 files / 345 tests)
-pnpm check          # TypeScript type check (tsc --noEmit)
-pnpm lint           # Biome check
-pnpm gen            # Generate URL param preview
-pnpm local          # Generate a config locally (needs proxy.yaml)
-pnpm short          # Short-link CRUD CLI
-pnpm deploy         # Build + wrangler deploy to CF Workers
+vp dev            # Vite dev server (SSR + HMR)
+vp build          # Production build (prerenders / to .output/public)
+vp preview        # Preview the production build
+vp test           # Run all Vitest tests (25 files / 360 tests)
+vp check          # Unified static analysis (type check, lint, format)
+vp fmt            # Format code
+vp gen            # Generate URL param preview
+vp local          # Generate a config locally (needs proxy.yaml)
+vp short          # Short-link CRUD CLI
+vp deploy         # Build + wrangler deploy to CF Workers
 ```
 
 Pre-commit hook (husky + lint-staged) auto-runs `biome check --write` on staged files.

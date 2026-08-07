@@ -34,6 +34,7 @@
 | ----------- | -------- | --------------------------------------------------------------------- |
 | `type`      | 否       | 配置格式：`mihomo`、`stash`、`sing-box`。未传时根据客户端 UA 自动判断 |
 | `mode`      | 否       | 分流模式：`full`、`dual`、`white`、`black`（默认 `full`）             |
+| `rules`     | 否       | 规则粒度：`category`（分类聚合，默认）、`granular`（精细拆分）        |
 | `secret`    | 否       | 控制面板/API 访问密码（默认 `edge-default`）                          |
 | `proxies`   | 否       | 自建节点 URI（每行一个，支持 18 种协议）                              |
 | `gh_proxy`  | 否       | GitHub 规则源加速前缀（例如 `https://mirror.ghproxy.com/`）           |
@@ -42,7 +43,7 @@
 **示例：**
 
 ```text
-https://your-edge.workers.dev/?type=mihomo&mode=dual&secret=xxx&MySub=https://机场链接
+https://your-edge.workers.dev/?type=mihomo&mode=dual&rules=granular&secret=xxx&MySub=https://机场链接
 ```
 
 省略 `type` 时会根据 `User-Agent` 忽略大小写自动识别：
@@ -115,17 +116,16 @@ https://your-edge.workers.dev/?type=mihomo&mode=dual&secret=xxx&MySub=https://�
 ## 💻 本地开发
 
 ```bash
-pnpm install
-pnpm dev            # Vite dev server（SSR + HMR）
-pnpm build          # 生产构建（prerender / 到 .output/public）
-pnpm preview        # 预览生产构建
-pnpm test           # 运行全量测试（25 文件 / 345 测试）
-pnpm check          # TypeScript 类型检查（tsc --noEmit）
-pnpm lint           # Biome 检查
-pnpm gen            # 生成 URL 参数预览
-pnpm local          # 本地生成配置文件（需要 proxy.yaml）
-pnpm short          # 短链管理 CLI
-pnpm deploy         # 构建 + wrangler deploy 到 CF Workers
+vp dev            # Vite dev server（SSR + HMR）
+vp build          # 生产构建（prerender / 到 .output/public）
+vp preview        # 预览生产构建
+vp test           # 运行全量 Vitest 测试（25 文件 / 360 测试）
+vp check          # 统一静态分析（类型检查 + Lint + Format）
+vp fmt            # 代码格式化
+vp gen            # 生成 URL 参数预览
+vp local          # 本地生成配置文件（需要 proxy.yaml）
+vp short          # 短链管理 CLI
+vp deploy         # 构建 + wrangler deploy 到 CF Workers
 ```
 
 Pre-commit hook（husky + lint-staged）会对暂存文件自动执行 `biome check --write`。

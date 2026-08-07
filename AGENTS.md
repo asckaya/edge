@@ -33,10 +33,11 @@ All routing, rules, and layout configurations are governed by central registry c
 
 ## 2. Kernel Features & Orchestration Modes
 
-The system operates across 3 target kernels with 4 orchestration depth settings (12 total permutations). Kernel and mode are separate request parameters:
+The system operates across 3 target kernels with 4 orchestration depth settings and 2 rule granularity options. Kernel, mode, and rules are separate request parameters:
 
 - `type`: `mihomo`, `stash`, or `sing-box`.
 - `mode`: `full`, `dual`, `white`, or `black` (defaults to `full`).
+- `rules`: `category` or `granular` (defaults to `category`).
 
 | Mode    | Behavior                                                                                     |
 | ------- | -------------------------------------------------------------------------------------------- |
@@ -44,6 +45,11 @@ The system operates across 3 target kernels with 4 orchestration depth settings 
 | `dual`  | Consolidates all foreign scenario outbounds into a single `🚀 节点选择` group (Recommended). |
 | `white` | Domestic-first: Proxies only defined rules; everything else defaults to `DIRECT`.            |
 | `black` | Proxy-first: Directs only domestic rules; everything else defaults to proxies.               |
+
+| Rules      | Behavior                                                                                       |
+| ---------- | ---------------------------------------------------------------------------------------------- |
+| `category` | Aggregated category rule-sets (`category-ai-chat-!cn`, `category-media`, `category-dev`, etc.) |
+| `granular` | Fine-grained per-service rule-sets (`openai`, `twitter`, `spotify`, `github`, `steam`, etc.)   |
 
 ### Request Target Resolution:
 
@@ -64,6 +70,18 @@ The system operates across 3 target kernels with 4 orchestration depth settings 
 ---
 
 ## 3. Core Principles & Platform Specifics
+
+### Engineering Principles:
+
+- **No Backward Compatibility Burden**: Do not preserve backward compatibility. Remove obsolete paths instead of adding compatibility layers, fallbacks, or migrations.
+- **Simplicity First**: Choose the simplest implementation that fully meets current requirements. Avoid speculative abstractions, configuration, and indirection.
+- **Layered Growth**: Grow the system in layers. Start from the smallest version that works end to end, and add each new capability on top of a product that already works. Never trade a working product for unfinished complexity.
+- **Modular Architecture**: Keep components modular and concerns clearly separated.
+- **Prefer Established Libraries**: Prefer established, well-maintained libraries when they reduce overall complexity or improve reliability. Do not reimplement common functionality without a clear reason.
+- **Leverage Existing Dependencies**: Lean on the dependencies already in the project before writing your own implementation or adding packages. Do not assume a library lacks a capability without checking its documentation and types.
+- **Long-Term Architecture**: Make architectural decisions for the long term. Do not accept a stopgap that only works for now and is meant to be replaced later.
+
+### Tech Stack & Platform Specifics:
 
 - **Frontend**: TanStack Start (Vite + Nitro + TanStack Router) on CF Workers. `src/app/__root.tsx` (root route), `src/app/index.tsx` (`/` route), `src/router.tsx` (createRouter + `getRouter` export for type registration), `src/server.ts` (custom Worker entrypoint). React Compiler enabled via Vite babel plugin. Fonts via `@fontsource-variable/inter` + `outfit`. `@/` alias resolves to `src/` (configured in both `tsconfig.json` paths and `vite.config.ts` resolve.alias — Vite does not read tsconfig paths).
 - **Backend**: Hono Worker. `core/[[path]].ts` (main app, ~150 lines), `core/src/routes/shortlink.ts` (5 routes, `@hono/standard-validator` + valibot), `core/src/utils/` (14 files).
@@ -86,19 +104,19 @@ The system operates across 3 target kernels with 4 orchestration depth settings 
 ## 4. Scripts, Commands & Testing
 
 - **`package.json` Commands**:
-  - `pnpm dev` / `vp dev`: Vite dev server (SSR + HMR).
-  - `pnpm build` / `vp build`: Vite production build (prerenders `/` and `/GUIDE.md` to `.output/public`).
-  - `pnpm preview` / `vp preview`: Preview the production build.
-  - `pnpm deploy`: `vp run build && wrangler deploy` to CF Workers.
-  - `pnpm local [--type <type>] [--mode <mode>] [--output <file>]`: Local config generator (`scripts/yaml-to-config.ts`, in-process `onRequest` call; needs `proxy.yaml`).
-  - `pnpm gen [--type <type>] [--mode <mode>] [--gh-proxy <url>]`: URL parameter preview (`scripts/gen-url.ts`).
-  - `pnpm short`: Short-link CRUD CLI (`scripts/gen-short.ts`, calls `/api/shorten`).
-  - `pnpm test` / `vp test`: Runs entire Vitest suite (26 files / 359 tests).
-  - `pnpm check` / `vp check`: Unified static analysis (format, lint, and type check).
-  - `pnpm lint` / `vp lint`: Oxlint code linter.
-  - `pnpm fmt` / `vp fmt`: Oxfmt code formatter.
-  - `pnpm cf-typegen`: Generate CF Workers types via `wrangler types`.
-  - `pnpm test tests/mihomo/kernel.test.ts`: Runs a specific test file.
+  - `vpr dev` / `pnpm dev`: Vite dev server (SSR + HMR; `vpr` is Vite-Plus's script runner interface).
+  - `vpr build` / `vp build`: Vite production build (prerenders `/` and `/GUIDE.md` to `.output/public`).
+  - `vpr preview` / `vp preview`: Preview the production build.
+  - `vpr deploy` / `pnpm deploy`: `vp run build && wrangler deploy` to CF Workers.
+  - `vpr local` / `vp local [--type <type>] [--mode <mode>] [--rules <rules>] [--output <file>]`: Local config generator (`scripts/yaml-to-config.ts`, in-process `onRequest` call; needs `proxy.yaml`).
+  - `vpr gen` / `vp gen [--type <type>] [--mode <mode>] [--rules <rules>] [--gh-proxy <url>]`: URL parameter preview (`scripts/gen-url.ts`).
+  - `vpr short` / `vp short`: Short-link CRUD CLI (`scripts/gen-short.ts`, calls `/api/shorten`).
+  - `vpr test` / `vp test`: Runs entire Vitest suite (26 files / 360 tests).
+  - `vpr check` / `vp check`: Unified static analysis (format, lint, and type check).
+  - `vpr lint` / `vp lint`: Oxlint code linter.
+  - `vpr fmt` / `vp fmt`: Oxfmt code formatter.
+  - `vp cf-typegen`: Generate CF Workers types via `wrangler types`.
+  - `vpr test tests/mihomo/kernel.test.ts`: Runs a specific test file.
 
 - **Test Layout**:
   - `tests/_helpers/`: Shared test helpers — `callWorker(url, ua?, env?)` (Hono `app.request` wrapper), `runBareKernelTest(options, type)` (binary validation harness), `createKernelMockFetch({dnsIp?})` (shared fetch mock), `makeNode(partial)` (node fixture factory).

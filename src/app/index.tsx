@@ -35,6 +35,7 @@ import {
 	type Subscription,
 	validateProxiesText,
 } from "@/lib/subscriptions";
+import type { ConfigRules } from "../../core/src/types";
 import { version } from "../../package.json";
 
 const NodeModal = lazy(() => import("@/components/NodeModal"));
@@ -51,6 +52,7 @@ function HomeComponent() {
 	const [subs, setSubs] = useState<Subscription[]>(() => [{ id: 1, name: "", url: "" }]);
 
 	const [secret, setSecret] = useState("edge-default");
+	const [rulesMode, setRulesMode] = useState<ConfigRules>("category");
 
 	// UX Improvement: Default to empty string (direct connection) to not enable mirror by default
 	const [ghProxy, setGhProxy] = useState("");
@@ -530,6 +532,43 @@ function HomeComponent() {
 									)}
 								</div>
 
+								{/* Rule Granularity Selector */}
+								<div className="space-y-1.5">
+									<span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+										{t.ruleGranularity}
+									</span>
+									<div className="grid grid-cols-2 gap-2">
+										<button
+											type="button"
+											onClick={() => setRulesMode("category")}
+											className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all text-left flex flex-col justify-between gap-1 cursor-pointer ${
+												rulesMode === "category"
+													? "border-indigo-500/50 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shadow-sm"
+													: "border-zinc-200 dark:border-zinc-800/40 bg-zinc-50/50 dark:bg-zinc-900/30 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900"
+											}`}
+										>
+											<span>{t.rulesCategory}</span>
+											<span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-normal leading-tight">
+												{t.rulesCategoryDesc}
+											</span>
+										</button>
+										<button
+											type="button"
+											onClick={() => setRulesMode("granular")}
+											className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all text-left flex flex-col justify-between gap-1 cursor-pointer ${
+												rulesMode === "granular"
+													? "border-indigo-500/50 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shadow-sm"
+													: "border-zinc-200 dark:border-zinc-800/40 bg-zinc-50/50 dark:bg-zinc-900/30 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900"
+											}`}
+										>
+											<span>{t.rulesGranular}</span>
+											<span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-normal leading-tight">
+												{t.rulesGranularDesc}
+											</span>
+										</button>
+									</div>
+								</div>
+
 								{/* Secret Key Input */}
 								<div className="space-y-1.5">
 									<span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
@@ -574,6 +613,7 @@ function HomeComponent() {
 						proxiesText={proxiesText}
 						subs={subs}
 						configType={configType}
+						rules={rulesMode}
 						ghProxy={ghProxy}
 						secret={secret}
 						lang={lang}

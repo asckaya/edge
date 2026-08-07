@@ -8,6 +8,11 @@ export function getRouter() {
 export const router = createRouter({
 	routeTree,
 	scrollRestoration: true,
+	defaultNotFoundComponent: () => (
+		<div className="min-h-screen flex items-center justify-center bg-zinc-950 text-white font-mono text-sm">
+			Page Not Found
+		</div>
+	),
 });
 
 declare module "@tanstack/react-router" {

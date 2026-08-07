@@ -1,9 +1,9 @@
-import { GEOX_CATEGORIES } from "./categories";
+import { GEOX_CATEGORIES_CATEGORY, GEOX_CATEGORIES_GRANULAR } from "./categories";
 import type { GeoXCategory, RuleSetDefinition } from "./types";
 
 /**
  * RULE_SET_DEFINITIONS: Source of truth for sing-box and mihomo rule sets.
- * Derived automatically from GEOX_CATEGORIES.
+ * Derived automatically from GEOX_CATEGORIES_CATEGORY & GEOX_CATEGORIES_GRANULAR.
  */
 const CUSTOM_RULE_SETS: RuleSetDefinition[] = [
 	{ kind: "geosite", tag: "advertising", remoteName: "category-ads-all" },
@@ -30,7 +30,12 @@ const CUSTOM_RULE_SETS: RuleSetDefinition[] = [
 const DERIVED_RULE_SETS: RuleSetDefinition[] = [];
 const processedTags = new Set(CUSTOM_RULE_SETS.map((s) => s.tag));
 
-Object.values(GEOX_CATEGORIES).forEach((cat: GeoXCategory) => {
+const allCategories = [
+	...Object.values(GEOX_CATEGORIES_CATEGORY),
+	...Object.values(GEOX_CATEGORIES_GRANULAR),
+];
+
+allCategories.forEach((cat: GeoXCategory) => {
 	(cat.geosite || []).forEach((t: string) => {
 		if (!processedTags.has(t)) {
 			DERIVED_RULE_SETS.push({ kind: "geosite", tag: t });

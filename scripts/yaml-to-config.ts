@@ -16,9 +16,14 @@ cli
 	.command("", "Local Config Generator")
 	.option("--type <type>", "Target config type (mihomo, sing-box, stash)", { default: "mihomo" })
 	.option("--mode <mode>", "Routing mode (full, dual, white, black)")
+	.option("--rules <rules>", "Rule granularity (category, granular)", { default: "category" })
 	.option("--output <file>", "Output file path")
 	.action(async (options) => {
-		const { configType, configMode } = validateTarget(options.type, options.mode);
+		const { configType, configMode, configRules } = validateTarget(
+			options.type,
+			options.mode,
+			options.rules,
+		);
 		const outputFile = options.output;
 
 		let configFile = "proxy.yaml";
@@ -32,15 +37,20 @@ cli
 		}
 
 		console.log(
-			pc.blue(`ℹ Reading from ${configFile} (Target: ${configType}, Mode: ${configMode})`),
+			pc.blue(
+				`ℹ Reading from ${configFile} (Target: ${configType}, Mode: ${configMode}, Rules: ${configRules})`,
+			),
 		);
 
 		// Build the content params from proxy.yaml (secret, providers, proxies, gh_proxy)
-		// via the shared helper, then append type/mode for this generation.
+		// via the shared helper, then append type/mode/rules for this generation.
 		const { url: targetUrl } = buildTargetUrl({ configFile });
 		const params = new URLSearchParams(targetUrl.split("?")[1] || "");
 		params.set("type", configType);
 		params.set("mode", configMode);
+		if (configRules && configRules !== "category") {
+			params.set("rules", configRules);
+		}
 
 		// Mock Cloudflare Pages Request (localhost domain is sufficient for the mock)
 		const url = `http://localhost/?${params.toString()}`;

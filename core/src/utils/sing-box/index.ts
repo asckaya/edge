@@ -12,7 +12,7 @@ import { AUTO_SELECT_TAG, type BuildSingBoxOptions } from "./types";
 export async function buildSingBoxConfig(
 	options: BuildSingBoxOptions,
 ): Promise<Record<string, unknown>> {
-	const { secret, subscriptions, customNodes, ghProxy, mode } = options;
+	const { secret, subscriptions, customNodes, ghProxy, mode, rules: rulesMode } = options;
 	const { isWhite, isBlack, isDual } = configModeFlags(mode);
 	const tailscaleNodes: LooseProxyNode[] = [];
 	const wireguardNodes: LooseProxyNode[] = [];
@@ -42,7 +42,7 @@ export async function buildSingBoxConfig(
 		isDual,
 	);
 	const dns = buildDns(tailscaleNodes[0]?.name);
-	const route = buildRoute({ isWhite, isBlack, isDual, ghProxy });
+	const route = buildRoute({ isWhite, isBlack, isDual, rules: rulesMode, ghProxy });
 
 	// Filter DNS rules to only reference rule-sets that actually exist in route.rule_set
 	if (dns.rules && Array.isArray(dns.rules)) {

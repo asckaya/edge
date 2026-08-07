@@ -1,4 +1,4 @@
-import type { ConfigMode, Subscription } from "../../types";
+import type { ConfigMode, ConfigRules, Subscription } from "../../types";
 import type { LooseProxyNode } from "../proxy-node";
 
 export interface BuildMihomoOptions {
@@ -10,6 +10,7 @@ export interface BuildMihomoOptions {
 	ghProxy?: string | null;
 	isStash: boolean;
 	mode: ConfigMode;
+	rules?: ConfigRules;
 }
 
 // Mihomo scenario-group layout selector. Mirrors the sing-box `layout` concept

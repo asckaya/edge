@@ -1,11 +1,17 @@
+import type { ConfigRules } from "../../types";
 import {
 	DIRECT_REDIRECT_GROUPS,
 	DIRECT_TAG,
 	GROUP_TAGS,
 	PROXY_SELECTOR_TAG,
 } from "../shared-constants";
-import { GEOX_ALLOWED_BLACK, GEOX_ALLOWED_WHITE } from "./categories";
-import { ROUTE_RULES } from "./route-rules";
+import {
+	GEOX_ALLOWED_BLACK,
+	GEOX_ALLOWED_BLACK_GRANULAR,
+	GEOX_ALLOWED_WHITE,
+	GEOX_ALLOWED_WHITE_GRANULAR,
+} from "./categories";
+import { ROUTE_RULES_CATEGORY, ROUTE_RULES_GRANULAR } from "./route-rules";
 import { RULE_SET_DEFINITIONS } from "./rule-sets";
 import type { RouteRuleDefinition, RuleSetDefinition } from "./types";
 
@@ -22,8 +28,11 @@ const SINGBOX_OUTBOUND_TAG_MAP: Record<string, string> = {
 	[GROUP_TAGS.REJECT]: "block",
 };
 
-const ALLOWED_WHITE_RULE_SETS = new Set(GEOX_ALLOWED_WHITE);
-const ALLOWED_BLACK_RULE_SETS = new Set(GEOX_ALLOWED_BLACK);
+const ALLOWED_WHITE_RULE_SETS_CATEGORY = new Set(GEOX_ALLOWED_WHITE);
+const ALLOWED_WHITE_RULE_SETS_GRANULAR = new Set(GEOX_ALLOWED_WHITE_GRANULAR);
+const ALLOWED_BLACK_RULE_SETS_CATEGORY = new Set(GEOX_ALLOWED_BLACK);
+const ALLOWED_BLACK_RULE_SETS_GRANULAR = new Set(GEOX_ALLOWED_BLACK_GRANULAR);
+
 const CORE_ROUTE_OUTBOUNDS = new Set([
 	GROUP_TAGS.CN_SERVICES,
 	GROUP_TAGS.AD_BLOCK,
@@ -116,6 +125,7 @@ export interface RouteModeOptions {
 	isWhite?: boolean;
 	isBlack?: boolean;
 	isDual?: boolean;
+	rules?: ConfigRules;
 }
 
 type Mode = "full" | "white" | "black" | "dual";
@@ -127,34 +137,36 @@ function resolveMode({ isWhite = false, isBlack = false, isDual = false }: Route
 	return "full";
 }
 
-const RESOLVED_RULES_BY_MODE = new Map<Mode, RouteRuleDefinition[]>();
+const RESOLVED_RULES_BY_MODE = new Map<string, RouteRuleDefinition[]>();
 
 export function resolveRouteRules(options: RouteModeOptions): RouteRuleDefinition[] {
 	const mode = resolveMode(options);
-	const cached = RESOLVED_RULES_BY_MODE.get(mode);
+	const rulesMode = options.rules ?? "category";
+	const cacheKey = `${rulesMode}:${mode}`;
+	const cached = RESOLVED_RULES_BY_MODE.get(cacheKey);
 	if (cached) return cached;
+
+	const baseRules = rulesMode === "granular" ? ROUTE_RULES_GRANULAR : ROUTE_RULES_CATEGORY;
 
 	let rules: RouteRuleDefinition[];
 	if (mode === "white") {
-		rules = filterAndMapRouteRules(
-			ROUTE_RULES,
-			ALLOWED_WHITE_RULE_SETS,
-			DIRECT_TAG,
-			CORE_ROUTE_OUTBOUNDS,
-		);
+		const allowed =
+			rulesMode === "granular"
+				? ALLOWED_WHITE_RULE_SETS_GRANULAR
+				: ALLOWED_WHITE_RULE_SETS_CATEGORY;
+		rules = filterAndMapRouteRules(baseRules, allowed, DIRECT_TAG, CORE_ROUTE_OUTBOUNDS);
 	} else if (mode === "black") {
-		rules = filterAndMapRouteRules(
-			ROUTE_RULES,
-			ALLOWED_BLACK_RULE_SETS,
-			GROUP_TAGS.PROXY,
-			CORE_ROUTE_OUTBOUNDS,
-		);
+		const allowed =
+			rulesMode === "granular"
+				? ALLOWED_BLACK_RULE_SETS_GRANULAR
+				: ALLOWED_BLACK_RULE_SETS_CATEGORY;
+		rules = filterAndMapRouteRules(baseRules, allowed, GROUP_TAGS.PROXY, CORE_ROUTE_OUTBOUNDS);
 	} else if (mode === "dual") {
-		rules = filterAndMapRouteRules(ROUTE_RULES, null, GROUP_TAGS.PROXY, CORE_ROUTE_OUTBOUNDS);
+		rules = filterAndMapRouteRules(baseRules, null, GROUP_TAGS.PROXY, CORE_ROUTE_OUTBOUNDS);
 	} else {
-		rules = ROUTE_RULES;
+		rules = baseRules;
 	}
-	RESOLVED_RULES_BY_MODE.set(mode, rules);
+	RESOLVED_RULES_BY_MODE.set(cacheKey, rules);
 	return rules;
 }
 
@@ -187,10 +199,10 @@ export function getReferencedRuleSetDefinitions(rules: RouteRuleDefinition[]): R
 
 const REFERENCED_RULE_SETS_BY_RULES = new WeakMap<RouteRuleDefinition[], RuleSetDefinition[]>();
 const FULL_MODE_REFERENCED_RULE_SETS = (() => {
-	const referenced = collectReferencedRuleSets(ROUTE_RULES);
+	const referenced = collectReferencedRuleSets(ROUTE_RULES_CATEGORY);
 	return RULE_SET_DEFINITIONS.filter((definition) => referenced.has(definition.tag));
 })();
-REFERENCED_RULE_SETS_BY_RULES.set(ROUTE_RULES, FULL_MODE_REFERENCED_RULE_SETS);
+REFERENCED_RULE_SETS_BY_RULES.set(ROUTE_RULES_CATEGORY, FULL_MODE_REFERENCED_RULE_SETS);
 
 export function routeTailscaleTraffic(
 	rules: RouteRuleDefinition[],

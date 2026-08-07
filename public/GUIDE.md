@@ -64,6 +64,7 @@ https://edge.example.com/?type=mihomo&mode=dual&Airport=https%3A%2F%2Fsub.exampl
 | ---------- | -------: | ------------------------------- | ------------------------------------------------------ |
 | `type`     |       否 | 自动识别，识别失败时为 `mihomo` | `mihomo`、`stash`、`sing-box`                          |
 | `mode`     |       否 | `full`                          | `full`、`dual`、`white`、`black`                       |
+| `rules`    |       否 | `category`                      | `category`（分类聚合）、`granular`（精细拆分）         |
 | `secret`   |       否 | `edge-default`                  | 写入生成配置的外部控制密钥，不是转换接口的访问密码     |
 | `proxies`  |       否 | 空                              | 自建节点 URI；多个节点使用换行分隔并进行 URL 编码      |
 | `gh_proxy` |       否 | 空                              | GitHub 规则资源的镜像前缀，值必须是完整 HTTP/HTTPS URL |
@@ -83,7 +84,7 @@ A-Z  a-z  0-9  _  中文
 不要把以下保留名称用作订阅名称：
 
 ```text
-type  mode  secret  proxies  gh_proxy
+type  mode  rules  secret  proxies  gh_proxy
 ```
 
 多个订阅名称不能重复。
@@ -117,6 +118,15 @@ type  mode  secret  proxies  gh_proxy
 | `full`  | AI、媒体、开发等场景分别使用独立策略组       | 需要精细控制每类流量     |
 | `white` | 只代理已定义的国外规则，其余流量直连         | 国内优先、省代理流量     |
 | `black` | 只直连已定义的国内规则，其余流量代理         | 代理优先、覆盖范围更大   |
+
+---
+
+## 规则粒度
+
+| `rules`    | 行为                                           | 适用场景                                                                  |
+| ---------- | ---------------------------------------------- | ------------------------------------------------------------------------- |
+| `category` | 使用 `category-*` 分类聚合规则集               | 默认模式，规则文件少、加载快、适合移动端                                  |
+| `granular` | 将 `category-*` 规则展开为数十个独立服务规则集 | 适合发烧友需要针对具体服务（如 Spotify、Twitter、Steam 等）独立指派策略组 |
 
 内核和模式是两个独立参数：
 

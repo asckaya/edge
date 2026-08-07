@@ -10,9 +10,14 @@ cli
 	.command("", "Generate Worker URL")
 	.option("--type <type>", "Target config type (mihomo, sing-box, stash)", { default: "mihomo" })
 	.option("--mode <mode>", "Routing mode (full, dual, white, black)")
+	.option("--rules <rules>", "Rule granularity (category, granular)", { default: "category" })
 	.option("--gh-proxy <url>", "GitHub proxy URL")
 	.action((options) => {
-		const { configType, configMode } = validateTarget(options.type, options.mode);
+		const { configType, configMode, configRules } = validateTarget(
+			options.type,
+			options.mode,
+			options.rules,
+		);
 		const cliGhProxy = options.ghProxy;
 
 		let configFile = "proxy.yaml";
@@ -30,21 +35,28 @@ cli
 
 		const { url: targetUrl, base } = buildTargetUrl({ ghProxy: cliGhProxy ?? undefined });
 
-		// Append type/mode for this specific generation (these are NOT stored in short links)
+		// Append type/mode/rules for this generation
 		const params = new URLSearchParams(targetUrl.split("?")[1] || "");
 		params.set("type", configType);
 		params.set("mode", configMode);
+		if (configRules && configRules !== "category") {
+			params.set("rules", configRules);
+		}
 		const finalUrl = `${base}/?${params.toString()}`;
 
 		const modeLabels: Record<string, string> = {
-			full: "Full (Category-based)",
+			full: "Full",
 			dual: "Dual (Domestic/Global)",
 			white: "White (Domestic-Direct)",
 			black: "Black (Overseas-Proxy)",
 		};
 
 		console.log(pc.green("\n✔ Worker URL Generated Successfully!"));
-		console.log(pc.magenta(`  Target: ${configType} / ${modeLabels[configMode]}`));
+		console.log(
+			pc.magenta(
+				`  Target: ${configType} / Mode: ${modeLabels[configMode]} / Rules: ${configRules}`,
+			),
+		);
 		console.log(`${pc.cyan(finalUrl)}\n`);
 	});
 
