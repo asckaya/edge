@@ -17,7 +17,7 @@ describe("Mihomo Kernel", () => {
 		const res = await callWorker("http://localhost/?type=mihomo&Airport=http://sub.com");
 		const yaml = YAML.parse(await res.text());
 		expect(yaml["proxy-providers"]?.Airport).toBeDefined();
-		expect(yaml["proxy-providers"]?.Airport?.header?.["User-Agent"]).toEqual(["mihomo", "clash"]);
+		expect(yaml["proxy-providers"]?.Airport?.header?.["User-Agent"]).toEqual(["clash/mihomo"]);
 		expect(yaml["proxy-groups"]).toBeInstanceOf(Array);
 		// Ensure scenario groups exist in Full
 		expect(yaml["proxy-groups"].some((g) => g.name === "📹 油管视频")).toBe(true);
