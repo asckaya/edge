@@ -43,7 +43,7 @@ export function buildMihomoConfig(options: BuildMihomoOptions): string {
 	);
 
 	// Build proxy-providers and subscription-specific groups
-	const userAgent = "mihomo";
+	const userAgents = ["mihomo", "clash"];
 	const isSingleSub = subscriptions.length === 1;
 
 	const providerNames = subscriptions.map((sub) => sub.name);
@@ -68,7 +68,7 @@ export function buildMihomoConfig(options: BuildMihomoOptions): string {
       lazy: true
     header:
       User-Agent:
-        - "${userAgent}"`;
+${userAgents.map((userAgent) => `        - "${userAgent}"`).join("\n")}`;
 					})
 					.join("\n") +
 				"\n";
