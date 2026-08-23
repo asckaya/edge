@@ -10,7 +10,6 @@ find-process-mode: strict
 dns:
   enable: true
   cache-algorithm: arc
-  prefer-h3: true
   use-hosts: true
   use-system-hosts: true
   respect-rules: true
@@ -28,20 +27,20 @@ dns:
     "geosite:category-ads-all": rcode://success
 {{TAILSCALE_NAMESERVER_POLICY}}    "+.arpa": "10.0.0.1"
     "geosite:cn":
-      - https://doh.pub/dns-query
-      - https://dns.alidns.com/dns-query
+      - https://223.5.5.5/dns-query
+      - https://1.12.12.12/dns-query
     "geosite:gfw":
       - https://dns.google/dns-query
       - https://cloudflare-dns.com/dns-query
   nameserver:
-    - https://doh.pub/dns-query
-    - https://dns.alidns.com/dns-query
+    - https://223.5.5.5/dns-query
+    - https://1.12.12.12/dns-query
   fallback:
     - https://dns.google/dns-query
     - https://cloudflare-dns.com/dns-query
   proxy-server-nameserver:
-    - https://doh.pub/dns-query
-    - https://dns.alidns.com/dns-query
+    - https://223.5.5.5/dns-query
+    - https://1.12.12.12/dns-query
   fallback-filter:
     geoip: true
     geoip-code: CN
