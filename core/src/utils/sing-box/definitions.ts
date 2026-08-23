@@ -1,5 +1,6 @@
 import type { ConfigRules } from "../../types";
 import { GROUP_TAGS, REGION_GROUPS, SCENARIO_GROUPS } from "../shared-constants";
+import { REGION_SERVICE_LAYOUTS } from "../mihomo/definitions";
 import { GRANULAR_SCENARIO_GROUPS } from "../rules/route-rules";
 import type { GroupDefinition } from "./types";
 
@@ -16,7 +17,10 @@ export function getSingBoxGroupDefinitions(rulesMode: ConfigRules = "category"):
 		{ tag: GROUP_TAGS.AD_BLOCK, layout: "block-first" },
 		{ tag: GROUP_TAGS.NTP_SERVICES, layout: "direct-main" },
 		{ tag: GROUP_TAGS.BT_PT, layout: "direct-main" },
-		...scenarios.map((tag) => ({ tag, layout: "main-direct" as const })),
+		...scenarios.map((tag) => ({
+			tag,
+			layout: REGION_SERVICE_LAYOUTS[tag] ?? ("main-direct" as const),
+		})),
 	];
 }
 

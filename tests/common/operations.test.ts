@@ -281,7 +281,7 @@ describe("resolveRouteRules (per-mode memoization)", () => {
 		}
 	});
 
-	test("black mode remaps all non-core outbounds to PROXY", () => {
+	test("black mode remaps non-core outbounds to PROXY or regional node groups", () => {
 		const blackRules = resolveRouteRules({ isBlack: true });
 		for (const rule of blackRules) {
 			if (rule.action === "route" && rule.outbound) {
@@ -291,12 +291,17 @@ describe("resolveRouteRules (per-mode memoization)", () => {
 					GROUP_TAGS.AD_BLOCK,
 					GROUP_TAGS.DIRECT,
 					GROUP_TAGS.REJECT,
+					"🇯🇵 日本节点",
+					"🇹🇼 台湾节点",
+					"🇭🇰 香港节点",
+					"🇬🇧 英国节点",
+					"🇺🇸 美国节点",
 				]).toContain(rule.outbound);
 			}
 		}
 	});
 
-	test("dual mode remaps all non-core outbounds to PROXY", () => {
+	test("dual mode remaps non-core outbounds to PROXY or regional node groups", () => {
 		const dualRules = resolveRouteRules({ isDual: true });
 		for (const rule of dualRules) {
 			if (rule.action === "route" && rule.outbound) {
@@ -306,6 +311,11 @@ describe("resolveRouteRules (per-mode memoization)", () => {
 					GROUP_TAGS.AD_BLOCK,
 					GROUP_TAGS.DIRECT,
 					GROUP_TAGS.REJECT,
+					"🇯🇵 日本节点",
+					"🇹🇼 台湾节点",
+					"🇭🇰 香港节点",
+					"🇬🇧 英国节点",
+					"🇺🇸 美国节点",
 				]).toContain(rule.outbound);
 			}
 		}

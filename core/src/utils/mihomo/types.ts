@@ -29,7 +29,12 @@ export type MihomoGroupLayout =
 	| "direct-first"
 	| "direct-proxy"
 	| "direct-proxy-rej"
-	| "proxy-direct";
+	| "proxy-direct"
+	| "jp-first"
+	| "tw-first"
+	| "hk-first"
+	| "gb-first"
+	| "us-first";
 
 export interface MihomoGroupDefinition {
 	name: string;

@@ -102,6 +102,7 @@ export const SERVICE_METADATA: Record<string, ServiceMeta> = {
 	disney: { label: "Disney+", emoji: "🏰", icon: `${THESVG}disneyplus/default.svg` },
 	hbo: { label: "HBO", emoji: "🎬", icon: `${THESVG}hbo/default.svg` },
 	hulu: { label: "Hulu", emoji: "🎬", icon: `${THESVG}hulu/default.svg` },
+	peacock: { label: "Peacock", emoji: "🦚", icon: `${SI}peacock.svg` },
 	primevideo: { label: "Prime Video", emoji: "🎬", icon: `${THESVG}amazon/default.svg` },
 	"apple-tvplus": { label: "Apple TV+", emoji: "🎬", icon: `${THESVG}apple/light.svg` },
 	spotify: { label: "Spotify", emoji: "🎵", icon: `${THESVG}spotify/default.svg` },
@@ -110,6 +111,27 @@ export const SERVICE_METADATA: Record<string, ServiceMeta> = {
 	abema: { label: "AbemaTV", emoji: "📺", icon: `${SI}abema.svg` },
 	bahamut: { label: "巴哈姆特", emoji: "🎮", icon: `${SI}bahamutanime.svg` },
 	niconico: { label: "Niconico", emoji: "📺", icon: `${THESVG}niconico/default.svg` },
+	dmm: { label: "DMM", emoji: "🔞", icon: `${SI}dmm.svg` },
+	tver: { label: "TVer", emoji: "📺", icon: `${SI}tver.svg` },
+	radiko: { label: "Radiko", emoji: "📻", icon: `${SI}radiko.svg` },
+	"u-next": { label: "U-NEXT", emoji: "🎬", icon: `${SI}unext.svg` },
+	"d-anime-store": { label: "d动漫商城", emoji: "📺", icon: `${SI}crunchyroll.svg` },
+	kktv: { label: "KKTV", emoji: "📺", icon: `${SI}kktv.svg` },
+	"line-tv": { label: "LINE TV", emoji: "📺", icon: `${SI}line.svg` },
+	catchplay: { label: "CatchPlay", emoji: "🎬", icon: `${SI}vudu.svg` },
+	tvb: { label: "TVB", emoji: "📺", icon: `${SI}tvb.svg` },
+	mytvsuper: { label: "myTV SUPER", emoji: "📺", icon: `${SI}tvb.svg` },
+	viutv: { label: "ViuTV", emoji: "📺", icon: `${SI}viu.svg` },
+	bbc: { label: "BBC iPlayer", emoji: "🇬🇧", icon: `${THESVG}bbc/default.svg` },
+	itv: { label: "ITVX", emoji: "🇬🇧", icon: `${SI}itv.svg` },
+	channel4: { label: "Channel 4", emoji: "🇬🇧", icon: `${SI}channel4.svg` },
+
+	// Games & Regional Services
+	cygames: { label: "Cygames", emoji: "🐎", icon: `${SI}cygames.svg` },
+	eplus: { label: "eplus", emoji: "🎫", icon: `${SI}ticketmaster.svg` },
+	melonbooks: { label: "Melonbooks", emoji: "🍈", icon: `${SI}gumroad.svg` },
+	toranoana: { label: "虎之穴", emoji: "🐯", icon: `${SI}gumroad.svg` },
+	mercari: { label: "Mercari", emoji: "🛍️", icon: `${SI}mercari.svg` },
 
 	// Social & Communication
 	twitter: { label: "Twitter (X)", emoji: "🐦", icon: `${THESVG}twitter/default.svg` },
@@ -187,6 +209,10 @@ export const GROUP_ICONS: Record<string, string> = {
 	"🇩🇪 德国节点": `${FLAG}de.svg`,
 
 	// Category Groups
+	"🇯🇵 日本服务": `${FLAG}jp.svg`,
+	"🇹🇼 台湾服务": `${FLAG}tw.svg`,
+	"🇭🇰 香港服务": `${FLAG}hk.svg`,
+	"🇬🇧 英国服务": `${FLAG}gb.svg`,
 	"💬 AI 服务": `${THESVG}openai/light.svg`,
 	"📹 油管视频": `${THESVG}youtube/default.svg`,
 	"🔍 谷歌服务": `${THESVG}google/default.svg`,

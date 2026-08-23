@@ -20,7 +20,12 @@ export interface GroupDefinition {
 		| "block-first"
 		| "direct-only"
 		| "main-direct"
-		| "direct-main";
+		| "direct-main"
+		| "jp-first"
+		| "tw-first"
+		| "hk-first"
+		| "gb-first"
+		| "us-first";
 }
 
 export interface BuildSingBoxOptions {

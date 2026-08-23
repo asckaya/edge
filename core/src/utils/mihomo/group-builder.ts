@@ -68,6 +68,7 @@ function buildMihomoGroupOutbounds(
 	scenarioProxies: string,
 	providerList: string,
 	autoGroupNames: string[],
+	commonProxyChoices: Array<string | undefined> = [],
 ): { proxies: string; use: string; filter: string } {
 	switch (layout) {
 		case "block-first":
@@ -115,6 +116,29 @@ function buildMihomoGroupOutbounds(
 				use: providerList,
 				filter: COMMON_PROXY_FILTER,
 			};
+		case "jp-first":
+		case "tw-first":
+		case "hk-first":
+		case "gb-first":
+		case "us-first": {
+			const tagMap: Record<"jp-first" | "tw-first" | "hk-first" | "gb-first" | "us-first", string> =
+				{
+					"jp-first": "🇯🇵 日本节点",
+					"tw-first": "🇹🇼 台湾节点",
+					"hk-first": "🇭🇰 香港节点",
+					"gb-first": "🇬🇧 英国节点",
+					"us-first": "🇺🇸 美国节点",
+				};
+			const regionTag = tagMap[layout];
+			const remaining = commonProxyChoices.filter(
+				(c): c is string => Boolean(c) && c !== regionTag,
+			);
+			return {
+				proxies: formatYamlList([regionTag, GROUP_TAGS.PROXY, ...remaining]),
+				use: providerList,
+				filter: COMMON_PROXY_FILTER,
+			};
+		}
 		default:
 			return { proxies: scenarioProxies, use: providerList, filter: COMMON_PROXY_FILTER };
 	}
@@ -211,6 +235,7 @@ export function renderMihomoGroups(
 					scenarioProxies,
 					providerList,
 					autoGroupNames,
+					commonProxyChoices,
 				);
 				return {
 					name,

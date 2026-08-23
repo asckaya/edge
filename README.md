@@ -7,6 +7,7 @@ A worker-first proxy subscription orchestration engine running on Cloudflare Wor
 ## 🌟 Highlights
 
 - **12 orchestration modes** — Mihomo / Stash / sing-box, each with **Full**, **Dual**, **White**, **Black** rule depths.
+- **Smart Region-Locked Service Routing** — Automatically routes services with strict IP restrictions (Japan: DMM, TVer, Abema, Radiko, Cygames; Taiwan: Bahamut Anime, KKTV; Hong Kong: TVB, ViuTV; UK: BBC iPlayer) to their dedicated regional node groups by default.
 - **Single-subscription optimization** — auto-bypasses redundant airport groups, injecting nodes directly into the core selector for a minimal UI.
 - **Native GeoX first** — uses native `GEOSITE` / `GEOIP` instead of external `rule-provider` YAML, cutting memory and speeding startup ~80%.
 - **iOS memory tuning** — Stash Minimal variant fits the 50MB Network Extension cap.

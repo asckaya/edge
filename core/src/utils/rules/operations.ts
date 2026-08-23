@@ -91,6 +91,37 @@ export function mapRouteRuleOutbounds(
 	return rules.map(visit);
 }
 
+export const REGIONAL_NODE_MAP: Record<string, string> = {
+	[GROUP_TAGS.JP_SERVICES]: "🇯🇵 日本节点",
+	[GROUP_TAGS.TW_SERVICES]: "🇹🇼 台湾节点",
+	[GROUP_TAGS.HK_SERVICES]: "🇭🇰 香港节点",
+	[GROUP_TAGS.UK_SERVICES]: "🇬🇧 英国节点",
+	DMM: "🇯🇵 日本节点",
+	TVer: "🇯🇵 日本节点",
+	AbemaTV: "🇯🇵 日本节点",
+	Radiko: "🇯🇵 日本节点",
+	"U-NEXT": "🇯🇵 日本节点",
+	Niconico: "🇯🇵 日本节点",
+	Cygames: "🇯🇵 日本节点",
+	eplus: "🇯🇵 日本节点",
+	Melonbooks: "🇯🇵 日本节点",
+	虎之穴: "🇯🇵 日本节点",
+	Mercari: "🇯🇵 日本节点",
+	d动漫商城: "🇯🇵 日本节点",
+	巴哈姆特: "🇹🇼 台湾节点",
+	KKTV: "🇹🇼 台湾节点",
+	"LINE TV": "🇹🇼 台湾节点",
+	CatchPlay: "🇹🇼 台湾节点",
+	TVB: "🇭🇰 香港节点",
+	"myTV SUPER": "🇭🇰 香港节点",
+	ViuTV: "🇭🇰 香港节点",
+	"BBC iPlayer": "🇬🇧 英国节点",
+	ITVX: "🇬🇧 英国节点",
+	"Channel 4": "🇬🇧 英国节点",
+	Hulu: "🇺🇸 美国节点",
+	Peacock: "🇺🇸 美国节点",
+};
+
 export function filterAndMapRouteRules(
 	rules: RouteRuleDefinition[],
 	allowedRuleSets: Set<string> | null,
@@ -112,6 +143,10 @@ export function filterAndMapRouteRules(
 			const outbound = r.outbound;
 			if (DIRECT_REDIRECT_OUTBOUNDS.has(outbound)) {
 				return { ...r, outbound: DIRECT_TAG };
+			}
+			const regionalNode = REGIONAL_NODE_MAP[outbound];
+			if (regionalNode) {
+				return { ...r, outbound: regionalNode };
 			}
 			if (!coreOutbounds.has(outbound)) {
 				return { ...r, outbound: fallbackOutbound };

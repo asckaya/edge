@@ -19,8 +19,9 @@ All routing, rules, and layout configurations are governed by central registry c
   - `route-rules.ts`: `ROUTE_RULES`, connecting traffic classes to outbound groups.
   - `operations.ts`: Mode mapping, referenced-set collection, and Tailscale rewrites.
 - **Group Builders & Constants (`group-builder.ts` / `shared-constants.ts`)**:
-  - `SCENARIO_GROUPS`: Defines scenario outbounds (e.g. AI, Media, Dev) dynamically rendered across all target kernels.
+  - `SCENARIO_GROUPS`: Defines scenario outbounds (e.g. Regional JP/TW/HK/UK, AI, Media, Dev) dynamically rendered across all target kernels.
   - `CORE_GROUPS`: Core routing targets (Proxy, Direct, Reject).
+  - Region-first layouts (`jp-first`, `tw-first`, `hk-first`, `gb-first`, `us-first`): Automatically places the corresponding regional node group at the first position in selector outbounds/proxies.
 - **Protocol Registry (`protocol-registry.ts`)**:
   - `KERNEL_PROTOCOL_SUPPORT`: 18-entry table mapping protocol → `{mihomo, stash, singbox}` support. Deep-frozen at runtime; covered by a drift-detection test (`tests/common/protocol-registry.test.ts`).
   - Helpers: `isMihomoSupported`, `isStashSupported`, `isSingBoxOutbound`, `isSingBoxEndpoint`, `isSingBoxSupported`, `asProtocolType`, `hasKnownProtocol`.

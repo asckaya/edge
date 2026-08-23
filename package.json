@@ -1,6 +1,6 @@
 {
 	"name": "edge",
-	"version": "2026.08.16",
+	"version": "2026.08.23",
 	"private": true,
 	"type": "module",
 	"scripts": {

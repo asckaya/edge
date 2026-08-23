@@ -1,5 +1,5 @@
 import { GROUP_TAGS } from "../shared-constants";
-import { GEOX_CATEGORIES_GRANULAR } from "./categories";
+import { GEOX_CATEGORIES_CATEGORY, GEOX_CATEGORIES_GRANULAR } from "./categories";
 import type { RouteRuleDefinition } from "./types";
 
 /**
@@ -109,6 +109,29 @@ export const ROUTE_RULES_CATEGORY: RouteRuleDefinition[] = [
 	{ rule_set: "youtube", action: "route", outbound: GROUP_TAGS.YOUTUBE },
 	{ rule_set: "emby", action: "route", outbound: GROUP_TAGS.EMBY },
 	{ rule_set: "emby-ip", action: "route", outbound: GROUP_TAGS.EMBY },
+
+	// Regional Services (JP / TW / HK / UK)
+	...GEOX_CATEGORIES_CATEGORY.JP_SERVICES.geosite.map((tag) => ({
+		rule_set: tag,
+		action: "route" as const,
+		outbound: GROUP_TAGS.JP_SERVICES,
+	})),
+	...GEOX_CATEGORIES_CATEGORY.TW_SERVICES.geosite.map((tag) => ({
+		rule_set: tag,
+		action: "route" as const,
+		outbound: GROUP_TAGS.TW_SERVICES,
+	})),
+	...GEOX_CATEGORIES_CATEGORY.HK_SERVICES.geosite.map((tag) => ({
+		rule_set: tag,
+		action: "route" as const,
+		outbound: GROUP_TAGS.HK_SERVICES,
+	})),
+	...GEOX_CATEGORIES_CATEGORY.UK_SERVICES.geosite.map((tag) => ({
+		rule_set: tag,
+		action: "route" as const,
+		outbound: GROUP_TAGS.UK_SERVICES,
+	})),
+
 	{ rule_set: "netflix", action: "route", outbound: GROUP_TAGS.STREAMING },
 	{ rule_set: "netflix-ip", action: "route", outbound: GROUP_TAGS.STREAMING },
 	{ rule_set: "disney", action: "route", outbound: GROUP_TAGS.STREAMING },
@@ -391,6 +414,28 @@ export const ROUTE_RULES_GRANULAR: RouteRuleDefinition[] = [
 		action: "route",
 		outbound: getGranularOutbound("emby", GROUP_TAGS.EMBY),
 	},
+
+	// Regional Services
+	...GEOX_CATEGORIES_GRANULAR.JP_SERVICES.geosite.map((tag) => ({
+		rule_set: tag,
+		action: "route" as const,
+		outbound: getGranularOutbound(tag, GROUP_TAGS.JP_SERVICES),
+	})),
+	...GEOX_CATEGORIES_GRANULAR.TW_SERVICES.geosite.map((tag) => ({
+		rule_set: tag,
+		action: "route" as const,
+		outbound: getGranularOutbound(tag, GROUP_TAGS.TW_SERVICES),
+	})),
+	...GEOX_CATEGORIES_GRANULAR.HK_SERVICES.geosite.map((tag) => ({
+		rule_set: tag,
+		action: "route" as const,
+		outbound: getGranularOutbound(tag, GROUP_TAGS.HK_SERVICES),
+	})),
+	...GEOX_CATEGORIES_GRANULAR.UK_SERVICES.geosite.map((tag) => ({
+		rule_set: tag,
+		action: "route" as const,
+		outbound: getGranularOutbound(tag, GROUP_TAGS.UK_SERVICES),
+	})),
 
 	// Media / Streaming
 	...GEOX_CATEGORIES_GRANULAR.MEDIA.geosite

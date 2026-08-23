@@ -109,6 +109,30 @@ export function buildGroupOutbounds(
 		];
 	if (layout === "direct-first") return [SINGBOX_DIRECT_TAG, SINGBOX_BLOCK_TAG, ...proxyChoices];
 	if (layout === "block-first") return [SINGBOX_BLOCK_TAG, SINGBOX_DIRECT_TAG, ...proxyChoices];
+	if (
+		layout === "jp-first" ||
+		layout === "tw-first" ||
+		layout === "hk-first" ||
+		layout === "gb-first" ||
+		layout === "us-first"
+	) {
+		const tagMap: Record<"jp-first" | "tw-first" | "hk-first" | "gb-first" | "us-first", string> = {
+			"jp-first": "🇯🇵 日本节点",
+			"tw-first": "🇹🇼 台湾节点",
+			"hk-first": "🇭🇰 香港节点",
+			"gb-first": "🇬🇧 英国节点",
+			"us-first": "🇺🇸 美国节点",
+		};
+		const regionTag = tagMap[layout];
+		return [
+			regionTag,
+			PROXY_SELECTOR_TAG,
+			SINGBOX_DIRECT_TAG,
+			...proxyChoices.filter(
+				(t) => ![regionTag, PROXY_SELECTOR_TAG, SINGBOX_DIRECT_TAG, SINGBOX_BLOCK_TAG].includes(t),
+			),
+		];
+	}
 	return proxyChoices;
 }
 

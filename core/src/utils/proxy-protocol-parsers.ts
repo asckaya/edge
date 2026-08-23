@@ -641,11 +641,8 @@ export const PROTOCOL_PARSERS: Record<string, ProtocolParser> = {
 		return node;
 	},
 	vmess: (url, { name, hostname, mainPortNum }) => {
-		const raw = url.href
-			.replace(/^vmess:\/\//i, "")
-			.split("?")[0]
-			.split("#")[0]
-			.trim();
+		const raw =
+			(url.href.replace(/^vmess:\/\//i, "").split("?")[0] ?? "").split("#")[0]?.trim() ?? "";
 		try {
 			const vmessData = JSON.parse(Buffer.from(raw, "base64").toString("utf-8"));
 			const node: Record<string, unknown> = {

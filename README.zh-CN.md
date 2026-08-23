@@ -7,6 +7,7 @@
 ## 🌟 核心特性
 
 - **十二种编排模式** — Mihomo / Stash / sing-box，每种内核均支持 **Full (完整)**、**Dual (双模)**、**White (白名单)**、**Black (黑名单)** 四种规则深度。
+- **锁区服务智能路由** — 自动识别并分流日本（DMM、TVer、Abema、Radiko、Cygames）、台湾（巴哈姆特动画疯、KKTV）、香港（TVB、ViuTV）、英国（BBC iPlayer）等严格限区服务，策略组默认首选对应国家节点。
 - **单订阅分组优化** — 检测到单订阅时自动隐藏冗余分组，将节点直接注入核心选择器，提供极简 UI 体验。
 - **Native GeoX 优先** — 弃用外部 `rule-provider` YAML，完全基于 `GEOSITE` / `GEOIP` 匹配，内存占用大幅降低，启动速度提升约 80%。
 - **iOS 内存优化** — 针对 Stash 的 50MB Network Extension 限制提供 Minimal 版本，防止崩溃。

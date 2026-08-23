@@ -399,6 +399,12 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 							color: "text-purple-500 bg-purple-500/5",
 						},
 						{
+							name: "锁区服务规则 (DMM / 动画疯)",
+							tag: "REGIONAL",
+							icon: Globe,
+							color: "text-amber-500 bg-amber-500/5",
+						},
+						{
 							name: "油管视频规则 (YouTube)",
 							tag: "YOUTUBE",
 							icon: Tv,
@@ -431,6 +437,17 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 							name: "💬 AI 服务 (默认: 节点选择)",
 							icon: Bot,
 							color: "text-purple-600 dark:text-purple-400 bg-purple-500/5 border-purple-500/20",
+						},
+						{
+							name: "🇯🇵 日本服务 (默认: 日本节点)",
+							icon: Globe,
+							color: "text-pink-600 dark:text-pink-400 bg-pink-500/5 border-pink-500/20",
+						},
+						{
+							name: "🇹🇼 台湾服务 (默认: 台湾节点)",
+							icon: Globe,
+							color:
+								"text-emerald-600 dark:text-emerald-400 bg-emerald-500/5 border-emerald-500/20",
 						},
 						{
 							name: "📹 油管视频 (默认: 节点选择)",
@@ -482,6 +499,12 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 							color: "text-purple-500 bg-purple-500/5",
 						},
 						{
+							name: "Geo-Locked Rules (DMM/Bahamut)",
+							tag: "REGIONAL",
+							icon: Globe,
+							color: "text-amber-500 bg-amber-500/5",
+						},
+						{
 							name: "YouTube Stream Rules",
 							tag: "YOUTUBE",
 							icon: Tv,
@@ -514,6 +537,17 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 							name: "💬 AI Services (Default: Proxy)",
 							icon: Bot,
 							color: "text-purple-600 dark:text-purple-400 bg-purple-500/5 border-purple-500/20",
+						},
+						{
+							name: "🇯🇵 Japan Services (Default: JP Node)",
+							icon: Globe,
+							color: "text-pink-600 dark:text-pink-400 bg-pink-500/5 border-pink-500/20",
+						},
+						{
+							name: "🇹🇼 Taiwan Services (Default: TW Node)",
+							icon: Globe,
+							color:
+								"text-emerald-600 dark:text-emerald-400 bg-emerald-500/5 border-emerald-500/20",
 						},
 						{
 							name: "📹 YouTube (Default: Proxy)",
