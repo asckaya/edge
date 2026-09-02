@@ -115,29 +115,16 @@ export const GEOX_CATEGORIES_CATEGORY = {
 		geosite: ["geolocation-!cn"],
 	},
 	JP_SERVICES: {
-		geosite: [
-			"dmm",
-			"tver",
-			"radiko",
-			"u-next",
-			"abema",
-			"niconico",
-			"cygames",
-			"eplus",
-			"melonbooks",
-			"toranoana",
-			"mercari",
-			"d-anime-store",
-		],
+		geosite: ["dmm", "tver", "radiko", "unext", "abema", "niconico", "cygames"],
 	},
 	TW_SERVICES: {
-		geosite: ["bahamut", "kktv", "line-tv", "catchplay"],
+		geosite: ["bahamut", "kktv", "catchplay"],
 	},
 	HK_SERVICES: {
-		geosite: ["tvb", "mytvsuper", "viutv"],
+		geosite: ["tvb", "mytvsuper", "viu"],
 	},
 	UK_SERVICES: {
-		geosite: ["bbc", "itv", "channel4"],
+		geosite: ["bbc"],
 	},
 	NEWS: {
 		geosite: ["category-tech-media", "category-news-ir"],
@@ -205,7 +192,6 @@ export const GEOX_CATEGORIES_GRANULAR = {
 			"disney",
 			"hbo",
 			"hulu",
-			"peacock",
 			"primevideo",
 			"apple-tvplus",
 			"spotify",
@@ -219,29 +205,16 @@ export const GEOX_CATEGORIES_GRANULAR = {
 		geoip: ["netflix", "google"],
 	},
 	JP_SERVICES: {
-		geosite: [
-			"dmm",
-			"tver",
-			"radiko",
-			"u-next",
-			"abema",
-			"niconico",
-			"cygames",
-			"eplus",
-			"melonbooks",
-			"toranoana",
-			"mercari",
-			"d-anime-store",
-		],
+		geosite: ["dmm", "tver", "radiko", "unext", "abema", "niconico", "cygames"],
 	},
 	TW_SERVICES: {
-		geosite: ["bahamut", "kktv", "line-tv", "catchplay"],
+		geosite: ["bahamut", "kktv", "catchplay"],
 	},
 	HK_SERVICES: {
-		geosite: ["tvb", "mytvsuper", "viutv"],
+		geosite: ["tvb", "mytvsuper", "viu"],
 	},
 	UK_SERVICES: {
-		geosite: ["bbc", "itv", "channel4"],
+		geosite: ["bbc"],
 	},
 	EMBY: {
 		geosite: ["emby"],
