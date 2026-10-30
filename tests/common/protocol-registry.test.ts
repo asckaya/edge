@@ -183,9 +183,9 @@ describe("derived Sets", () => {
 		});
 	});
 
-	test("masque and mieru are mihomo-only", () => {
-		expect(KERNEL_PROTOCOL_SUPPORT.masque).toEqual({ mihomo: true, stash: null, singbox: null });
-		expect(KERNEL_PROTOCOL_SUPPORT.mieru).toEqual({ mihomo: true, stash: null, singbox: null });
+	test("masque and mieru are supported by mihomo and stash (not sing-box)", () => {
+		expect(KERNEL_PROTOCOL_SUPPORT.masque).toEqual({ mihomo: true, stash: true, singbox: null });
+		expect(KERNEL_PROTOCOL_SUPPORT.mieru).toEqual({ mihomo: true, stash: true, singbox: null });
 	});
 });
 

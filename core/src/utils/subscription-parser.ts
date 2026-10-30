@@ -179,6 +179,42 @@ async function fetchWithCache(url: string, userAgent: string): Promise<string> {
 	return body;
 }
 
+async function fetchSingleSubscription(
+	url: string,
+	userAgent: string,
+): Promise<LooseProxyNode[] | null> {
+	let primaryNodes: LooseProxyNode[] | null = null;
+
+	try {
+		const body = await fetchWithCache(url, userAgent);
+		const nodes = parseSubscriptionContent(body);
+		if (nodes.length > 0 && !nodes.every(isAlertPlaceholderNode)) {
+			return nodes;
+		}
+		if (nodes.length > 0) {
+			primaryNodes = nodes;
+		}
+	} catch {
+		// Primary fetch failed (network error or HTTP 4xx/5xx).
+		// Fall through to attempt fallback when applicable.
+	}
+
+	// Fallback to "clash/mihomo" for sing-box if no valid non-alert nodes were retrieved
+	if (userAgent === "sing-box") {
+		try {
+			const fallbackBody = await fetchWithCache(url, "clash/mihomo");
+			const fallbackNodes = parseSubscriptionContent(fallbackBody);
+			if (fallbackNodes.length > 0) {
+				return fallbackNodes;
+			}
+		} catch (fallbackErr) {
+			console.error(`Failed to fetch subscription fallback (${url}):`, fallbackErr);
+		}
+	}
+
+	return primaryNodes;
+}
+
 export async function fetchSubscriptionNodes(
 	subscriptions: Subscription[],
 	userAgent: string,
@@ -190,20 +226,15 @@ export async function fetchSubscriptionNodes(
 	const fetchedByUrl = new Map<string, LooseProxyNode[] | null>(
 		await Promise.all(
 			uniqueUrls.map(async (url) => {
-				try {
-					const body = await fetchWithCache(url, userAgent);
-					return [url, parseSubscriptionContent(body)] as const;
-				} catch (err) {
-					console.error(`Failed to fetch subscription (${url}):`, err);
-					return [url, null] as const;
-				}
+				const nodes = await fetchSingleSubscription(url, userAgent);
+				return [url, nodes] as const;
 			}),
 		),
 	);
 
 	return subscriptions.map((sub) => {
 		const parsed = fetchedByUrl.get(sub.url) ?? null;
-		if (parsed !== null) {
+		if (parsed !== null && parsed.length > 0) {
 			return { ...sub, nodes: collapseAlertSubscription(sub, parsed) };
 		}
 		return {

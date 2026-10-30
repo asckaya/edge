@@ -12,7 +12,10 @@ export const Route = createRootRoute({
 				content: "High-performance proxy subscription converter for Mihomo, Stash, and sing-box.",
 			},
 		],
-		links: [{ rel: "stylesheet", href: appCss }],
+		links: [
+			{ rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+			{ rel: "stylesheet", href: appCss },
+		],
 	}),
 	component: RootComponent,
 });

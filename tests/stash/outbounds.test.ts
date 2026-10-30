@@ -212,6 +212,54 @@ describe("toStashOutbound", () => {
 		expect(out?.ephemeral).toBe(true);
 	});
 
+	test("masque: passes through to Stash with mihomo-only tuning fields stripped", () => {
+		const node = makeNode({
+			type: "masque",
+			name: "WARP",
+			server: "162.159.198.1",
+			port: 443,
+			"private-key": "privKey",
+			"public-key": "pubKey",
+			ip: "172.16.0.2/32",
+			network: "quic",
+			"congestion-controller": "bbr",
+			"bbr-profile": "default",
+			"handshake-timeout": 10,
+			"dialer-proxy": "proxy1",
+			"remote-dns-resolve": true,
+		});
+		const out = toStashOutbound(node);
+		expect(out).not.toBeNull();
+		expect(out?.type).toBe("masque");
+		expect(out?.server).toBe("162.159.198.1");
+		expect(out?.["private-key"]).toBe("privKey");
+		expect(out?.["public-key"]).toBe("pubKey");
+		// mihomo-only fields stripped
+		expect(out?.["congestion-controller"]).toBeUndefined();
+		expect(out?.["bbr-profile"]).toBeUndefined();
+		expect(out?.["handshake-timeout"]).toBeUndefined();
+		expect(out?.["dialer-proxy"]).toBeUndefined();
+		expect(out?.["remote-dns-resolve"]).toBeUndefined();
+	});
+
+	test("mieru: passes through to Stash", () => {
+		const node = makeNode({
+			type: "mieru",
+			name: "Mieru-Node",
+			server: "mieru.example.com",
+			port: 2012,
+			transport: "tcp",
+			username: "user",
+			password: "password",
+			multiplexing: "MULTIPLEXING_HIGH",
+		});
+		const out = toStashOutbound(node);
+		expect(out).not.toBeNull();
+		expect(out?.type).toBe("mieru");
+		expect(out?.username).toBe("user");
+		expect(out?.password).toBe("password");
+	});
+
 	test("input node is not mutated", () => {
 		const node = makeNode({
 			type: "hysteria2",

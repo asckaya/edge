@@ -64,10 +64,11 @@ describe("isProtocolSupportedByKernel", () => {
 		expect(isProtocolSupportedByKernel("juicity", "mihomo")).toBe(false);
 	});
 
-	test("stash excludes mihomo-only and sing-box-only protocols", () => {
-		expect(isProtocolSupportedByKernel("masque", "stash")).toBe(false);
-		expect(isProtocolSupportedByKernel("mieru", "stash")).toBe(false);
+	test("stash excludes sing-box-only protocols", () => {
+		expect(isProtocolSupportedByKernel("masque", "stash")).toBe(true);
+		expect(isProtocolSupportedByKernel("mieru", "stash")).toBe(true);
 		expect(isProtocolSupportedByKernel("naive", "stash")).toBe(false);
+		expect(isProtocolSupportedByKernel("shadowtls", "stash")).toBe(false);
 		expect(isProtocolSupportedByKernel("juicity", "stash")).toBe(true);
 	});
 
@@ -131,9 +132,9 @@ describe("checkProtocolSupport", () => {
 	});
 
 	test("deduplicates repeated unsupported protocols", () => {
-		const text = "masque://a:443\nmasque://b:443\nmasque://c:443";
+		const text = "shadowtls://a:443\nshadowtls://b:443\nshadowtls://c:443";
 		const result = checkProtocolSupport(text, "stash", "en");
-		expect(result.unsupportedProtocols).toEqual(["masque"]);
+		expect(result.unsupportedProtocols).toEqual(["shadowtls"]);
 		expect(result.warnings).toHaveLength(1);
 	});
 
@@ -144,7 +145,7 @@ describe("checkProtocolSupport", () => {
 	});
 
 	test("localized warnings differ by lang", () => {
-		const text = "masque://host:443";
+		const text = "shadowtls://host:443";
 		const zh = checkProtocolSupport(text, "stash", "zh");
 		const en = checkProtocolSupport(text, "stash", "en");
 		expect(zh.warnings[0]).toContain("Stash");

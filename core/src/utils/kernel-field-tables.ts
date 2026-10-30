@@ -185,6 +185,19 @@ export const KERNEL_PROTOCOL_RULES: Record<string, KernelProtocolRule> = {
 		// stash tailscale only supports auth-key/hostname/control-url/ephemeral/exit-node.
 		strip: { stash: ["state-dir", "accept-routes", "exit-node-allow-lan-access"] },
 	},
+	masque: {
+		// stash masque supports server/port/private-key/public-key/ip/ipv6/dns/network/sni/mtu.
+		// strip mihomo-only tuning fields.
+		strip: {
+			stash: [
+				"congestion-controller",
+				"bbr-profile",
+				"handshake-timeout",
+				"dialer-proxy",
+				"remote-dns-resolve",
+			],
+		},
+	},
 };
 
 /** Fields stripped from ALL protocols for a given kernel. */

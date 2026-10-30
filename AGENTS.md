@@ -91,8 +91,7 @@ The system operates across 3 target kernels with 4 orchestration depth settings 
 - **GeoX Rules**: Native `GEOSITE` / `GEOIP` preferred. Explicitly keep `cn-ip` and `private-ip` with `no-resolve` on to prevent DNS leaks.
 - **Supported Proxy Protocols** (kernel matrix, 18 total):
   - mihomo+stash+sing-box (outbound): `vmess`/`vless`/`ss`/`trojan`/`hysteria2`/`tuic`/`socks`/`http`/`anytls`/`snell`.
-  - mihomo+stash only (not sing-box outbound): `wireguard` (sing-box v1.14+ migrated to Endpoint), `tailscale`, `trusttunnel`.
-  - mihomo-only: `masque`, `mieru`.
+  - mihomo+stash only (not sing-box outbound): `wireguard` (sing-box v1.14+ migrated to Endpoint), `tailscale`, `trusttunnel`, `masque`, `mieru`.
   - sing-box-only: `naive`, `shadowtls`.
   - stash-only: `juicity`.
   - URI schemes invented for protocols lacking official specs: `snell://`, `masque://`, `mieru://`, `trusttunnel://`, `shadowtls://`, `juicity://`, `naive+https://`/`naive+quic://`.

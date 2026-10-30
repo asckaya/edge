@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0c0e17" />
+      <stop offset="100%" stop-color="#05060a" />
+    </linearGradient>
+
+    <!-- Border Gradient -->
+    <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.6" />
+      <stop offset="50%" stop-color="#6366f1" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#1e1b4b" stop-opacity="0.6" />
+    </linearGradient>
+
+    <!-- Ambient Core Glow -->
+    <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.45" />
+      <stop offset="45%" stop-color="#6366f1" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Top Plate Gradients -->
+    <linearGradient id="topFace" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="60%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#4f46e5" />
+    </linearGradient>
+    <linearGradient id="topStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e0f2fe" />
+      <stop offset="100%" stop-color="#818cf8" />
+    </linearGradient>
+    <linearGradient id="topSideLeft" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7" />
+      <stop offset="100%" stop-color="#1e1b4b" />
+    </linearGradient>
+    <linearGradient id="topSideRight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#4338ca" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+
+    <!-- Middle Plate Gradients -->
+    <linearGradient id="midFace" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#4338ca" stop-opacity="0.9" />
+    </linearGradient>
+    <linearGradient id="midSideLeft" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0369a1" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <linearGradient id="midSideRight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#3730a3" />
+      <stop offset="100%" stop-color="#090d16" />
+    </linearGradient>
+
+    <!-- Bottom Plate Gradients -->
+    <linearGradient id="botFace" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e40af" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#312e81" stop-opacity="0.8" />
+    </linearGradient>
+    <linearGradient id="botSideLeft" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1d4ed8" />
+      <stop offset="100%" stop-color="#020617" />
+    </linearGradient>
+    <linearGradient id="botSideRight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e1b4b" />
+      <stop offset="100%" stop-color="#020617" />
+    </linearGradient>
+
+    <!-- Core Beam Gradient -->
+    <linearGradient id="beamGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="50%" stop-color="#818cf8" />
+      <stop offset="100%" stop-color="#c084fc" />
+    </linearGradient>
+
+    <!-- Glow Filter -->
+    <filter id="glowFilter" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3.5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Base Squircle Frame -->
+  <rect x="3" y="3" width="122" height="122" rx="28" fill="url(#bgGrad)" stroke="url(#borderGrad)" stroke-width="2.5" />
+
+  <!-- Ambient Glow Behind Layers -->
+  <ellipse cx="64" cy="64" rx="46" ry="46" fill="url(#coreGlow)" />
+
+  <!-- Central Energy Conduit (Behind Top Plates) -->
+  <line x1="64" y1="20" x2="64" y2="108" stroke="url(#beamGrad)" stroke-width="3" stroke-linecap="round" opacity="0.8" />
+
+  <!-- Layer 3: Bottom Plate -->
+  <g>
+    <!-- Left Depth -->
+    <path d="M 32 90 L 64 106 L 64 112 L 32 96 Z" fill="url(#botSideLeft)" opacity="0.9" />
+    <!-- Right Depth -->
+    <path d="M 96 90 L 64 106 L 64 112 L 96 96 Z" fill="url(#botSideRight)" opacity="0.9" />
+    <!-- Top Face -->
+    <polygon points="64,74 96,90 64,106 32,90" fill="url(#botFace)" stroke="#6366f1" stroke-opacity="0.3" stroke-width="1" />
+  </g>
+
+  <!-- Layer 2: Middle Plate -->
+  <g>
+    <!-- Left Depth -->
+    <path d="M 32 64 L 64 80 L 64 86 L 32 70 Z" fill="url(#midSideLeft)" opacity="0.95" />
+    <!-- Right Depth -->
+    <path d="M 96 64 L 64 80 L 64 86 L 96 70 Z" fill="url(#midSideRight)" opacity="0.95" />
+    <!-- Top Face -->
+    <polygon points="64,48 96,64 64,80 32,64" fill="url(#midFace)" stroke="#38bdf8" stroke-opacity="0.4" stroke-width="1.2" />
+  </g>
+
+  <!-- Layer 1: Top Plate (Hero) -->
+  <g>
+    <!-- Left Depth -->
+    <path d="M 32 38 L 64 54 L 64 60 L 32 44 Z" fill="url(#topSideLeft)" />
+    <!-- Right Depth -->
+    <path d="M 96 38 L 64 54 L 64 60 L 96 44 Z" fill="url(#topSideRight)" />
+    <!-- Top Face -->
+    <polygon points="64,22 96,38 64,54 32,38" fill="url(#topFace)" stroke="url(#topStroke)" stroke-width="1.6" />
+    <!-- Top Inner Reflection Accent -->
+    <polygon points="64,25 91,38 64,51 37,38" fill="none" stroke="#e0f2fe" stroke-width="0.8" opacity="0.45" />
+  </g>
+
+  <!-- Center Active Node Core -->
+  <g filter="url(#glowFilter)">
+    <circle cx="64" cy="38" r="8" fill="#38bdf8" opacity="0.35" />
+    <circle cx="64" cy="38" r="4.5" fill="#38bdf8" />
+    <circle cx="64" cy="38" r="2.2" fill="#ffffff" />
+  </g>
+</svg>

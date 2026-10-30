@@ -84,4 +84,158 @@ describe("subscription cache initialization", () => {
 		expect(resolved.every((s) => s.nodes.length === 1)).toBe(true);
 		expect(resolved.map((s) => s.name)).toEqual(["One", "Two", "Three"]);
 	});
+
+	test("falls back to clash/mihomo User-Agent when sing-box UA fails with HTTP error", async () => {
+		vi.stubGlobal("caches", undefined);
+		const mockFetch = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+			const reqHeaders =
+				input instanceof Request
+					? input.headers
+					: init?.headers instanceof Headers
+						? init.headers
+						: new Headers(init?.headers as Record<string, string> | undefined);
+			const ua = reqHeaders.get("user-agent") || "";
+
+			if (ua === "sing-box") {
+				return new Response("Not Found / Unsupported Client", { status: 404 });
+			}
+			if (ua === "clash/mihomo") {
+				const clashYaml = `
+proxies:
+  - name: "Clash Trojan Node"
+    type: trojan
+    server: 1.2.3.4
+    port: 443
+    password: secret
+`;
+				return new Response(clashYaml, {
+					status: 200,
+					headers: { "Content-Type": "text/yaml" },
+				});
+			}
+			return new Response("Unhandled", { status: 500 });
+		});
+		globalThis.fetch = mockFetch as unknown as typeof fetch;
+
+		const resolved = await fetchSubscriptionNodes(
+			[{ name: "FallbackSub", url: "https://airport.example.com/sub" }],
+			"sing-box",
+		);
+
+		expect(mockFetch).toHaveBeenCalledTimes(2);
+		expect(resolved.length).toBe(1);
+		expect(resolved[0].nodes.length).toBe(1);
+		expect(resolved[0].nodes[0].name).toBe("Clash Trojan Node");
+		expect(resolved[0].nodes[0].type).toBe("trojan");
+	});
+
+	test("falls back to clash/mihomo User-Agent when sing-box UA returns HTML or 0 valid nodes", async () => {
+		vi.stubGlobal("caches", undefined);
+		const mockFetch = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+			const reqHeaders =
+				input instanceof Request
+					? input.headers
+					: init?.headers instanceof Headers
+						? init.headers
+						: new Headers(init?.headers as Record<string, string> | undefined);
+			const ua = reqHeaders.get("user-agent") || "";
+
+			if (ua === "sing-box") {
+				// Returns HTTP 200 with an HTML error page
+				return new Response("<!DOCTYPE html><html><body>Client Not Supported</body></html>", {
+					status: 200,
+					headers: { "Content-Type": "text/html" },
+				});
+			}
+			if (ua === "clash/mihomo") {
+				const clashYaml = `
+proxies:
+  - name: "HK Reality Node"
+    type: vless
+    server: 1.2.3.4
+    port: 443
+    uuid: 00000000-0000-0000-0000-000000000000
+`;
+				return new Response(clashYaml, {
+					status: 200,
+					headers: { "Content-Type": "text/yaml" },
+				});
+			}
+			return new Response("Unhandled", { status: 500 });
+		});
+		globalThis.fetch = mockFetch as unknown as typeof fetch;
+
+		const resolved = await fetchSubscriptionNodes(
+			[{ name: "HtmlErrorSub", url: "https://airport.example.com/sub" }],
+			"sing-box",
+		);
+
+		expect(mockFetch).toHaveBeenCalledTimes(2);
+		expect(resolved.length).toBe(1);
+		expect(resolved[0].nodes.length).toBe(1);
+		expect(resolved[0].nodes[0].name).toBe("HK Reality Node");
+		expect(resolved[0].nodes[0].type).toBe("vless");
+	});
+
+	test("falls back to clash/mihomo User-Agent when sing-box UA returns only alert placeholder nodes", async () => {
+		vi.stubGlobal("caches", undefined);
+		const mockFetch = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+			const reqHeaders =
+				input instanceof Request
+					? input.headers
+					: init?.headers instanceof Headers
+						? init.headers
+						: new Headers(init?.headers as Record<string, string> | undefined);
+			const ua = reqHeaders.get("user-agent") || "";
+
+			if (ua === "sing-box") {
+				// Returns loopback alert node saying "unsupported / warning"
+				return new Response(
+					JSON.stringify({
+						outbounds: [
+							{
+								type: "shadowsocks",
+								tag: "⚠️ warning: 订阅不受支持",
+								server: "127.0.0.1",
+								server_port: 1,
+								method: "aes-128-gcm",
+								password: "pw",
+							},
+						],
+					}),
+					{
+						status: 200,
+						headers: { "Content-Type": "application/json" },
+					},
+				);
+			}
+			if (ua === "clash/mihomo") {
+				const clashYaml = `
+proxies:
+  - name: "Working Clash Node"
+    type: trojan
+    server: 5.6.7.8
+    port: 443
+    password: secret
+`;
+				return new Response(clashYaml, {
+					status: 200,
+					headers: { "Content-Type": "text/yaml" },
+				});
+			}
+			return new Response("Unhandled", { status: 500 });
+		});
+		globalThis.fetch = mockFetch as unknown as typeof fetch;
+
+		const resolved = await fetchSubscriptionNodes(
+			[{ name: "AlertSub", url: "https://airport.example.com/sub" }],
+			"sing-box",
+		);
+
+		expect(mockFetch).toHaveBeenCalledTimes(2);
+		expect(resolved.length).toBe(1);
+		expect(resolved[0].nodes.length).toBe(1);
+		expect(resolved[0].nodes[0].name).toBe("Working Clash Node");
+		expect(resolved[0].nodes[0].type).toBe("trojan");
+	});
 });

@@ -43,9 +43,9 @@ export const KERNEL_PROTOCOL_SUPPORT = {
 	snell: { mihomo: true, stash: true, singbox: "outbound" },
 	wireguard: { mihomo: true, stash: true, singbox: "endpoint" },
 	tailscale: { mihomo: true, stash: true, singbox: "endpoint" },
-	// mihomo-only protocols
-	masque: { mihomo: true, stash: null, singbox: null },
-	mieru: { mihomo: true, stash: null, singbox: null },
+	// mihomo + stash protocols (not sing-box)
+	masque: { mihomo: true, stash: true, singbox: null },
+	mieru: { mihomo: true, stash: true, singbox: null },
 	// stash-only protocols
 	juicity: { mihomo: null, stash: true, singbox: null },
 	trusttunnel: { mihomo: true, stash: true, singbox: null },
