@@ -162,6 +162,10 @@ export const PROTOCOL_PARSERS: Record<string, ProtocolParser> = {
 			const wsOpts: Record<string, unknown> = { path: url.searchParams.get("path") || "/" };
 			const host = url.searchParams.get("host");
 			if (host) wsOpts.headers = { Host: host };
+			const earlyData = url.searchParams.get("ed");
+			if (earlyData) wsOpts["max-early-data"] = Number(earlyData) || earlyData;
+			const earlyDataHeader = url.searchParams.get("eh");
+			if (earlyDataHeader) wsOpts["early-data-header-name"] = earlyDataHeader;
 			node["ws-opts"] = wsOpts;
 		} else if (node.network === "grpc") {
 			node["grpc-opts"] = { serviceName: url.searchParams.get("serviceName") || "" };
@@ -404,6 +408,13 @@ export const PROTOCOL_PARSERS: Record<string, ProtocolParser> = {
 		}
 
 		pickStr(url, node, "fingerprint");
+		const publicKey = url.searchParams.get("pbk");
+		if (url.searchParams.get("security") === "reality" || publicKey) {
+			node["reality-opts"] = {
+				"public-key": publicKey || "",
+				"short-id": url.searchParams.get("sid") || "",
+			};
+		}
 		const smux = url.searchParams.get("smux");
 		if (smux) node.smux = decodeBase64JsonOrRaw(smux);
 

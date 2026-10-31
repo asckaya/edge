@@ -112,7 +112,7 @@ describe("sing-box round-trip: canonical node → outbound → reverse-parse", (
 		expect(rt["ws-opts"]).toEqual({ path: "/ws-path", headers: { Host: "vw.example.com" } });
 	});
 
-	test("vless+ws: preserves max-early-data / early-data-header", () => {
+	test("vless+ws: preserves max-early-data / early-data-header-name", () => {
 		const node = makeNode({
 			type: "vless",
 			name: "VWE",
@@ -125,12 +125,12 @@ describe("sing-box round-trip: canonical node → outbound → reverse-parse", (
 				path: "/ws",
 				headers: { Host: "vwe.example.com" },
 				"max-early-data": 2048,
-				"early-data-header": "Sec-WebSocket-Protocol",
+				"early-data-header-name": "Sec-WebSocket-Protocol",
 			},
 		});
 		const rt = roundTrip(node);
 		expect(rt["ws-opts"]?.["max-early-data"]).toBe(2048);
-		expect(rt["ws-opts"]?.["early-data-header"]).toBe("Sec-WebSocket-Protocol");
+		expect(rt["ws-opts"]?.["early-data-header-name"]).toBe("Sec-WebSocket-Protocol");
 	});
 
 	test("vless+grpc: preserves serviceName (multi-mode dropped per sing-box v1.14+)", () => {

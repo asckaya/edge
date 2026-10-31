@@ -106,6 +106,8 @@ const PROTOCOL_BUILDERS: Record<string, ProtocolBuilder> = {
 			const host = opts(wsOpts.headers)?.Host;
 			if (host) q.set("host", str(host));
 		}
+		if (wsOpts?.["max-early-data"] != null) q.set("ed", str(wsOpts["max-early-data"]));
+		if (wsOpts?.["early-data-header-name"]) q.set("eh", str(wsOpts["early-data-header-name"]));
 		if (grpcOpts?.serviceName || grpcOpts?.["grpc-service-name"])
 			q.set("serviceName", str(grpcOpts.serviceName || grpcOpts?.["grpc-service-name"]));
 		return [`vless://${uuid}@${server}:${port}?${q.toString()}#${name}`];
@@ -285,6 +287,16 @@ const PROTOCOL_BUILDERS: Record<string, ProtocolBuilder> = {
 		if (p["min-idle-session"] != null) q.set("min-idle-session", String(p["min-idle-session"]));
 		if (p["client-fingerprint"] || p.client_fingerprint)
 			q.set("client-fingerprint", str(p["client-fingerprint"] || p.client_fingerprint));
+		const realityOpts = opts(p["reality-opts"]);
+		const hasReality =
+			p.security === "reality" || !!realityOpts?.["public-key"] || !!p["public-key"];
+		if (hasReality) {
+			q.set("security", "reality");
+			if (p["public-key"] || realityOpts?.["public-key"])
+				q.set("pbk", str(p["public-key"] || realityOpts?.["public-key"]));
+			if (p["short-id"] || realityOpts?.["short-id"])
+				q.set("sid", str(p["short-id"] || realityOpts?.["short-id"]));
+		}
 		setQueryStr(p, q, "fingerprint");
 		if (p.smux != null) {
 			const smuxStr = encodeSmux(p.smux);

@@ -105,7 +105,8 @@ export function buildTransport(node: LooseProxyNode): Record<string, unknown> | 
 		const t: Record<string, unknown> = { type: "ws", path: ws?.path || "/" };
 		if (ws?.headers && typeof ws.headers === "object") t.headers = ws.headers;
 		if (ws?.["max-early-data"] != null) t.max_early_data = Number(ws["max-early-data"]);
-		if (ws?.["early-data-header"]) t.early_data_header = String(ws["early-data-header"]);
+		const earlyDataHeader = ws?.["early-data-header-name"] ?? ws?.["early-data-header"];
+		if (earlyDataHeader) t.early_data_header = String(earlyDataHeader);
 		return t;
 	}
 	if (node.network === "grpc") {
@@ -448,7 +449,9 @@ function applyTransport(node: Record<string, unknown>, outbound: Record<string, 
 				? { headers: transport.headers }
 				: {}),
 			...(transport.max_early_data == null ? {} : { "max-early-data": transport.max_early_data }),
-			...(transport.early_data_header ? { "early-data-header": transport.early_data_header } : {}),
+			...(transport.early_data_header
+				? { "early-data-header-name": transport.early_data_header }
+				: {}),
 		};
 	} else if (transport.type === "grpc") {
 		node.network = "grpc";

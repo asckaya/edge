@@ -137,6 +137,7 @@ export const KERNEL_PROTOCOL_RULES: Record<string, KernelProtocolRule> = {
 		strip: {
 			stash: [
 				"client-fingerprint",
+				"reality-opts",
 				"idle-session-check-interval",
 				"idle-session-timeout",
 				"min-idle-session",

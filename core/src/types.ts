@@ -133,6 +133,7 @@ export const AnyTlsSchema = v.object({
 	sni: v.optional(v.string()),
 	alpn: v.optional(v.array(v.string())),
 	"client-fingerprint": v.optional(v.string()),
+	"reality-opts": v.optional(v.unknown()),
 	"idle-session-check-interval": v.optional(v.union([v.number(), v.string()])),
 	"idle-session-timeout": v.optional(v.union([v.number(), v.string()])),
 	"min-idle-session": v.optional(v.union([v.number(), v.string()])),
