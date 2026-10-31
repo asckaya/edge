@@ -18,9 +18,9 @@ const NAV_LINKS: {
 	zh: string;
 	en: string;
 }[] = [
-	{ key: "workspace", href: "/", zh: "工作台", en: "Workspace" },
+	{ key: "workspace", href: "/#workspace", zh: "工作台", en: "Workspace" },
 	{ key: "links", href: "/links", zh: "短链接", en: "Links" },
-	{ key: "tools", href: "#tools", zh: "工具箱", en: "Tools" },
+	{ key: "tools", href: "/#tools", zh: "工具箱", en: "Tools" },
 ];
 
 export default function SiteNav({

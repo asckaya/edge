@@ -3,7 +3,7 @@ import { usePreferences } from "@/components/home/usePreferences";
 import SiteFooter from "@/components/layout/SiteFooter";
 
 const LINKS = [
-	{ href: "/", zh: "工作台", en: "Workspace" },
+	{ href: "/#workspace", zh: "工作台", en: "Workspace" },
 	{ href: "/links", zh: "短链接", en: "Links" },
 	{ href: "/tools.html", zh: "工具箱", en: "Toolbox" },
 	{ href: "/GUIDE.md", zh: "使用指南", en: "Guide" },

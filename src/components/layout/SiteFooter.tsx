@@ -42,7 +42,7 @@ export default function SiteFooter({ lang }: { lang: Language }) {
 							<div className="eyebrow mb-3 text-[10px] text-ink">{zh ? "产品" : "Product"}</div>
 							<ul className="space-y-2 text-[12px] text-body">
 								<li>
-									<a href="/" className="transition-colors hover:text-ink">
+									<a href="/#workspace" className="transition-colors hover:text-ink">
 										{zh ? "工作台" : "Workspace"}
 									</a>
 								</li>

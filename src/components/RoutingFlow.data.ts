@@ -87,7 +87,7 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 						{
 							name: "🚀 节点选择 (统一出口)",
 							icon: Globe,
-							color: "text-indigo-600 dark:text-indigo-400 bg-indigo-500/5 border-indigo-500/20",
+							color: "text-violet bg-violet/5 border-violet/25",
 						},
 					],
 				},
@@ -150,7 +150,7 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 						{
 							name: "🚀 Proxy Select (Unified)",
 							icon: Globe,
-							color: "text-indigo-600 dark:text-indigo-400 bg-indigo-500/5 border-indigo-500/20",
+							color: "text-violet bg-violet/5 border-violet/25",
 						},
 					],
 				},
@@ -310,7 +310,7 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 						{
 							name: "🚀 节点选择 (主默认出口)",
 							icon: Globe,
-							color: "text-indigo-600 dark:text-indigo-400 bg-indigo-500/5 border-indigo-500/20",
+							color: "text-violet bg-violet/5 border-violet/25",
 						},
 					],
 				},
@@ -362,7 +362,7 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 						{
 							name: "🚀 Proxy Select (Main Outbound)",
 							icon: Globe,
-							color: "text-indigo-600 dark:text-indigo-400 bg-indigo-500/5 border-indigo-500/20",
+							color: "text-violet bg-violet/5 border-violet/25",
 						},
 					],
 				},
@@ -442,8 +442,7 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 						{
 							name: "🇹🇼 台湾服务 (默认: 台湾节点)",
 							icon: Globe,
-							color:
-								"text-emerald-600 dark:text-emerald-400 bg-emerald-500/5 border-emerald-500/20",
+							color: "text-ink bg-ink/5 border-ink/20",
 						},
 						{
 							name: "📹 油管视频 (默认: 节点选择)",
@@ -463,7 +462,7 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 						{
 							name: "🚀 节点选择 (主出向组)",
 							icon: Globe,
-							color: "text-indigo-600 dark:text-indigo-400 bg-indigo-500/5 border-indigo-500/20",
+							color: "text-violet bg-violet/5 border-violet/25",
 						},
 					],
 				},
@@ -541,8 +540,7 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 						{
 							name: "🇹🇼 Taiwan Services (Default: TW Node)",
 							icon: Globe,
-							color:
-								"text-emerald-600 dark:text-emerald-400 bg-emerald-500/5 border-emerald-500/20",
+							color: "text-ink bg-ink/5 border-ink/20",
 						},
 						{
 							name: "📹 YouTube (Default: Proxy)",
@@ -562,7 +560,7 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 						{
 							name: "🚀 Proxy Select (Main Outbound)",
 							icon: Globe,
-							color: "text-indigo-600 dark:text-indigo-400 bg-indigo-500/5 border-indigo-500/20",
+							color: "text-violet bg-violet/5 border-violet/25",
 						},
 					],
 				},
