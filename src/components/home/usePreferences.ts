@@ -2,35 +2,66 @@ import { type MouseEvent, useEffect, useState } from "react";
 import type { Language } from "./translations";
 
 type Theme = "dark" | "light";
+/** `system` follows the OS `prefers-color-scheme`; the others are explicit overrides. */
+type ThemePreference = Theme | "system";
+
 type ViewTransitionDocument = Document & {
 	startViewTransition?: (callback: () => void) => { ready: Promise<void> };
 };
+
+const DARK_QUERY = "(prefers-color-scheme: dark)";
+
+function systemTheme(): Theme {
+	if (typeof window === "undefined") return "light";
+	return window.matchMedia(DARK_QUERY).matches ? "dark" : "light";
+}
+
+function resolveTheme(preference: ThemePreference): Theme {
+	return preference === "system" ? systemTheme() : preference;
+}
 
 function applyDocumentTheme(theme: Theme): void {
 	document.documentElement.classList.toggle("dark", theme === "dark");
 }
 
 export function usePreferences() {
-	const [theme, setTheme] = useState<Theme>("dark");
+	const [preference, setPreference] = useState<ThemePreference>("system");
+	const [theme, setTheme] = useState<Theme>("light");
 	const [lang, setLang] = useState<Language>("zh");
 	const [mounted, setMounted] = useState(false);
 
 	useEffect(() => {
-		const savedTheme = localStorage.getItem("theme") as Theme | null;
+		const savedTheme = localStorage.getItem("theme") as ThemePreference | null;
 		const savedLang = localStorage.getItem("lang") as Language | null;
-		const initialTheme = savedTheme || "dark";
-		setTheme(initialTheme);
-		applyDocumentTheme(initialTheme);
+		const initialPreference: ThemePreference = savedTheme ?? "system";
+		setPreference(initialPreference);
+		setTheme(resolveTheme(initialPreference));
+		applyDocumentTheme(resolveTheme(initialPreference));
 		if (savedLang) setLang(savedLang);
 		setMounted(true);
 	}, []);
 
+	// Follow live OS changes while the preference is `system`.
+	useEffect(() => {
+		if (preference !== "system") return;
+		const query = window.matchMedia(DARK_QUERY);
+		const onChange = () => {
+			const next = systemTheme();
+			setTheme(next);
+			applyDocumentTheme(next);
+		};
+		query.addEventListener("change", onChange);
+		return () => query.removeEventListener("change", onChange);
+	}, [preference]);
+
 	const toggleTheme = (event: MouseEvent<HTMLButtonElement>) => {
-		const nextTheme: Theme = theme === "dark" ? "light" : "dark";
+		const nextPreference: ThemePreference = theme === "dark" ? "light" : "dark";
 		const applyTheme = () => {
-			setTheme(nextTheme);
-			localStorage.setItem("theme", nextTheme);
-			applyDocumentTheme(nextTheme);
+			const next = resolveTheme(nextPreference);
+			setPreference(nextPreference);
+			setTheme(next);
+			localStorage.setItem("theme", nextPreference);
+			applyDocumentTheme(next);
 		};
 
 		const transitionDocument = document as ViewTransitionDocument;
@@ -66,5 +97,5 @@ export function usePreferences() {
 		localStorage.setItem("lang", nextLang);
 	};
 
-	return { theme, lang, mounted, toggleTheme, toggleLang };
+	return { theme, preference, lang, mounted, toggleTheme, toggleLang };
 }

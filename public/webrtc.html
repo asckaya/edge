@@ -1,444 +1,28 @@
 <!doctype html>
-<html lang="zh-CN" class="dark">
+<html lang="zh-CN">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Edge Engine - WebRTC & UDP IP 泄露检测</title>
-		<link rel="preconnect" href="https://fonts.googleapis.com" />
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
 		<link
-			href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
 			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/@chinese-fonts/maple-mono-cn/dist/MapleMono-CN-Regular/result.css"
 		/>
-		<style>
-			:root {
-				--bg-dark: #030303;
-				--bg-card: rgba(9, 9, 11, 0.4);
-				--border-glass: rgba(39, 39, 42, 0.8);
-				--border-hover: rgba(245, 158, 11, 0.5);
-				--primary: #f59e0b;
-				--primary-glow: rgba(245, 158, 11, 0.4);
-				--text-main: #fafafa;
-				--text-muted: #a1a1aa;
-				--font-sans: "Outfit", "Inter", -apple-system, sans-serif;
-				--font-mono: "JetBrains Mono", monospace;
-			}
-
-			html.light {
-				--bg-dark: #ffffff;
-				--bg-card: rgba(255, 255, 255, 0.85);
-				--border-glass: rgba(228, 228, 231, 0.9);
-				--border-hover: rgba(245, 158, 11, 0.4);
-				--text-main: #09090b;
-				--text-muted: #71717a;
-			}
-
-			html.light .home-link,
-			html.light .hero-title,
-			html.light .card-title,
-			html.light th {
-				color: #09090b !important;
-			}
-
-			html.light .logo-box {
-				background: #ffffff;
-				border-color: #e4e4e7;
-			}
-
-			* {
-				margin: 0;
-				padding: 0;
-				box-sizing: border-box;
-			}
-
-			body {
-				background-color: var(--bg-dark);
-				color: var(--text-main);
-				font-family: var(--font-sans);
-				min-height: 100vh;
-				padding: 1.5rem 1rem;
-				line-height: 1.6;
-				position: relative;
-				overflow-x: hidden;
-				transition:
-					background-color 0.3s ease,
-					color 0.3s ease;
-			}
-
-			body::before {
-				content: "";
-				position: absolute;
-				top: -10%;
-				left: -10%;
-				width: 55%;
-				height: 55%;
-				background: rgba(245, 158, 11, 0.08);
-				border-radius: 9999px;
-				filter: blur(140px);
-				pointer-events: none;
-				z-index: 0;
-			}
-
-			body::after {
-				content: "";
-				position: absolute;
-				bottom: -10%;
-				right: -10%;
-				width: 55%;
-				height: 55%;
-				background: rgba(99, 102, 241, 0.08);
-				border-radius: 9999px;
-				filter: blur(140px);
-				pointer-events: none;
-				z-index: 0;
-			}
-
-			.container {
-				max-width: 1150px;
-				margin: 0 auto;
-				position: relative;
-				z-index: 10;
-			}
-
-			/* Header Bar */
-			.header-bar {
-				display: flex;
-				flex-wrap: wrap;
-				align-items: center;
-				justify-content: space-between;
-				padding-bottom: 1.25rem;
-				margin-bottom: 1.25rem;
-				border-bottom: 1px solid var(--border-glass);
-				gap: 1rem;
-			}
-
-			.brand {
-				display: flex;
-				align-items: center;
-				gap: 0.75rem;
-			}
-
-			.logo-box {
-				position: relative;
-				width: 48px;
-				height: 48px;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				border-radius: 16px;
-				background: #09090b;
-				border: 1px solid #27272a;
-				overflow: hidden;
-				transition: all 0.3s ease;
-				text-decoration: none;
-			}
-
-			.logo-box:hover {
-				transform: rotate(12deg) scale(1.05);
-				border-color: var(--primary);
-			}
-
-			.logo-glow {
-				position: absolute;
-				inset: 0;
-				background: linear-gradient(135deg, #f59e0b 0%, #6366f1 100%);
-				opacity: 0.25;
-			}
-
-			.logo-icon {
-				width: 24px;
-				height: 24px;
-				color: #fbbf24;
-				position: relative;
-				z-index: 1;
-			}
-
-			.brand-title {
-				display: flex;
-				align-items: center;
-				gap: 0.5rem;
-			}
-
-			.home-link {
-				font-size: 1.25rem;
-				font-weight: 800;
-				color: #fff;
-				text-decoration: none;
-				letter-spacing: -0.02em;
-			}
-
-			.version-badge {
-				font-size: 9px;
-				font-family: var(--font-mono);
-				padding: 2px 8px;
-				border-radius: 9999px;
-				background: rgba(245, 158, 11, 0.1);
-				color: #fde68a;
-				border: 1px solid rgba(245, 158, 11, 0.2);
-				font-weight: 800;
-			}
-
-			.brand-subtitle {
-				font-size: 10px;
-				text-transform: uppercase;
-				letter-spacing: 0.15em;
-				color: #71717a;
-				font-weight: 800;
-				display: block;
-				margin-top: 2px;
-			}
-
-			.status-group {
-				display: flex;
-				align-items: center;
-				gap: 0.5rem;
-				flex-wrap: wrap;
-			}
-
-			.status-pill {
-				display: inline-flex;
-				align-items: center;
-				gap: 0.4rem;
-				padding: 0.25rem 0.75rem;
-				border-radius: 9999px;
-				font-size: 11px;
-				font-weight: 700;
-			}
-
-			.status-pill.green {
-				background: rgba(16, 185, 129, 0.08);
-				border: 1px solid rgba(16, 185, 129, 0.2);
-				color: #34d399;
-			}
-
-			.status-pill.indigo {
-				background: rgba(99, 102, 241, 0.08);
-				border: 1px solid rgba(99, 102, 241, 0.2);
-				color: #a5b4fc;
-			}
-
-			.status-dot {
-				width: 6px;
-				height: 6px;
-				border-radius: 50%;
-				background: #10b981;
-				box-shadow: 0 0 8px #10b981;
-				animation: pulse 2s infinite;
-			}
-
-			.btn-ctrl {
-				padding: 0.35rem 0.65rem;
-				border-radius: 10px;
-				background: rgba(255, 255, 255, 0.05);
-				border: 1px solid var(--border-glass);
-				color: var(--text-main);
-				font-size: 11px;
-				font-weight: 700;
-				cursor: pointer;
-				transition: all 0.2s ease;
-			}
-
-			.btn-ctrl:hover {
-				background: rgba(255, 255, 255, 0.12);
-				border-color: var(--primary);
-			}
-
-			.btn-home {
-				padding: 0.35rem 0.85rem;
-				border-radius: 10px;
-				background: rgba(255, 255, 255, 0.05);
-				border: 1px solid var(--border-glass);
-				color: var(--text-main);
-				font-size: 11px;
-				font-weight: 700;
-				text-decoration: none;
-				transition: all 0.2s ease;
-			}
-
-			.btn-home:hover {
-				background: rgba(255, 255, 255, 0.12);
-				border-color: var(--primary);
-			}
-
-			/* Shared Nav Bar */
-			.nav-bar {
-				display: flex;
-				align-items: center;
-				gap: 0.5rem;
-				overflow-x: auto;
-				padding-bottom: 0.5rem;
-				margin-bottom: 1.75rem;
-			}
-
-			.nav-item {
-				display: inline-flex;
-				align-items: center;
-				gap: 0.4rem;
-				padding: 0.4rem 0.85rem;
-				border-radius: 12px;
-				background: rgba(255, 255, 255, 0.03);
-				border: 1px solid var(--border-glass);
-				color: var(--text-muted);
-				font-size: 11px;
-				font-weight: 700;
-				text-decoration: none;
-				white-space: nowrap;
-				transition: all 0.2s ease;
-			}
-
-			.nav-item:hover {
-				background: rgba(255, 255, 255, 0.07);
-				color: var(--text-main);
-				border-color: rgba(245, 158, 11, 0.4);
-			}
-
-			.nav-item.active {
-				background: rgba(245, 158, 11, 0.12);
-				border-color: rgba(245, 158, 11, 0.5);
-				color: #fde68a;
-			}
-
-			.nav-item.guide {
-				background: rgba(99, 102, 241, 0.1);
-				border-color: rgba(99, 102, 241, 0.3);
-				color: #818cf8;
-			}
-
-			/* Hero Header */
-			.hero-header {
-				margin-bottom: 2rem;
-			}
-
-			.hero-badge {
-				display: inline-flex;
-				align-items: center;
-				gap: 0.5rem;
-				padding: 0.3rem 0.8rem;
-				border-radius: 9999px;
-				background: rgba(245, 158, 11, 0.12);
-				border: 1px solid rgba(245, 158, 11, 0.25);
-				color: #fde68a;
-				font-size: 0.75rem;
-				font-weight: 700;
-				text-transform: uppercase;
-				margin-bottom: 0.75rem;
-			}
-
-			.hero-title {
-				font-size: 2rem;
-				font-weight: 800;
-				color: var(--text-main);
-				letter-spacing: -0.02em;
-				margin-bottom: 0.4rem;
-			}
-
-			.hero-subtitle {
-				color: var(--text-muted);
-				font-size: 0.95rem;
-			}
-
-			.result-banner {
-				padding: 1.25rem;
-				border-radius: 16px;
-				text-align: center;
-				font-weight: 700;
-				font-size: 1.1rem;
-				margin-bottom: 1.5rem;
-			}
-
-			.banner-safe {
-				background: rgba(16, 185, 129, 0.12);
-				border: 1px solid rgba(16, 185, 129, 0.3);
-				color: #34d399;
-			}
-
-			.banner-danger {
-				background: rgba(239, 68, 68, 0.12);
-				border: 1px solid rgba(239, 68, 68, 0.3);
-				color: #f87171;
-			}
-
-			/* Card Panel */
-			.card-panel {
-				background: var(--bg-card);
-				backdrop-filter: blur(24px);
-				border: 1px solid var(--border-glass);
-				border-radius: 20px;
-				padding: 1.5rem;
-				margin-bottom: 1.75rem;
-			}
-
-			.card-title {
-				font-weight: 800;
-				font-size: 1.1rem;
-				margin-bottom: 1.25rem;
-				color: var(--text-main);
-			}
-
-			.btn-action {
-				display: inline-flex;
-				align-items: center;
-				gap: 0.5rem;
-				padding: 0.75rem 1.5rem;
-				border-radius: 12px;
-				border: none;
-				background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-				color: #fff;
-				font-family: var(--font-sans);
-				font-weight: 700;
-				font-size: 0.875rem;
-				cursor: pointer;
-				box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
-				transition: all 0.25s ease;
-			}
-
-			.btn-action:hover {
-				transform: translateY(-2px);
-				box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
-			}
-
-			.table-container {
-				overflow-x: auto;
-				border-radius: 12px;
-				border: 1px solid var(--border-glass);
-			}
-
-			table {
-				width: 100%;
-				border-collapse: collapse;
-				text-align: left;
-				font-size: 0.875rem;
-			}
-
-			th {
-				background: rgba(255, 255, 255, 0.03);
-				padding: 0.85rem 1.2rem;
-				color: var(--text-muted);
-				font-weight: 700;
-				font-size: 0.75rem;
-				text-transform: uppercase;
-				letter-spacing: 0.05em;
-				border-bottom: 1px solid var(--border-glass);
-			}
-
-			td {
-				padding: 0.95rem 1.2rem;
-				border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-				color: var(--text-main);
-			}
-
-			footer {
-				margin-top: 3rem;
-				padding-top: 1.5rem;
-				border-top: 1px solid var(--border-glass);
-				text-align: center;
-				color: #71717a;
-				font-size: 0.75rem;
-				font-weight: 700;
-				text-transform: uppercase;
-				letter-spacing: 0.15em;
-			}
-		</style>
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/@chinese-fonts/maple-mono-cn/dist/MapleMono-CN-SemiBold/result.css"
+		/>
+		<link rel="stylesheet" href="/tools.css" />
+		<script>
+			try {
+				var saved = localStorage.getItem("theme");
+				var dark =
+					saved === "dark" ||
+					(saved !== "light" && matchMedia("(prefers-color-scheme: dark)").matches);
+				document.documentElement.classList.toggle("dark", dark);
+			} catch (e) {}
+		</script>
 	</head>
 	<body>
 		<div class="container">
@@ -581,13 +165,13 @@
 								<td style="font-weight: 600">STUN Public Candidate</td>
 								<td style="font-family: var(--font-mono)">UDP</td>
 								<td style="font-family: var(--font-mono)" id="stunIp">检测中...</td>
-								<td><span style="color: #34d399; font-weight: 700">✓ 已经过代理保护</span></td>
+								<td><span style="color: var(--link); font-weight: 700">✓ 已经过代理保护</span></td>
 							</tr>
 							<tr>
 								<td style="font-weight: 600">Local Host Candidate</td>
 								<td style="font-family: var(--font-mono)">mDNS / UDP</td>
 								<td style="font-family: var(--font-mono)" id="localIp">mDNS (已被浏览器匿名化)</td>
-								<td><span style="color: #34d399; font-weight: 700">✓ 已保护</span></td>
+								<td><span style="color: var(--link); font-weight: 700">✓ 已保护</span></td>
 							</tr>
 						</tbody>
 					</table>
@@ -608,7 +192,9 @@
 				})
 				.catch(() => {});
 
-			let currentTheme = localStorage.getItem("theme") || "dark";
+			let currentTheme =
+				localStorage.getItem("theme") ||
+				(matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
 			let currentLang = localStorage.getItem("lang") || "zh";
 
 			function applyTheme(theme) {

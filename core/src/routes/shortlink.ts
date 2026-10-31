@@ -17,6 +17,59 @@ const SHORT_SLUG_ALPHABET = customAlphabet(
 // by the GET /s/:slug handler (as a RegExp test).
 const SLUG_PATTERN = /^[A-Za-z0-9_-]+$/;
 
+/**
+ * Ordinary links (random slug, no admin key) are self-cleaning: they expire after
+ * three months without a single hit. Custom slugs created by the admin stay
+ * forever unless the admin picks an explicit TTL.
+ */
+const ORDINARY_TTL_SECONDS = 90 * 24 * 60 * 60;
+
+/** Renew the sliding expiry at most once per day to stay inside the KV write budget. */
+const RENEW_INTERVAL_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Per-isolate fixed-window limiter for link creation. KV read/write quotas are
+ * the scarce resource here, so creation — the only path that writes without an
+ * admin key — is throttled per client IP. Isolates are independent, which is
+ * acceptable: this blunts floods rather than enforcing a global counter.
+ */
+const CREATE_LIMIT = 20;
+const CREATE_WINDOW_MS = 60 * 60 * 1000;
+const CREATE_LIMIT_MAX_ENTRIES = 5_000;
+const createWindows = new Map<string, { count: number; resetAt: number }>();
+
+function consumeCreateQuota(clientId: string): { allowed: boolean; retryAfter: number } {
+	const now = Date.now();
+	const bucket = createWindows.get(clientId);
+
+	if (!bucket || bucket.resetAt <= now) {
+		if (createWindows.size >= CREATE_LIMIT_MAX_ENTRIES) {
+			for (const [key, value] of createWindows) {
+				if (value.resetAt <= now) createWindows.delete(key);
+			}
+			if (createWindows.size >= CREATE_LIMIT_MAX_ENTRIES) createWindows.clear();
+		}
+		createWindows.set(clientId, { count: 1, resetAt: now + CREATE_WINDOW_MS });
+		return { allowed: true, retryAfter: 0 };
+	}
+
+	if (bucket.count >= CREATE_LIMIT) {
+		return { allowed: false, retryAfter: Math.max(1, Math.ceil((bucket.resetAt - now) / 1000)) };
+	}
+
+	bucket.count += 1;
+	return { allowed: true, retryAfter: 0 };
+}
+
+/** Test hook: drop all throttling state between cases. */
+export function resetCreateQuota(): void {
+	createWindows.clear();
+}
+
+function clientId(c: { req: { header: (name: string) => string | undefined } }): string {
+	return c.req.header("cf-connecting-ip") ?? c.req.header("x-real-ip") ?? "unknown";
+}
+
 const ShortenRequestSchema = v.object({
 	target: v.pipe(v.string(), v.url()),
 	slug: v.optional(
@@ -42,6 +95,12 @@ shortlinkApp.post(
 
 		const { target, slug: customSlug, accessKey, ttlSeconds } = c.req.valid("json");
 
+		const quota = consumeCreateQuota(clientId(c));
+		if (!quota.allowed) {
+			c.header("Retry-After", String(quota.retryAfter));
+			return c.json({ error: "Too many short links created, slow down" }, 429);
+		}
+
 		// Custom slug (for personal fixed links) requires admin key
 		if (customSlug) {
 			const adminKey = c.env?.EDGE_ADMIN_KEY;
@@ -59,14 +118,19 @@ shortlinkApp.post(
 			return c.json({ error: "Slug already exists" }, 409);
 		}
 
+		// Ordinary links are ephemeral by default; admin custom slugs are not.
+		const effectiveTtl = ttlSeconds ?? (customSlug ? undefined : ORDINARY_TTL_SECONDS);
 		const record: Record<string, unknown> = { target, createdAt: Date.now() };
 		if (accessKey) {
 			record.accessKey = accessKey;
 		}
+		if (effectiveTtl) {
+			record.ttl = effectiveTtl;
+		}
 
 		const kvOptions: { expirationTtl?: number } = {};
-		if (ttlSeconds) {
-			kvOptions.expirationTtl = ttlSeconds;
+		if (effectiveTtl) {
+			kvOptions.expirationTtl = effectiveTtl;
 		}
 		await kv.put(recordKey, JSON.stringify(record), kvOptions);
 
@@ -94,7 +158,13 @@ shortlinkApp.get("/s/:slug", async (c) => {
 		return c.text("Not found", 404);
 	}
 
-	let record: { target?: string; accessKey?: string };
+	let record: {
+		target?: string;
+		accessKey?: string;
+		ttl?: number;
+		createdAt?: number;
+		lastUsedAt?: number;
+	};
 	try {
 		record = JSON.parse(raw);
 	} catch {
@@ -111,6 +181,21 @@ shortlinkApp.get("/s/:slug", async (c) => {
 		if (provided !== record.accessKey) {
 			// Return 404 (not 401) to avoid confirming slug existence
 			return c.text("Not found", 404);
+		}
+	}
+
+	// Sliding expiry: a link that is actually used stays alive, an unused one is
+	// garbage-collected by KV itself once its TTL elapses.
+	if (record.ttl) {
+		const last = record.lastUsedAt ?? record.createdAt ?? 0;
+		if (Date.now() - last > RENEW_INTERVAL_MS) {
+			const renewed = JSON.stringify({ ...record, lastUsedAt: Date.now() });
+			const write = kv.put(`sl:${slug}`, renewed, { expirationTtl: record.ttl });
+			try {
+				c.executionCtx.waitUntil(write);
+			} catch {
+				void write;
+			}
 		}
 	}
 

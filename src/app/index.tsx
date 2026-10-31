@@ -1,33 +1,35 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
 	Activity,
-	AlertCircle,
-	AlertTriangle,
+	ArrowRight,
+	ArrowUpRight,
 	BookOpen,
+	Check,
+	ChevronRight,
+	Circle,
 	Cpu,
-	ExternalLink,
 	Globe,
 	HelpCircle,
-	Layers,
-	Moon,
 	Network,
-	Settings,
+	Plus,
+	Settings2,
 	ShieldAlert,
 	ShieldCheck,
 	Sparkles,
-	Sun,
 	Terminal,
 	Wrench,
 } from "lucide-react";
 import { lazy, Suspense, useMemo, useState } from "react";
-import { FaGithub } from "react-icons/fa";
 import ActionBox from "@/components/ActionBox";
-import InteractiveCard from "@/components/home/InteractiveCard";
 import { COMMON_GH_PROXIES, HOME_TRANSLATIONS } from "@/components/home/translations";
+import SiteFooter from "@/components/layout/SiteFooter";
+import SiteNav from "@/components/layout/SiteNav";
+import SectionHead from "@/components/layout/SectionHead";
 import { type KernelType, type RoutingMode, useConfigType } from "@/components/home/useConfigType";
 import { usePreferences } from "@/components/home/usePreferences";
 import RoutingFlow from "@/components/RoutingFlow";
 import SubscriptionPanel from "@/components/SubscriptionPanel";
+import { cn } from "@/lib/cn";
 import { checkProtocolSupport } from "@/lib/protocol-support";
 import {
 	analyzeSubscriptions,
@@ -36,13 +38,28 @@ import {
 	validateProxiesText,
 } from "@/lib/subscriptions";
 import type { ConfigRules } from "../../core/src/types";
-import { version } from "../../package.json";
 
 const NodeModal = lazy(() => import("@/components/NodeModal"));
 
 export const Route = createFileRoute("/")({
 	component: HomeComponent,
 });
+
+/* -------------------------------------------------------------------------- */
+/*                                   atoms                                    */
+/* -------------------------------------------------------------------------- */
+
+function FieldLabel({ children, htmlFor }: { children: React.ReactNode; htmlFor?: string }) {
+	return (
+		<label htmlFor={htmlFor} className="eyebrow mb-1.5 block text-[10px] text-mute">
+			{children}
+		</label>
+	);
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                    page                                    */
+/* -------------------------------------------------------------------------- */
 
 function HomeComponent() {
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -77,538 +94,526 @@ function HomeComponent() {
 	};
 
 	const t = HOME_TRANSLATIONS[lang];
+	const zh = lang === "zh";
+
+	const kernels: { id: KernelType; label: string; sub: string }[] = [
+		{ id: "mihomo", label: "Mihomo", sub: zh ? "Clash Meta" : "Clash Meta" },
+		{ id: "stash", label: "Stash", sub: zh ? "iOS 客户端" : "iOS client" },
+		{ id: "sing-box", label: "sing-box", sub: zh ? "新一代内核" : "next-gen" },
+	];
+
+	const modes: { id: RoutingMode; label: string; sub: string }[] = [
+		{ id: "", label: zh ? "全量" : "Full", sub: zh ? "场景分流" : "20+ scenarios" },
+		{ id: "-dual", label: zh ? "双模" : "Dual", sub: zh ? "推荐" : "recommended" },
+		{ id: "-white", label: zh ? "白名单" : "White", sub: zh ? "国内直连" : "direct first" },
+		{ id: "-black", label: zh ? "黑名单" : "Black", sub: zh ? "代理优先" : "proxy first" },
+	];
+
+	const tools = [
+		{
+			href: "/ip.html",
+			icon: Globe,
+			title: t.ipTool,
+			desc: t.ipDesc,
+			meta: "egress / geo",
+		},
+		{
+			href: "/dns.html",
+			icon: ShieldCheck,
+			title: t.dnsTool,
+			desc: t.dnsDesc,
+			meta: "resolver / leak",
+		},
+		{
+			href: "/webrtc.html",
+			icon: ShieldAlert,
+			title: t.webrtcTool,
+			desc: t.webrtcDesc,
+			meta: "browser / stun",
+		},
+		{
+			href: "/claude.html",
+			icon: Sparkles,
+			title: t.claudeTool,
+			desc: t.claudeDesc,
+			meta: "ai / reachability",
+		},
+		{
+			href: "/tools.html",
+			icon: Wrench,
+			title: t.toolsSuite,
+			desc: t.toolsSuiteDesc,
+			meta: "convert / codec",
+		},
+		{
+			href: "/GUIDE.md",
+			icon: BookOpen,
+			title: t.docGuide,
+			desc: t.docGuideDesc,
+			meta: "reference / api",
+		},
+	];
+
+	const stats = [
+		{
+			label: t.activeSubs,
+			value: String(subscriptionAnalysis.activeCount).padStart(2, "0"),
+			unit: "providers",
+			icon: Globe,
+		},
+		{
+			label: t.customNodes,
+			value: String(customNodeCount).padStart(2, "0"),
+			unit: "nodes",
+			icon: Cpu,
+		},
+		{
+			label: t.activeKernel,
+			value: selectedKernel.toUpperCase(),
+			unit: `mode=${selectedMode ? selectedMode.slice(1) : "full"}`,
+			icon: Terminal,
+		},
+		{
+			label: t.runtimeEnv,
+			value: "CLOUDFLARE",
+			unit: "edge · 300+ pop",
+			icon: Activity,
+			live: true,
+		},
+	];
 
 	return (
-		<div className="relative min-h-screen py-6 px-4 md:px-8 flex items-center justify-center">
-			{/* Ambient Radial Mesh Backgrounds */}
-			<div className="absolute top-[-15%] left-[-10%] w-[55%] h-[55%] bg-indigo-600/5 dark:bg-indigo-600/10 rounded-full blur-[140px] animate-pulse-slow pointer-events-none" />
-			<div
-				className="absolute bottom-[-15%] right-[-10%] w-[55%] h-[55%] bg-blue-600/5 dark:bg-blue-600/10 rounded-full blur-[140px] animate-pulse-slow pointer-events-none"
-				style={{ animationDelay: "3.5s" }}
+		<div className="min-h-screen bg-canvas text-body">
+			{/* ------------------------------------------------------------ nav */}
+			<SiteNav
+				lang={lang}
+				theme={theme}
+				onToggleLang={toggleLang}
+				onToggleTheme={toggleTheme}
+				active="workspace"
 			/>
 
-			{/* Main Workspace Frame */}
-			<div className="w-full max-w-6xl z-10 flex flex-col gap-6 animate-reveal">
-				{/* Premium Animated Header Bar */}
-				<header className="flex flex-col md:flex-row md:items-center md:justify-between pb-6 border-b border-zinc-200 dark:border-zinc-900 gap-4">
-					<div className="flex items-center gap-3">
-						{/* Highly customized isometric logo design */}
-						<div className="relative w-12 h-12 flex items-center justify-center rounded-2xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-lg group overflow-hidden shrink-0">
-							<div className="absolute inset-0 bg-gradient-to-br from-indigo-500 via-blue-500 to-cyan-400 opacity-15 dark:opacity-25 group-hover:opacity-40 transition-opacity duration-300" />
-							<Layers className="w-6 h-6 text-indigo-600 dark:text-indigo-400 group-hover:rotate-12 group-hover:scale-110 transition-all duration-300" />
-						</div>
-						<div className="flex flex-col">
-							<div className="flex items-center gap-2">
-								<h1 className="text-xl font-extrabold tracking-tight text-zinc-900 dark:text-white leading-none">
-									Edge Engine
-								</h1>
-								<span className="text-[9px] font-mono py-0.5 px-2 rounded-full bg-indigo-500/10 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 font-extrabold leading-none">
-									v{version}
-								</span>
-							</div>
-							<span className="text-[10px] uppercase tracking-widest text-zinc-400 dark:text-zinc-500 font-extrabold mt-1.5 leading-none">
-								{lang === "zh" ? "边缘智能编排核心" : "Edge Orchestration Core"}
-							</span>
-						</div>
-					</div>
+			{/* ----------------------------------------------------------- hero */}
+			<section className="relative isolate overflow-hidden">
+				<div className="mesh" aria-hidden="true" />
+				<div className="pointer-events-none absolute inset-0 grid-texture" aria-hidden="true" />
+				<div className="shell relative z-10 flex flex-col items-center pb-14 pt-20 text-center md:pb-16 md:pt-24">
+					<span className="inline-flex items-center gap-2 rounded-full border border-hairline bg-elevated/80 px-3 py-1 font-mono text-[11px] text-body backdrop-blur">
+						<span className="text-link">$</span>
+						<span className="text-ink">edge-engine</span>
+						<span className="text-faint">--serve</span>
+						<span className="text-mute">mihomo · stash · sing-box</span>
+						<span className="caret text-ink" aria-hidden="true" />
+					</span>
 
-					{/* Status Metrics and Theme Controls */}
-					<div className="flex flex-wrap items-center gap-3 md:self-center">
-						<div className="flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-emerald-500/5 dark:bg-emerald-500/5 border border-emerald-500/20 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 shadow-sm">
-							<span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-							{t.coreStatus}: {t.running}
-						</div>
-
-						<div className="flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-indigo-500/5 dark:bg-indigo-500/5 border border-indigo-500/20 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 shadow-sm">
-							<Activity className="h-3 w-3 text-indigo-500" />
-							{t.latency}: {t.latencyVal}
-						</div>
-
-						<div className="h-4 w-px bg-zinc-200 dark:bg-zinc-800 hidden sm:block" />
-
-						<div className="flex items-center gap-2">
-							<button
-								type="button"
-								onClick={toggleLang}
-								className="p-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800/40 bg-white dark:bg-zinc-950 text-zinc-500 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider cursor-pointer"
-								title={lang === "zh" ? "切换为英文" : "Switch to Chinese"}
-							>
-								<Globe className="h-3.5 w-3.5" />
-								<span>{lang === "zh" ? "EN" : "中文"}</span>
-							</button>
-
-							<button
-								type="button"
-								onClick={toggleTheme}
-								className="p-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800/40 bg-white dark:bg-zinc-950 text-zinc-500 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all flex items-center justify-center cursor-pointer"
-								title={
-									theme === "dark"
-										? lang === "zh"
-											? "切换为亮色模式"
-											: "Switch to Light Mode"
-										: lang === "zh"
-											? "切换为暗色模式"
-											: "Switch to Dark Mode"
-								}
-							>
-								{theme === "dark" ? (
-									<Sun className="h-3.5 w-3.5" />
-								) : (
-									<Moon className="h-3.5 w-3.5" />
-								)}
-							</button>
-						</div>
-					</div>
-				</header>
-
-				{/* Header Quick Tools Navigation Bar */}
-				<nav className="flex items-center gap-2 overflow-x-auto pb-1 text-xs font-semibold text-zinc-600 dark:text-zinc-400 no-scrollbar">
-					<a
-						href="/ip.html"
-						target="_blank"
-						rel="noreferrer"
-						className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/60 dark:bg-zinc-950/40 border border-zinc-200/80 dark:border-zinc-800/60 text-zinc-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-500/40 hover:shadow-sm transition-all shrink-0 text-[11px]"
-					>
-						<Globe className="w-3.5 h-3.5 text-blue-500" />
-						<span>{t.ipTool}</span>
-					</a>
-					<a
-						href="/dns.html"
-						target="_blank"
-						rel="noreferrer"
-						className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/60 dark:bg-zinc-950/40 border border-zinc-200/80 dark:border-zinc-800/60 text-zinc-700 dark:text-zinc-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-500/40 hover:shadow-sm transition-all shrink-0 text-[11px]"
-					>
-						<ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-						<span>{t.dnsTool}</span>
-					</a>
-					<a
-						href="/webrtc.html"
-						target="_blank"
-						rel="noreferrer"
-						className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/60 dark:bg-zinc-950/40 border border-zinc-200/80 dark:border-zinc-800/60 text-zinc-700 dark:text-zinc-300 hover:text-amber-600 dark:hover:text-amber-400 hover:border-amber-500/40 hover:shadow-sm transition-all shrink-0 text-[11px]"
-					>
-						<ShieldAlert className="w-3.5 h-3.5 text-amber-500" />
-						<span>{t.webrtcTool}</span>
-					</a>
-					<a
-						href="/claude.html"
-						target="_blank"
-						rel="noreferrer"
-						className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/60 dark:bg-zinc-950/40 border border-zinc-200/80 dark:border-zinc-800/60 text-zinc-700 dark:text-zinc-300 hover:text-purple-600 dark:hover:text-purple-400 hover:border-purple-500/40 hover:shadow-sm transition-all shrink-0 text-[11px]"
-					>
-						<Sparkles className="w-3.5 h-3.5 text-purple-500" />
-						<span>{t.claudeTool}</span>
-					</a>
-					<a
-						href="/tools.html"
-						target="_blank"
-						rel="noreferrer"
-						className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/60 dark:bg-zinc-950/40 border border-zinc-200/80 dark:border-zinc-800/60 text-zinc-700 dark:text-zinc-300 hover:text-cyan-600 dark:hover:text-cyan-400 hover:border-cyan-500/40 hover:shadow-sm transition-all shrink-0 text-[11px]"
-					>
-						<Wrench className="w-3.5 h-3.5 text-cyan-500" />
-						<span>{t.toolsSuite}</span>
-					</a>
-					<a
-						href="/GUIDE.md"
-						target="_blank"
-						rel="noreferrer"
-						className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/40 text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 hover:border-indigo-400 transition-all shrink-0 text-[11px] font-bold"
-					>
-						<BookOpen className="w-3.5 h-3.5 text-indigo-500" />
-						<span>{t.docGuide}</span>
-					</a>
-				</nav>
-
-				{/* Dashboard Realtime Stats Cards */}
-				<section className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-reveal">
-					<div className="p-4 bg-white dark:bg-zinc-950/30 rounded-xl border border-zinc-200/80 dark:border-zinc-900/60 flex items-center justify-between shadow-sm hover:border-zinc-300 dark:hover:border-zinc-800 transition-all group">
-						<div className="flex flex-col gap-1.5">
-							<span className="text-[9px] font-extrabold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-								{t.activeSubs}
-							</span>
-							<span className="text-lg font-extrabold font-mono text-indigo-600 dark:text-indigo-400 leading-none">
-								{subscriptionAnalysis.activeCount}{" "}
-								<span className="text-[10px] font-normal text-zinc-400 dark:text-zinc-500 uppercase">
-									Src
-								</span>
-							</span>
-						</div>
-						<div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 border border-indigo-500/10 group-hover:scale-110 transition-transform duration-300">
-							<Globe className="h-4 w-4" />
-						</div>
-					</div>
-
-					<div className="p-4 bg-white dark:bg-zinc-950/30 rounded-xl border border-zinc-200/80 dark:border-zinc-900/60 flex items-center justify-between shadow-sm hover:border-zinc-300 dark:hover:border-zinc-800 transition-all group">
-						<div className="flex flex-col gap-1.5">
-							<span className="text-[9px] font-extrabold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-								{t.customNodes}
-							</span>
-							<span className="text-lg font-extrabold font-mono text-purple-600 dark:text-purple-400 leading-none">
-								{customNodeCount}{" "}
-								<span className="text-[10px] font-normal text-zinc-400 dark:text-zinc-500 uppercase">
-									Nodes
-								</span>
-							</span>
-						</div>
-						<div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-950/30 text-purple-600 dark:text-purple-400 border border-purple-500/10 group-hover:scale-110 transition-transform duration-300">
-							<Cpu className="h-4 w-4" />
-						</div>
-					</div>
-
-					<div className="p-4 bg-white dark:bg-zinc-950/30 rounded-xl border border-zinc-200/80 dark:border-zinc-900/60 flex items-center justify-between shadow-sm hover:border-zinc-300 dark:hover:border-zinc-800 transition-all group">
-						<div className="flex flex-col gap-1.5 max-w-[70%]">
-							<span className="text-[9px] font-extrabold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-								{t.activeKernel}
-							</span>
-							<span className="text-xs font-bold font-mono text-zinc-800 dark:text-zinc-200 truncate leading-none mt-0.5">
-								{selectedKernel.toUpperCase()}{" "}
-								<span className="text-[8px] py-0.5 px-1 bg-zinc-100 dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400 rounded uppercase font-bold">
-									{selectedMode ? selectedMode.slice(1) : "Full"}
-								</span>
-							</span>
-						</div>
-						<div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border border-amber-500/10 group-hover:scale-110 transition-transform duration-300">
-							<Terminal className="h-4 w-4" />
-						</div>
-					</div>
-
-					<div className="p-4 bg-white dark:bg-zinc-950/30 rounded-xl border border-zinc-200/80 dark:border-zinc-900/60 flex items-center justify-between shadow-sm hover:border-zinc-300 dark:hover:border-zinc-800 transition-all group">
-						<div className="flex flex-col gap-1.5">
-							<span className="text-[9px] font-extrabold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-								{t.runtimeEnv}
-							</span>
-							<span className="text-[10px] font-bold font-mono text-emerald-600 dark:text-emerald-400 leading-none mt-1 flex items-center gap-1">
-								<span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-								CLOUDFLARE EDGE
-							</span>
-						</div>
-						<div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border border-emerald-500/10 group-hover:scale-110 transition-transform duration-300">
-							<Activity className="h-4 w-4" />
-						</div>
-					</div>
-				</section>
-
-				{/* Two-Column Workspace Grid */}
-				<div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-					{/* LEFT SIDE WORKSPACE (Column Span 7) - Inputs */}
-					<div className="lg:col-span-7 flex h-full flex-col gap-6">
-						{/* Raw Proxies Panel (Interactive Card) */}
-						<InteractiveCard className="p-6 lg:flex-1">
-							<div className="flex h-full flex-col gap-4">
-								<div className="flex items-center justify-between pb-2.5 border-b border-zinc-100 dark:border-zinc-900/60">
-									<span className="label-caps flex items-center gap-1.5 font-bold tracking-wider">
-										<Cpu className="h-4 w-4 text-zinc-400 dark:text-zinc-500" />
-										{t.rawProxies}
-									</span>
-									<button
-										type="button"
-										onClick={() => setIsModalOpen(true)}
-										className="text-[11px] font-extrabold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-all uppercase tracking-wider flex items-center gap-1 cursor-pointer bg-indigo-500/5 dark:bg-indigo-500/5 px-2.5 py-1 rounded-lg border border-indigo-500/10 hover:border-indigo-500/25"
-									>
-										+ {t.injectNode}
-									</button>
-								</div>
-								<textarea
-									id="proxies-textarea"
-									value={proxiesText}
-									onChange={(e) => setProxiesText(e.target.value)}
-									placeholder={
-										mounted
-											? "vless://...\nvmess://...\ntailscale://..."
-											: "vless://... vmess://... tailscale://..."
-									}
-									spellCheck="false"
-									className="w-full min-h-[140px] lg:flex-1 modern-input font-mono text-[12px] leading-relaxed resize-y focus:ring-2 focus:ring-indigo-500/15 focus:border-indigo-500"
-								/>
-								{proxiesValidation.errors.map((error) => (
-									<div
-										key={error}
-										className="flex items-start gap-1.5 pl-1.5 text-red-600 dark:text-red-500 text-[11px] leading-normal mt-1.5 animate-reveal"
-									>
-										<AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-										<span>{error}</span>
-									</div>
-								))}
-								{protocolSupport.warnings.map((warning) => (
-									<div
-										key={warning}
-										className="flex items-start gap-1.5 pl-1.5 text-amber-600 dark:text-amber-500 text-[11px] leading-normal mt-1.5 animate-reveal"
-									>
-										<AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-										<span>{warning}</span>
-									</div>
-								))}
-							</div>
-						</InteractiveCard>
-
-						{/* Remote Providers Panel (Interactive Card) */}
-						<InteractiveCard className="p-6 space-y-4">
-							<div className="flex items-center justify-between pb-2.5 border-b border-zinc-100 dark:border-zinc-900/60 mb-2">
-								<span className="label-caps flex items-center gap-1.5 font-bold tracking-wider">
-									<Network className="h-4 w-4 text-zinc-400 dark:text-zinc-500" />
-									{t.remoteProviders}
-								</span>
-							</div>
-							<SubscriptionPanel
-								subs={subs}
-								setSubs={setSubs}
-								lang={lang}
-								duplicateNames={subscriptionAnalysis.duplicateNames}
+					<h1 className="display-xl mt-7 max-w-3xl text-balance">
+						{zh ? "把订阅编排成" : "Orchestrate every"}
+						<span className="relative mx-1.5 inline-block">
+							<span className="relative z-10">{zh ? "一条链接" : "subscription"}</span>
+							<span
+								className="absolute inset-x-[-0.08em] bottom-[0.06em] z-0 h-[0.34em] rounded-[2px]"
+								style={{
+									background:
+										"linear-gradient(90deg, var(--develop-a), var(--preview-a), var(--preview-b))",
+									opacity: 0.1,
+								}}
+								aria-hidden="true"
 							/>
-						</InteractiveCard>
+						</span>
+						{zh ? "" : " into one endpoint"}
+					</h1>
+
+					<p className="mt-5 max-w-[54ch] text-[12.5px] leading-[1.9] text-mute md:text-[13px]">
+						{zh
+							? "远程订阅、自建节点、分流模式与规则粒度全部汇入一次请求，实时生成可直接导入客户端的完整配置 —— 运行在 Cloudflare 边缘节点。"
+							: "Remote providers, custom nodes, routing depth and rule granularity resolve in a single request — a complete client-ready config, rendered at the Cloudflare edge."}
+					</p>
+
+					<div className="mt-8 flex flex-col items-center gap-3 sm:flex-row">
+						<a href="#workspace" className="btn-pill h-10 w-full min-w-[150px] sm:w-auto">
+							{zh ? "开始编排" : "Start orchestrating"}
+							<ArrowRight className="size-3.5" strokeWidth={2.4} />
+						</a>
+						<a
+							href="/GUIDE.md"
+							target="_blank"
+							rel="noreferrer"
+							className="btn-pill-ghost h-10 w-full min-w-[150px] sm:w-auto"
+						>
+							{zh ? "阅读文档" : "Read the docs"}
+							<ArrowUpRight className="size-3.5" strokeWidth={2.4} />
+						</a>
 					</div>
 
-					{/* RIGHT SIDE WORKSPACE (Column Span 5) - Orchestrator settings */}
-					<div className="lg:col-span-5 h-full">
-						{/* Orchestration Settings Panel (Interactive Card) */}
-						{/* 3D tilt remains smooth and responsive since dropdown select is removed! */}
-						<InteractiveCard className="h-full p-6 space-y-5">
-							<span className="label-caps flex items-center gap-1.5 font-bold tracking-wider border-b border-zinc-100 dark:border-zinc-900 pb-3">
-								<Settings className="h-4 w-4 text-zinc-400 dark:text-zinc-500" />
-								{t.settings}
+					<div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 font-mono text-[10px] uppercase tracking-[0.1em] text-faint">
+						{[
+							zh ? "云端生成" : "server-side render",
+							zh ? "零运行时依赖" : "zero runtime deps",
+							zh ? "20+ 场景分组" : "20+ scenario groups",
+						].map((label) => (
+							<span key={label} className="flex items-center gap-1.5">
+								<Check className="size-3 text-ink" strokeWidth={3} />
+								{label}
 							</span>
-
-							<div className="space-y-4">
-								{/* Kernel Target Step Selector (Modern Segmented controls) */}
-								<div className="space-y-2">
-									<span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-										{t.targetKernel}
-									</span>
-									<div className="grid grid-cols-3 gap-2">
-										{[
-											{ id: "mihomo", label: "Mihomo", desc: "Clash Meta" },
-											{ id: "stash", label: "Stash iOS", desc: "Clash Meta" },
-											{ id: "sing-box", label: "sing-box", desc: "Next-Gen" },
-										].map((k) => {
-											const isSelected = selectedKernel === k.id;
-											return (
-												<button
-													key={k.id}
-													type="button"
-													onClick={() => changeKernel(k.id as KernelType)}
-													className={`py-2.5 px-1 rounded-xl border text-center transition-all duration-300 flex flex-col justify-center items-center gap-0.5 cursor-pointer relative overflow-hidden group ${
-														isSelected
-															? "border-indigo-500 bg-indigo-500/5 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shadow-sm"
-															: "border-zinc-200 dark:border-zinc-900 bg-white dark:bg-zinc-950 text-zinc-500 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-800 hover:text-zinc-900 dark:hover:text-white"
-													}`}
-												>
-													<span className="text-xs font-bold leading-none">{k.label}</span>
-													<span className="text-[8px] font-medium opacity-60 leading-none">
-														{k.desc}
-													</span>
-													{isSelected && (
-														<span className="absolute bottom-1 w-1 h-1 rounded-full bg-indigo-500 dark:bg-indigo-400" />
-													)}
-												</button>
-											);
-										})}
-									</div>
-								</div>
-
-								{/* Mode Selection Step Selector (Modern Segmented controls) */}
-								<div className="space-y-2">
-									<div className="flex items-center justify-between">
-										<span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-											{lang === "zh" ? "分流编排深度模式" : "Orchestration Mode"}
-										</span>
-										<button
-											type="button"
-											onClick={() => setShowHelpPopover(!showHelpPopover)}
-											className={`text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer ${
-												showHelpPopover
-													? "text-indigo-600 dark:text-indigo-400"
-													: "text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300"
-											}`}
-										>
-											<HelpCircle className="h-3.5 w-3.5" />
-											<span>{lang === "zh" ? "对比" : "Compare"}</span>
-										</button>
-									</div>
-
-									<div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-										{[
-											{ id: "", label: lang === "zh" ? "全量分流" : "Full", sub: "Full" },
-											{ id: "-dual", label: lang === "zh" ? "双模分流" : "Dual", sub: "Recommend" },
-											{
-												id: "-white",
-												label: lang === "zh" ? "白名单" : "White",
-												sub: "Direct First",
-											},
-											{
-												id: "-black",
-												label: lang === "zh" ? "黑名单" : "Black",
-												sub: "Proxy First",
-											},
-										].map((m) => {
-											const isSelected = selectedMode === m.id;
-											return (
-												<button
-													key={m.id}
-													type="button"
-													onClick={() => changeMode(m.id as RoutingMode)}
-													className={`py-2 px-0.5 rounded-xl border text-center transition-all duration-300 flex flex-col justify-center items-center gap-0.5 cursor-pointer relative ${
-														isSelected
-															? "border-indigo-500 bg-indigo-500/5 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shadow-sm"
-															: "border-zinc-200 dark:border-zinc-900 bg-white dark:bg-zinc-950 text-zinc-500 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-800 hover:text-zinc-900 dark:hover:text-white"
-													}`}
-												>
-													<span className="text-[11px] font-bold leading-none">{m.label}</span>
-													<span className="text-[7.5px] font-medium opacity-65 leading-none">
-														{m.sub}
-													</span>
-													{isSelected && (
-														<span className="absolute bottom-1 w-1 h-1 rounded-full bg-indigo-500 dark:bg-indigo-400" />
-													)}
-												</button>
-											);
-										})}
-									</div>
-
-									{/* Mode Differences Popover Card */}
-									{showHelpPopover && (
-										<div
-											role="none"
-											onMouseMove={(e) => e.stopPropagation()}
-											onMouseLeave={(e) => e.stopPropagation()}
-											className="mt-2 p-4 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-[11px] space-y-3 animate-reveal z-40 text-zinc-700 dark:text-zinc-300 shadow-lg"
-										>
-											<div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-900 pb-2">
-												<span className="font-extrabold text-zinc-900 dark:text-white uppercase tracking-wider text-[10px] flex items-center gap-1.5">
-													<HelpCircle className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />
-													{lang === "zh" ? "分流编排模式区别说明" : "Mode Difference Explanation"}
-												</span>
-												<button
-													type="button"
-													onClick={() => setShowHelpPopover(false)}
-													className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 cursor-pointer"
-												>
-													[ {lang === "zh" ? "关闭" : "Close"} ]
-												</button>
-											</div>
-											<div className="space-y-2.5 leading-relaxed max-h-52 overflow-y-auto">
-												<div>
-													<p className="font-bold text-indigo-600 dark:text-indigo-400">
-														1. {lang === "zh" ? "全量分流 (Full)" : "Full Scenario Routing"}
-													</p>
-													<p className="text-zinc-500 dark:text-zinc-400 text-[10px] pl-3 mt-0.5">
-														{lang === "zh"
-															? "细化规则分流。将海外流量划分到 20+ 个场景特化分组（如 AI、GitHub、开发、视频、微软等），支持每个场景独立选择代理节点。"
-															: "Granular scenario routing. Categorizes foreign traffic into 20+ scenario groups (e.g. AI, Dev, Media, Microsoft) with individual proxy selectors."}
-													</p>
-												</div>
-												<div>
-													<p className="font-bold text-indigo-600 dark:text-indigo-400">
-														2.{" "}
-														{lang === "zh" ? "双模分流 (Dual - 推荐)" : "Dual-Mode (Recommended)"}
-													</p>
-													<p className="text-zinc-500 dark:text-zinc-400 text-[10px] pl-3 mt-0.5">
-														{lang === "zh"
-															? "兼顾精简与功能。将所有海外场景的分组归拢合并为单个统一的「🚀 节点选择」分组，大大减小客户端界面和规则组体积。"
-															: 'Combines simplicity with power. Merges all foreign scenario outbounds into a single "🚀 Proxy Select" group, reducing ruleset and UI bloat.'}
-													</p>
-												</div>
-												<div>
-													<p className="font-bold text-indigo-600 dark:text-indigo-400">
-														3. {lang === "zh" ? "白名单模式 (White)" : "Whitelist (Domestic First)"}
-													</p>
-													<p className="text-zinc-500 dark:text-zinc-400 text-[10px] pl-3 mt-0.5">
-														{lang === "zh"
-															? "国内直连优先。仅对明确匹配到海外规则（如 Google、YouTube）的流量走代理，其余所有未匹配流量一律默认直连 (DIRECT)。"
-															: "Domestic direct-connection first. Only traffic explicitly matched to foreign rules goes through proxies; everything else defaults to DIRECT."}
-													</p>
-												</div>
-												<div>
-													<p className="font-bold text-indigo-600 dark:text-indigo-400">
-														4. {lang === "zh" ? "黑名单模式 (Black)" : "Blacklist (Proxy First)"}
-													</p>
-													<p className="text-zinc-500 dark:text-zinc-400 text-[10px] pl-3 mt-0.5">
-														{lang === "zh"
-															? "海外代理优先。仅对明确匹配到国内规则（如 哔哩哔哩、百度）的流量直连，其余所有未匹配的流量默认全部走代理。"
-															: "Foreign proxy first. Only traffic explicitly matched to domestic rules goes DIRECT; all other unmatched traffic defaults to proxies."}
-													</p>
-												</div>
-											</div>
-										</div>
-									)}
-								</div>
-
-								{/* Rule Granularity Selector */}
-								<div className="space-y-1.5">
-									<span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-										{t.ruleGranularity}
-									</span>
-									<div className="grid grid-cols-2 gap-2">
-										<button
-											type="button"
-											onClick={() => setRulesMode("category")}
-											className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all text-left flex flex-col justify-between gap-1 cursor-pointer ${
-												rulesMode === "category"
-													? "border-indigo-500/50 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shadow-sm"
-													: "border-zinc-200 dark:border-zinc-800/40 bg-zinc-50/50 dark:bg-zinc-900/30 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900"
-											}`}
-										>
-											<span>{t.rulesCategory}</span>
-											<span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-normal leading-tight">
-												{t.rulesCategoryDesc}
-											</span>
-										</button>
-										<button
-											type="button"
-											onClick={() => setRulesMode("granular")}
-											className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all text-left flex flex-col justify-between gap-1 cursor-pointer ${
-												rulesMode === "granular"
-													? "border-indigo-500/50 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shadow-sm"
-													: "border-zinc-200 dark:border-zinc-800/40 bg-zinc-50/50 dark:bg-zinc-900/30 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900"
-											}`}
-										>
-											<span>{t.rulesGranular}</span>
-											<span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-normal leading-tight">
-												{t.rulesGranularDesc}
-											</span>
-										</button>
-									</div>
-								</div>
-
-								{/* Secret Key Input */}
-								<div className="space-y-1.5">
-									<span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-										{t.secret}
-									</span>
-									<input
-										type="text"
-										value={secret}
-										onChange={(e) => setSecret(e.target.value)}
-										placeholder={t.secretPlaceholder}
-										className="w-full modern-input font-mono focus:ring-2 focus:ring-indigo-500/15 focus:border-indigo-500"
-									/>
-								</div>
-
-								{/* Mirror Path Input */}
-								<div className="space-y-1.5">
-									<span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-										{t.mirror}
-									</span>
-									<input
-										list="gh-proxies-list"
-										type="text"
-										value={ghProxy}
-										onChange={(e) => setGhProxy(e.target.value)}
-										placeholder={t.mirrorPlaceholder}
-										className="w-full modern-input font-mono focus:ring-2 focus:ring-indigo-500/15 focus:border-indigo-500"
-									/>
-									<datalist id="gh-proxies-list">
-										{COMMON_GH_PROXIES.map((proxy) => (
-											<option key={proxy} value={proxy} />
-										))}
-									</datalist>
-								</div>
-							</div>
-						</InteractiveCard>
+						))}
 					</div>
 				</div>
+			</section>
 
-				{/* Full-width generation dock keeps the two-column workspace visually balanced. */}
-				<section className="relative">
+			{/* ---------------------------------------------------------- stats */}
+			<section
+				aria-label={zh ? "运行时指标" : "Runtime metrics"}
+				className="border-y border-hairline"
+			>
+				<div className="shell grid grid-cols-2 gap-px bg-hairline md:grid-cols-4">
+					{stats.map((s) => (
+						<div key={s.label} className="group flex flex-col gap-2 bg-elevated px-5 py-5 md:px-6">
+							<span className="flex items-center justify-between gap-2">
+								<span className="eyebrow text-[10px] text-mute">{s.label}</span>
+								<s.icon
+									className="size-3.5 text-faint transition-colors group-hover:text-ink"
+									strokeWidth={2}
+								/>
+							</span>
+							<span className="flex items-baseline gap-2">
+								<span className="font-mono text-[22px] font-semibold leading-none tracking-tight text-ink tabular-nums">
+									{s.value}
+								</span>
+								{"live" in s && s.live ? (
+									<span className="size-1.5 rounded-full bg-link" aria-hidden="true" />
+								) : null}
+							</span>
+							<span className="truncate font-mono text-[10px] text-faint">{s.unit}</span>
+						</div>
+					))}
+				</div>
+			</section>
+
+			{/* ------------------------------------------------------ workspace */}
+			<main id="workspace" className="shell scroll-mt-16 py-16 md:py-20">
+				<SectionHead
+					index="01"
+					title={zh ? "订阅来源" : "Sources"}
+					desc={
+						zh
+							? "粘贴单节点 URI，或添加远程订阅提供商 —— 两者汇入同一个出口。"
+							: "Paste node URIs and/or add remote providers — both feed the same endpoint."
+					}
+					aside={
+						<div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-faint">
+							<span className="chip">{selectedKernel}</span>
+							<ChevronRight className="size-3" />
+							<span className="chip">{`mode=${selectedMode ? selectedMode.slice(1) : "full"}`}</span>
+							<ChevronRight className="size-3" />
+							<span className="chip">{`rules=${rulesMode}`}</span>
+						</div>
+					}
+				/>
+
+				<div className="grid items-start gap-4 lg:grid-cols-12">
+					<div className="flex flex-col gap-4 lg:col-span-7">
+						{/* raw proxies */}
+						<section className="card p-5 md:p-6">
+							<div className="flex flex-wrap items-center justify-between gap-3 border-b border-hairline pb-4">
+								<div className="flex items-center gap-2">
+									<Cpu className="size-3.5 text-mute" strokeWidth={2} />
+									<span className="eyebrow text-[10.5px] text-ink">{t.rawProxies}</span>
+									<span className="chip ml-1">{customNodeCount}</span>
+								</div>
+								<button
+									type="button"
+									onClick={() => setIsModalOpen(true)}
+									className="btn-square-ghost"
+								>
+									<Plus className="size-3" strokeWidth={2.6} />
+									{t.injectNode}
+								</button>
+							</div>
+
+							<textarea
+								id="proxies-textarea"
+								value={proxiesText}
+								onChange={(e) => setProxiesText(e.target.value)}
+								placeholder={
+									mounted
+										? "vless://…\nvmess://…\ntailscale://…"
+										: "vless://… vmess://… tailscale://…"
+								}
+								spellCheck="false"
+								className="textarea mt-4 min-h-[152px] font-mono text-[12px] leading-[1.9]"
+							/>
+
+							<div className="mt-3 space-y-1.5 empty:hidden">
+								{proxiesValidation.errors.map((error) => (
+									<p key={error} className="flex items-start gap-1.5 text-[11px] text-danger">
+										<Circle className="mt-1 size-1.5 shrink-0 fill-current" />
+										<span>{error}</span>
+									</p>
+								))}
+								{protocolSupport.warnings.map((warning) => (
+									<p key={warning} className="flex items-start gap-1.5 text-[11px] text-warn-deep">
+										<Circle className="mt-1 size-1.5 shrink-0 fill-current" />
+										<span>{warning}</span>
+									</p>
+								))}
+							</div>
+						</section>
+
+						{/* remote providers */}
+						<section className="card p-5 md:p-6">
+							<div className="flex flex-wrap items-center justify-between gap-3 border-b border-hairline pb-4">
+								<div className="flex items-center gap-2">
+									<Network className="size-3.5 text-mute" strokeWidth={2} />
+									<span className="eyebrow text-[10.5px] text-ink">{t.remoteProviders}</span>
+									<span className="chip ml-1">{subscriptionAnalysis.activeCount}</span>
+								</div>
+								<span className="font-mono text-[10px] text-faint">
+									{zh ? "同一名称会生成独立分组" : "one group per provider"}
+								</span>
+							</div>
+							<div className="mt-4">
+								<SubscriptionPanel
+									subs={subs}
+									setSubs={setSubs}
+									lang={lang}
+									duplicateNames={subscriptionAnalysis.duplicateNames}
+								/>
+							</div>
+						</section>
+					</div>
+
+					{/* orchestration */}
+					<section className="card p-5 md:p-6 lg:sticky lg:top-[70px] lg:col-span-5">
+						<div className="flex items-center gap-2 border-b border-hairline pb-4">
+							<Settings2 className="size-3.5 text-mute" strokeWidth={2} />
+							<span className="eyebrow text-[10.5px] text-ink">{t.settings}</span>
+						</div>
+
+						<div className="mt-5 space-y-6">
+							<div>
+								<FieldLabel>{t.targetKernel}</FieldLabel>
+								<div className="grid grid-cols-3 gap-1.5">
+									{kernels.map((k) => {
+										const active = selectedKernel === k.id;
+										return (
+											<button
+												key={k.id}
+												type="button"
+												onClick={() => changeKernel(k.id)}
+												className={cn(
+													"flex h-[52px] flex-col items-center justify-center gap-1 rounded-[64px] border transition-colors",
+													active
+														? "border-ink bg-ink text-on-ink"
+														: "border-hairline bg-elevated text-body hover:border-ink/25 hover:text-ink",
+												)}
+											>
+												<span className="text-[12px] font-semibold leading-none">{k.label}</span>
+												<span
+													className={cn(
+														"text-[9px] leading-none",
+														active ? "text-on-ink/55" : "text-faint",
+													)}
+												>
+													{k.sub}
+												</span>
+											</button>
+										);
+									})}
+								</div>
+							</div>
+
+							<div>
+								<div className="mb-1.5 flex items-center justify-between">
+									<FieldLabel>
+										<span className="block">{zh ? "分流编排模式" : "Orchestration mode"}</span>
+									</FieldLabel>
+									<button
+										type="button"
+										onClick={() => setShowHelpPopover((v) => !v)}
+										className={cn(
+											"-mt-1.5 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.08em] transition-colors",
+											showHelpPopover ? "text-ink" : "text-faint hover:text-ink",
+										)}
+									>
+										<HelpCircle className="size-3" strokeWidth={2.2} />
+										{zh ? "对比" : "Compare"}
+									</button>
+								</div>
+
+								<div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+									{modes.map((m) => {
+										const active = selectedMode === m.id;
+										return (
+											<button
+												key={m.id || "full"}
+												type="button"
+												onClick={() => changeMode(m.id)}
+												className={cn(
+													"flex h-[46px] flex-col items-start justify-center rounded-sm border px-2 text-left transition-colors",
+													active
+														? "border-ink bg-ink text-on-ink"
+														: "border-hairline bg-elevated text-body hover:border-ink/25 hover:text-ink",
+												)}
+											>
+												<span className="text-[11.5px] font-semibold leading-tight">{m.label}</span>
+												<span
+													className={cn(
+														"text-[9px] leading-tight",
+														active ? "text-on-ink/60" : "text-faint",
+													)}
+												>
+													{m.sub}
+												</span>
+											</button>
+										);
+									})}
+								</div>
+
+								{showHelpPopover && (
+									<div
+										role="dialog"
+										aria-label={zh ? "模式说明" : "Mode comparison"}
+										className="card-float mt-2 p-4 text-[11.5px]"
+									>
+										<div className="flex items-center justify-between border-b border-hairline pb-2">
+											<span className="eyebrow text-[10px] text-ink">
+												{zh ? "模式差异" : "Mode diff"}
+											</span>
+											<button
+												type="button"
+												onClick={() => setShowHelpPopover(false)}
+												className="text-[10px] font-semibold uppercase tracking-[0.08em] text-faint transition-colors hover:text-ink"
+											>
+												{zh ? "关闭" : "close"}
+											</button>
+										</div>
+										<dl className="mt-2.5 max-h-56 space-y-2.5 overflow-y-auto pr-1">
+											{[
+												{
+													term: "full",
+													d: zh
+														? "20+ 场景分组（AI、开发、流媒体…），每个都能在客户端独立选择出向。"
+														: "20+ scenario groups (AI, dev, media…) each individually selectable in your client.",
+												},
+												{
+													term: "dual",
+													d: zh
+														? "所有海外场景合并进单一「🚀 节点选择」，规则体积与界面最精简。"
+														: 'All foreign scenarios merged into one "🚀 Proxy Select" — smallest ruleset and UI.',
+												},
+												{
+													term: "white",
+													d: zh
+														? "仅命中海外规则的流量走代理，其余默认 DIRECT。"
+														: "Only traffic matching foreign rules is proxied; everything else defaults to DIRECT.",
+												},
+												{
+													term: "black",
+													d: zh
+														? "仅命中国内规则的流量直连，其余默认走代理。"
+														: "Only traffic matching domestic rules goes DIRECT; everything else defaults to proxies.",
+												},
+											].map((row) => (
+												<div key={row.term} className="flex gap-2.5">
+													<dt className="w-12 shrink-0 font-mono text-[10px] font-semibold uppercase tracking-wide text-ink">
+														{row.term}
+													</dt>
+													<dd className="leading-relaxed text-mute">{row.d}</dd>
+												</div>
+											))}
+										</dl>
+									</div>
+								)}
+							</div>
+
+							<div>
+								<FieldLabel>{t.ruleGranularity}</FieldLabel>
+								<div className="grid auto-rows-fr grid-cols-2 gap-1.5">
+									{(
+										[
+											{ id: "category", name: t.rulesCategory, desc: t.rulesCategoryDesc },
+											{ id: "granular", name: t.rulesGranular, desc: t.rulesGranularDesc },
+										] as const
+									).map((r) => {
+										const active = rulesMode === r.id;
+										return (
+											<button
+												key={r.id}
+												type="button"
+												onClick={() => setRulesMode(r.id)}
+												className={cn(
+													"flex h-full flex-col gap-1 rounded-sm border p-2.5 text-left transition-colors",
+													active
+														? "border-ink bg-elevated"
+														: "border-hairline bg-canvas hover:border-ink/20",
+												)}
+											>
+												<span className="flex items-center gap-1.5">
+													<span
+														className={cn(
+															"flex size-3 items-center justify-center rounded-full border",
+															active ? "border-ink bg-ink" : "border-hairline",
+														)}
+													>
+														{active && (
+															<span className="size-1 rounded-full bg-on-ink" aria-hidden="true" />
+														)}
+													</span>
+													<span className="text-[11.5px] font-semibold text-ink">{r.name}</span>
+												</span>
+												<span className="text-[10px] leading-snug text-faint">{r.desc}</span>
+											</button>
+										);
+									})}
+								</div>
+							</div>
+
+							<div>
+								<FieldLabel htmlFor="secret-input">{t.secret}</FieldLabel>
+								<input
+									id="secret-input"
+									type="text"
+									value={secret}
+									onChange={(e) => setSecret(e.target.value)}
+									placeholder={t.secretPlaceholder}
+									className="input font-mono"
+								/>
+							</div>
+
+							<div>
+								<FieldLabel htmlFor="mirror-input">{t.mirror}</FieldLabel>
+								<input
+									id="mirror-input"
+									list="gh-proxies-list"
+									type="text"
+									value={ghProxy}
+									onChange={(e) => setGhProxy(e.target.value)}
+									placeholder={t.mirrorPlaceholder}
+									className="input font-mono"
+								/>
+								<datalist id="gh-proxies-list">
+									{COMMON_GH_PROXIES.map((proxy) => (
+										<option key={proxy} value={proxy} />
+									))}
+								</datalist>
+							</div>
+						</div>
+					</section>
+				</div>
+			</main>
+
+			{/* ------------------------------------------------------- endpoint */}
+			<section className="border-t border-hairline bg-elevated/40">
+				<div className="shell py-14 md:py-16">
+					<SectionHead
+						index="02"
+						title={zh ? "生成订阅地址" : "Endpoint"}
+						desc={
+							zh
+								? "生成可直接粘贴到客户端订阅栏的链接；可单独转为短链或在新窗口验证。"
+								: "Generate an importable endpoint, shorten it, or verify it in a new tab."
+						}
+					/>
 					<ActionBox
 						proxiesText={proxiesText}
 						subs={subs}
@@ -621,226 +626,78 @@ function HomeComponent() {
 						subscriptionAnalysis={subscriptionAnalysis}
 						customNodesCount={customNodeCount}
 					/>
-				</section>
+				</div>
+			</section>
 
-				{/* Dynamic Traffic Routing Flow Visualizer */}
+			{/* -------------------------------------------------------- routing */}
+			<section className="shell py-14 md:py-16">
+				<SectionHead
+					index="03"
+					title={zh ? "分流路径" : "Routing path"}
+					desc={
+						zh
+							? "当前模式下流量如何被判定、匹配与派发。"
+							: "How traffic is judged, matched and dispatched in the active mode."
+					}
+					aside={
+						<span className="chip chip-link">{`mode=${selectedMode ? selectedMode.slice(1) : "full"}`}</span>
+					}
+				/>
 				<RoutingFlow mode={selectedMode} lang={lang} />
+			</section>
 
-				{/* Network Diagnostics & Security Tools Cards Grid */}
-				<section className="flex flex-col gap-4 animate-reveal mt-2">
-					<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
-						<h2 className="text-base font-extrabold text-zinc-900 dark:text-white flex items-center gap-2">
-							<Wrench className="w-4 h-4 text-indigo-500" />
-							<span>{t.toolsTitle}</span>
-						</h2>
-						<p className="text-xs text-zinc-500 dark:text-zinc-400">{t.toolsDesc}</p>
+			{/* ---------------------------------------------------------- tools */}
+			<section id="tools" className="border-t border-hairline bg-elevated/40 scroll-mt-16">
+				<div className="shell py-14 md:py-16">
+					<SectionHead
+						index="04"
+						title={t.toolsTitle}
+						desc={t.toolsDesc}
+						aside={
+							<a href="/tools.html" target="_blank" rel="noreferrer" className="btn-square-ghost">
+								<Terminal className="size-3" strokeWidth={2.2} />
+								{zh ? "打开工具箱" : "Open toolbox"}
+							</a>
+						}
+					/>
+
+					<div className="grid gap-px bg-hairline sm:grid-cols-2 lg:grid-cols-3">
+						{tools.map((tool) => (
+							<a
+								key={tool.href}
+								href={tool.href}
+								target="_blank"
+								rel="noreferrer"
+								className="group flex flex-col justify-between gap-6 bg-canvas p-5 transition-colors hover:bg-elevated md:p-6"
+							>
+								<div className="flex items-start justify-between">
+									<span className="flex size-8 items-center justify-center rounded-sm border border-hairline bg-elevated text-ink transition-colors group-hover:border-ink/30">
+										<tool.icon className="size-4" strokeWidth={1.9} />
+									</span>
+									<ArrowUpRight
+										className="size-3.5 text-faint transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-ink"
+										strokeWidth={2}
+									/>
+								</div>
+								<div>
+									<h3 className="text-[13px] font-semibold tracking-tight text-ink">
+										{tool.title}
+									</h3>
+									<p className="mt-1.5 line-clamp-2 text-[11.5px] leading-relaxed text-mute">
+										{tool.desc}
+									</p>
+									<span className="mt-3 block font-mono text-[10px] uppercase tracking-[0.08em] text-faint">
+										{tool.meta}
+									</span>
+								</div>
+							</a>
+						))}
 					</div>
+				</div>
+			</section>
 
-					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-						<a
-							href="/ip.html"
-							target="_blank"
-							rel="noreferrer"
-							className="group p-4 bg-white/70 dark:bg-zinc-950/40 backdrop-blur-md rounded-xl border border-zinc-200/80 dark:border-zinc-900 flex flex-col justify-between hover:border-indigo-500/50 dark:hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-300 relative overflow-hidden"
-						>
-							<div className="flex items-start justify-between">
-								<div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 group-hover:scale-110 transition-transform">
-									<Globe className="w-5 h-5" />
-								</div>
-								<ExternalLink className="w-4 h-4 text-zinc-400 dark:text-zinc-600 group-hover:text-indigo-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
-							</div>
-							<div className="mt-4">
-								<h3 className="text-sm font-bold text-zinc-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-									{t.ipTool}
-								</h3>
-								<p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2">
-									{t.ipDesc}
-								</p>
-							</div>
-						</a>
-
-						<a
-							href="/dns.html"
-							target="_blank"
-							rel="noreferrer"
-							className="group p-4 bg-white/70 dark:bg-zinc-950/40 backdrop-blur-md rounded-xl border border-zinc-200/80 dark:border-zinc-900 flex flex-col justify-between hover:border-emerald-500/50 dark:hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-300 relative overflow-hidden"
-						>
-							<div className="flex items-start justify-between">
-								<div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 group-hover:scale-110 transition-transform">
-									<ShieldCheck className="w-5 h-5" />
-								</div>
-								<ExternalLink className="w-4 h-4 text-zinc-400 dark:text-zinc-600 group-hover:text-emerald-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
-							</div>
-							<div className="mt-4">
-								<h3 className="text-sm font-bold text-zinc-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-									{t.dnsTool}
-								</h3>
-								<p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2">
-									{t.dnsDesc}
-								</p>
-							</div>
-						</a>
-
-						<a
-							href="/webrtc.html"
-							target="_blank"
-							rel="noreferrer"
-							className="group p-4 bg-white/70 dark:bg-zinc-950/40 backdrop-blur-md rounded-xl border border-zinc-200/80 dark:border-zinc-900 flex flex-col justify-between hover:border-amber-500/50 dark:hover:border-amber-500/50 hover:shadow-lg hover:shadow-amber-500/5 transition-all duration-300 relative overflow-hidden"
-						>
-							<div className="flex items-start justify-between">
-								<div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 group-hover:scale-110 transition-transform">
-									<ShieldAlert className="w-5 h-5" />
-								</div>
-								<ExternalLink className="w-4 h-4 text-zinc-400 dark:text-zinc-600 group-hover:text-amber-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
-							</div>
-							<div className="mt-4">
-								<h3 className="text-sm font-bold text-zinc-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
-									{t.webrtcTool}
-								</h3>
-								<p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2">
-									{t.webrtcDesc}
-								</p>
-							</div>
-						</a>
-
-						<a
-							href="/claude.html"
-							target="_blank"
-							rel="noreferrer"
-							className="group p-4 bg-white/70 dark:bg-zinc-950/40 backdrop-blur-md rounded-xl border border-zinc-200/80 dark:border-zinc-900 flex flex-col justify-between hover:border-purple-500/50 dark:hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/5 transition-all duration-300 relative overflow-hidden"
-						>
-							<div className="flex items-start justify-between">
-								<div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 group-hover:scale-110 transition-transform">
-									<Sparkles className="w-5 h-5" />
-								</div>
-								<ExternalLink className="w-4 h-4 text-zinc-400 dark:text-zinc-600 group-hover:text-purple-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
-							</div>
-							<div className="mt-4">
-								<h3 className="text-sm font-bold text-zinc-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
-									{t.claudeTool}
-								</h3>
-								<p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2">
-									{t.claudeDesc}
-								</p>
-							</div>
-						</a>
-
-						<a
-							href="/tools.html"
-							target="_blank"
-							rel="noreferrer"
-							className="group p-4 bg-white/70 dark:bg-zinc-950/40 backdrop-blur-md rounded-xl border border-zinc-200/80 dark:border-zinc-900 flex flex-col justify-between hover:border-cyan-500/50 dark:hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/5 transition-all duration-300 relative overflow-hidden"
-						>
-							<div className="flex items-start justify-between">
-								<div className="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 group-hover:scale-110 transition-transform">
-									<Wrench className="w-5 h-5" />
-								</div>
-								<ExternalLink className="w-4 h-4 text-zinc-400 dark:text-zinc-600 group-hover:text-cyan-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
-							</div>
-							<div className="mt-4">
-								<h3 className="text-sm font-bold text-zinc-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
-									{t.toolsSuite}
-								</h3>
-								<p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2">
-									{t.toolsSuiteDesc}
-								</p>
-							</div>
-						</a>
-
-						<a
-							href="/GUIDE.md"
-							target="_blank"
-							rel="noreferrer"
-							className="group p-4 bg-white/70 dark:bg-zinc-950/40 backdrop-blur-md rounded-xl border border-zinc-200/80 dark:border-zinc-900 flex flex-col justify-between hover:border-indigo-500/50 dark:hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-300 relative overflow-hidden"
-						>
-							<div className="flex items-start justify-between">
-								<div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 group-hover:scale-110 transition-transform">
-									<BookOpen className="w-5 h-5" />
-								</div>
-								<ExternalLink className="w-4 h-4 text-zinc-400 dark:text-zinc-600 group-hover:text-indigo-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
-							</div>
-							<div className="mt-4">
-								<h3 className="text-sm font-bold text-zinc-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-									{t.docGuide}
-								</h3>
-								<p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2">
-									{t.docGuideDesc}
-								</p>
-							</div>
-						</a>
-					</div>
-				</section>
-
-				{/* Footer */}
-				<footer className="mt-8 text-center border-t border-zinc-200 dark:border-zinc-900 pt-6 flex flex-col gap-4">
-					<div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400">
-						<a
-							href="/ip.html"
-							target="_blank"
-							rel="noreferrer"
-							className="hover:text-blue-500 transition-colors"
-						>
-							{t.ipTool}
-						</a>
-						<a
-							href="/dns.html"
-							target="_blank"
-							rel="noreferrer"
-							className="hover:text-emerald-500 transition-colors"
-						>
-							{t.dnsTool}
-						</a>
-						<a
-							href="/webrtc.html"
-							target="_blank"
-							rel="noreferrer"
-							className="hover:text-amber-500 transition-colors"
-						>
-							{t.webrtcTool}
-						</a>
-						<a
-							href="/claude.html"
-							target="_blank"
-							rel="noreferrer"
-							className="hover:text-purple-500 transition-colors"
-						>
-							{t.claudeTool}
-						</a>
-						<a
-							href="/tools.html"
-							target="_blank"
-							rel="noreferrer"
-							className="hover:text-cyan-500 transition-colors"
-						>
-							{t.toolsSuite}
-						</a>
-						<a
-							href="/GUIDE.md"
-							target="_blank"
-							rel="noreferrer"
-							className="hover:text-indigo-500 transition-colors font-bold text-indigo-600 dark:text-indigo-400"
-						>
-							{t.docGuide} ↗
-						</a>
-					</div>
-					<div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-5">
-						<p className="text-[9px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-[0.3em]">
-							{lang === "zh"
-								? "边缘网络分布式计算节点 • 强力驱动"
-								: "Distributed Edge Compute Infrastructure"}
-						</p>
-						<a
-							href="https://github.com/asckaya/edge"
-							target="_blank"
-							rel="noreferrer"
-							aria-label="GitHub"
-							className="text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors"
-						>
-							<FaGithub className="h-3.5 w-3.5" />
-						</a>
-					</div>
-				</footer>
-			</div>
+			{/* --------------------------------------------------------- footer */}
+			<SiteFooter lang={lang} />
 
 			{/* Inject Node Modal */}
 			{isModalOpen && (

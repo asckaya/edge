@@ -84,7 +84,8 @@ The system operates across 3 target kernels with 4 orchestration depth settings 
 
 ### Tech Stack & Platform Specifics:
 
-- **Frontend**: TanStack Start (Vite + Nitro + TanStack Router) on CF Workers. `src/app/__root.tsx` (root route), `src/app/index.tsx` (`/` route), `src/router.tsx` (createRouter + `getRouter` export for type registration), `src/server.ts` (custom Worker entrypoint). React Compiler enabled via Vite babel plugin. Fonts via `@fontsource-variable/inter` + `outfit`. `@/` alias resolves to `src/` (configured in both `tsconfig.json` paths and `vite.config.ts` resolve.alias — Vite does not read tsconfig paths).
+- **Frontend**: TanStack Start (Vite + Nitro + TanStack Router) on CF Workers. `src/app/__root.tsx` (root route), `src/app/index.tsx` (`/` route), `src/app/links.tsx` (`/links` short-link console), `src/router.tsx` (createRouter + `getRouter` export for type registration), `src/server.ts` (custom Worker entrypoint). React Compiler enabled via Vite babel plugin. `@/` alias resolves to `src/` (configured in both `tsconfig.json` paths and `vite.config.ts` resolve.alias — Vite does not read tsconfig paths).
+- **Design system**: single source of truth is `src/app/globals.css` — Vercel/Geist tokens (canvas `#fafafa`, ink `#171717`, hairline `#ebebeb`, link `#0070f3`, 6/12/16/64/100px radius scale), light-first with an equivalent `.dark` set, primitives `.eyebrow` / `.card` / `.btn-pill` / `.btn-square(-ghost)` / `.tab-pill` / `.input` / `.code-block` / `.chip` / `.mesh`. Type is **Maple Mono CN for every role** (latin + CJK + code), loaded from jsDelivr (`@chinese-fonts/maple-mono-cn`, unicode-range split, no self-hosting) with Regular + SemiBold only. Theme resolves from `localStorage.theme` else `prefers-color-scheme`, applied pre-paint by the inline bootstrap script in `__root.tsx`. Standalone tool pages share `public/tools.css` (same tokens/classes, `html.dark` variant).
 - **Backend**: Hono Worker. `core/[[path]].ts` (main app, ~150 lines), `core/src/routes/shortlink.ts` (5 routes, `@hono/standard-validator` + valibot), `core/src/utils/` (14 files).
 - **Stash / Mihomo**: Templates reside in `core/templates/` (YAML based).
 - **sing-box**: Configurations are generated programmatically (TS object) in `core/src/utils/sing-box/`. Targets **sing-box v1.14+** (enables `snell`/`naive`/`shadowtls` outbounds; `juicity` is NOT supported by sing-box — stash-only). `wireguard` is NOT emitted as a sing-box outbound — sing-box 1.11+ deprecated the WireGuard outbound (removed in 1.13+), migrating it to the Endpoint system; use `toSingBoxEndpoint` for wireguard instead. Supports `isMinimal` (removes extra group tabs to fit 50MB extension limits) and automatic `.srs` rule-set mapping. gRPC transport no longer emits `multi_mode` (dropped in sing-box v1.14+, auto-detected). h2 network folds to `{type:"http"}` transport (one-way forward, no strict round-trip).
@@ -128,15 +129,25 @@ The system operates across 3 target kernels with 4 orchestration depth settings 
 - **Short-link API (`core/src/routes/shortlink.ts`)**:
   - 5 routes: `POST /api/shorten` (nanoid slug, custom slug requires `x-admin-key`, validated via `sValidator('json', ShortenRequestSchema)`), `GET /s/:slug` (302 redirect, access-key fail returns 404 to hide existence, query params merge into stored target), `GET /api/expand/:slug`, `PUT /api/shorten/:slug` (admin, `sValidator`), `DELETE /api/shorten/:slug` (admin).
   - KV key prefix `sl:`. Kernel-agnostic target storage — one short link serves all kernels via UA/query override at access time.
+  - Lifecycle: ordinary (random-slug) links default to a **90-day sliding TTL** (`ORDINARY_TTL_SECONDS`), renewed at most once per day on access (`RENEW_INTERVAL_MS`) so unused links are GC'd by KV itself. Admin custom slugs stay permanent unless an explicit `ttlSeconds` is passed.
+  - Abuse control: `POST /api/shorten` is throttled per client IP (`createWindows`, 20/hour fixed window, `429` + `Retry-After`), per isolate. `resetCreateQuota()` is the test hook.
+  - Three independent secrets — never conflate them: **`secret`** (controller password baked into generated configs, visible to every subscriber), **`accessKey`** (`?key=` gate on a short link, shared by the group), **admin key** (`x-admin-key`, custom slug / update / delete only). No key is hard-coded in the frontend; `src/lib/links.ts` keeps the access key in `localStorage` and the admin key in `sessionStorage`.
+  - Frontend: `/links` is public (create + lookup); `/links?admin=1` reveals the admin panel (custom slug, update, delete).
 
 ---
 
 ## 5. Key File Locations
 
 - **Backend entry**: `core/[[path]].ts` (Hono app + Pages Function `onRequest`).
+- **Request routing** (`src/server.ts`): `/api/*` and `/s/*` → Hono; `/` **with** query params → Hono (config renderer); **file-like paths** (has an extension, or `/assets/*`) → Cloudflare Assets; everything else → TanStack SSR. Assets must never be consulted for route paths: `[assets].html_handling = "none"` in `wrangler.toml` keeps `/ip.html` canonical, and the worker 308-redirects legacy `/ip` → `/ip.html` (`TOOL_PAGES`). Forwarding Assets' trailing-slash 3xx for routes used to ping-pong with the router and hang prerendering.
+- **Router** (`src/router.tsx`): `getRouter()` **creates a new router per request** — a module-level singleton leaked match/redirect state across SSR requests (one canonicalising redirect made later not-found requests redirect instead of 404). `defaultNotFoundComponent` renders `src/components/layout/NotFound.tsx`.
 - **Worker entry**: `src/server.ts` (routes to Hono app or TanStack Start handler).
 - **Types/Schemas**: `core/src/types.ts` (valibot schemas for 18 protocols + `RequestParamsSchema`), `core/src/env.ts` (`EdgeEnv` bindings).
 - **Protocol support matrix**: `core/src/utils/protocol-registry.ts`.
 - **Field rewrite rules**: `core/src/utils/kernel-field-tables.ts`.
 - **Frontend protocol warnings**: `src/lib/protocol-support.ts`.
+- **Short-link console**: `src/app/links.tsx` (page) + `src/lib/links.ts` (storage/API contract).
+- **Shared layout**: `src/components/layout/SiteNav.tsx`, `SiteFooter.tsx`, `SectionHead.tsx`.
+- **Standalone tool pages**: `public/{ip,dns,webrtc,claude,tools}.html` + `public/tools.css`.
+- **Design tokens**: `src/app/globals.css`.
 - **Config**: `vite.config.ts`, `wrangler.toml` (main=`src/server.ts`, `[assets]` directory=`.output/public` binding=`ASSETS`, KV `EDGE_KV`, `nodejs_compat`), `tsconfig.json`, `biome.json`.

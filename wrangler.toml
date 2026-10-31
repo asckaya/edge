@@ -19,6 +19,10 @@ id = "dc7b3efaf67e4460848d310960daef81"
 directory = ".output/public"
 binding = "ASSETS"
 run_worker_first = true
+# Serve files at their exact path: `/ip.html` stays `/ip.html` instead of being
+# canonicalised to `/ip`. App routes are rendered by TanStack, so Assets must not
+# invent directory-style URLs that the router would then redirect back.
+html_handling = "none"
 
 # 收集日志和 traces 用于调试 Worker
 [observability]

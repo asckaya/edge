@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test } from "vitest";
-import { shortlinkApp } from "../../core/src/routes/shortlink";
+import { resetCreateQuota, shortlinkApp } from "../../core/src/routes/shortlink";
 
 /**
  * Minimal in-memory KV mock implementing the subset of the Cloudflare KV API
@@ -8,11 +8,14 @@ import { shortlinkApp } from "../../core/src/routes/shortlink";
  */
 function createKvMock() {
 	const store = new Map<string, string>();
+	const options = new Map<string, { expirationTtl?: number } | undefined>();
 	return {
 		store,
+		options,
 		get: (key: string) => Promise.resolve(store.get(key) ?? null),
-		put: (key: string, value: string) => {
+		put: (key: string, value: string, putOptions?: { expirationTtl?: number }) => {
 			store.set(key, value);
+			options.set(key, putOptions);
 			return Promise.resolve();
 		},
 		delete: (key: string) => {
@@ -33,6 +36,7 @@ describe("Shortlink API", () => {
 
 	beforeEach(() => {
 		kv = createKvMock();
+		resetCreateQuota();
 	});
 
 	// ---------- POST /api/shorten (random slug) ----------
@@ -548,5 +552,93 @@ describe("Shortlink API", () => {
 			);
 			expect(res.status).toBe(404);
 		});
+	});
+});
+
+describe("Shortlink lifecycle & abuse controls", () => {
+	let kv: ReturnType<typeof createKvMock>;
+
+	beforeEach(() => {
+		kv = createKvMock();
+		resetCreateQuota();
+	});
+
+	const create = (body: Record<string, unknown>, headers: Record<string, string> = {}) =>
+		shortlinkApp.request(
+			"/api/shorten",
+			{
+				method: "POST",
+				headers: { "Content-Type": "application/json", ...headers },
+				body: JSON.stringify(body),
+			},
+			envWith(kv),
+		);
+
+	test("ordinary links get a 90-day sliding TTL", async () => {
+		const res = await create({ target: "https://example.com/a" });
+		expect(res.status).toBe(200);
+		const { slug } = (await res.json()) as { slug: string };
+
+		const key = `sl:${slug}`;
+		expect(kv.options.get(key)?.expirationTtl).toBe(90 * 24 * 60 * 60);
+		expect(JSON.parse(kv.store.get(key) ?? "{}").ttl).toBe(90 * 24 * 60 * 60);
+	});
+
+	test("admin custom slugs stay permanent unless a TTL is requested", async () => {
+		const res = await create(
+			{ target: "https://example.com/fixed", slug: "fixed-link" },
+			{ "x-admin-key": ADMIN_KEY },
+		);
+		expect(res.status).toBe(200);
+		expect(kv.options.get("sl:fixed-link")?.expirationTtl).toBeUndefined();
+		expect(JSON.parse(kv.store.get("sl:fixed-link") ?? "{}").ttl).toBeUndefined();
+	});
+
+	test("opening a stale ordinary link renews its expiry", async () => {
+		const res = await create({ target: "https://example.com/b" });
+		const { slug } = (await res.json()) as { slug: string };
+		const key = `sl:${slug}`;
+
+		// Pretend the link was last used two days ago, then hit it.
+		const stale = JSON.parse(kv.store.get(key) ?? "{}") as Record<string, unknown>;
+		kv.store.set(
+			key,
+			JSON.stringify({ ...stale, lastUsedAt: Date.now() - 2 * 24 * 60 * 60 * 1000 }),
+		);
+
+		const hit = await shortlinkApp.request(`/s/${slug}`, undefined, envWith(kv));
+		expect(hit.status).toBe(302);
+		await Promise.resolve();
+
+		const renewed = JSON.parse(kv.store.get(key) ?? "{}") as { lastUsedAt?: number };
+		expect(typeof renewed.lastUsedAt).toBe("number");
+	});
+
+	test("creation is rate limited per client", async () => {
+		let lastStatus = 0;
+		for (let i = 0; i < 21; i += 1) {
+			const res = await create({ target: `https://example.com/${i}` });
+			lastStatus = res.status;
+			if (i === 19) expect(res.status).toBe(200);
+		}
+		expect(lastStatus).toBe(429);
+	});
+
+	test("the limiter keeps separate buckets per client IP", async () => {
+		for (let i = 0; i < 20; i += 1) {
+			await create({ target: `https://example.com/x${i}` }, { "cf-connecting-ip": "1.1.1.1" });
+		}
+		const blocked = await create(
+			{ target: "https://example.com/x" },
+			{ "cf-connecting-ip": "1.1.1.1" },
+		);
+		expect(blocked.status).toBe(429);
+		expect(blocked.headers.get("Retry-After")).toBeTruthy();
+
+		const other = await create(
+			{ target: "https://example.com/y" },
+			{ "cf-connecting-ip": "2.2.2.2" },
+		);
+		expect(other.status).toBe(200);
 	});
 });

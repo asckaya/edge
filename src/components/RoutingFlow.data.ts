@@ -41,9 +41,9 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 				{
 					title: "1. 流量入口 (Input)",
 					items: [
-						{ name: "DNS 流量 (端口53/UDP)", icon: Network, color: "text-blue-500 bg-blue-500/5" },
-						{ name: "国外流量 (QUIC/UDP 443)", icon: Zap, color: "text-amber-500 bg-amber-500/5" },
-						{ name: "全部应用流量", icon: Shuffle, color: "text-indigo-500 bg-indigo-500/5" },
+						{ name: "DNS 流量 (端口53/UDP)", icon: Network, color: "text-link bg-link/5" },
+						{ name: "国外流量 (QUIC/UDP 443)", icon: Zap, color: "text-warn bg-warn/5" },
+						{ name: "全部应用流量", icon: Shuffle, color: "text-violet bg-violet/5" },
 					],
 				},
 				{
@@ -53,42 +53,41 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 							name: "拦截非国区 QUIC 流量",
 							tag: "REJECT",
 							icon: Ban,
-							color: "text-red-500 bg-red-500/5",
+							color: "text-danger bg-danger/5",
 						},
 						{
 							name: "本地 / 私有 / 大陆规则 (CN)",
 							tag: "DIRECT",
 							icon: HardDrive,
-							color: "text-emerald-500 bg-emerald-500/5",
+							color: "text-ink bg-ink/5",
 						},
 						{
 							name: "海外规则集 (AI / 视频 / 开发)",
 							tag: "PROXY",
 							icon: Globe,
-							color: "text-purple-500 bg-purple-500/5",
+							color: "text-magenta bg-magenta/5",
 						},
 						{
 							name: "漏网之鱼 (未匹配流量)",
 							tag: "PROXY",
 							icon: HelpCircle,
-							color: "text-zinc-500 bg-zinc-500/5",
+							color: "text-mute bg-ink/5",
 						},
 					],
 				},
 				{
 					title: "3. 出口策略组 (Outbounds)",
 					items: [
-						{ name: "REJECT", icon: Ban, color: "text-red-500 bg-red-500/5 border-red-500/20" },
+						{ name: "REJECT", icon: Ban, color: "text-danger bg-danger/5 border-danger/25" },
 						{
 							name: "DIRECT",
 							icon: HardDrive,
-							color: "text-emerald-500 bg-emerald-500/5 border-emerald-500/20",
+							color: "text-ink bg-ink/5 border-ink/20",
 						},
 						{
 							name: "🚀 节点选择 (统一出口)",
 							icon: Globe,
-							color:
-								"text-indigo-600 dark:text-indigo-400 bg-indigo-500/5 border-indigo-500/20 animate-pulse-slow",
+							color: "text-indigo-600 dark:text-indigo-400 bg-indigo-500/5 border-indigo-500/20",
 						},
 					],
 				},
@@ -104,10 +103,10 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 						{
 							name: "DNS Traffic (Port 53/UDP)",
 							icon: Network,
-							color: "text-blue-500 bg-blue-500/5",
+							color: "text-link bg-link/5",
 						},
-						{ name: "Foreign QUIC (UDP 443)", icon: Zap, color: "text-amber-500 bg-amber-500/5" },
-						{ name: "App Traffic", icon: Shuffle, color: "text-indigo-500 bg-indigo-500/5" },
+						{ name: "Foreign QUIC (UDP 443)", icon: Zap, color: "text-warn bg-warn/5" },
+						{ name: "App Traffic", icon: Shuffle, color: "text-violet bg-violet/5" },
 					],
 				},
 				{
@@ -117,42 +116,41 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 							name: "Block Foreign QUIC (HTTP/3)",
 							tag: "REJECT",
 							icon: Ban,
-							color: "text-red-500 bg-red-500/5",
+							color: "text-danger bg-danger/5",
 						},
 						{
 							name: "Local / Private / China Rules",
 							tag: "DIRECT",
 							icon: HardDrive,
-							color: "text-emerald-500 bg-emerald-500/5",
+							color: "text-ink bg-ink/5",
 						},
 						{
 							name: "Foreign Rules (AI/Media/Dev)",
 							tag: "PROXY",
 							icon: Globe,
-							color: "text-purple-500 bg-purple-500/5",
+							color: "text-magenta bg-magenta/5",
 						},
 						{
 							name: "Final Match (Unmatched)",
 							tag: "PROXY",
 							icon: HelpCircle,
-							color: "text-zinc-500 bg-zinc-500/5",
+							color: "text-mute bg-ink/5",
 						},
 					],
 				},
 				{
 					title: "3. Outbounds",
 					items: [
-						{ name: "REJECT", icon: Ban, color: "text-red-500 bg-red-500/5 border-red-500/20" },
+						{ name: "REJECT", icon: Ban, color: "text-danger bg-danger/5 border-danger/25" },
 						{
 							name: "DIRECT",
 							icon: HardDrive,
-							color: "text-emerald-500 bg-emerald-500/5 border-emerald-500/20",
+							color: "text-ink bg-ink/5 border-ink/20",
 						},
 						{
 							name: "🚀 Proxy Select (Unified)",
 							icon: Globe,
-							color:
-								"text-indigo-600 dark:text-indigo-400 bg-indigo-500/5 border-indigo-500/20 animate-pulse-slow",
+							color: "text-indigo-600 dark:text-indigo-400 bg-indigo-500/5 border-indigo-500/20",
 						},
 					],
 				},
@@ -167,8 +165,8 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 				{
 					title: "1. 流量入口 (Input)",
 					items: [
-						{ name: "DNS 规则流量", icon: Network, color: "text-blue-500 bg-blue-500/5" },
-						{ name: "全部网络请求", icon: Shuffle, color: "text-indigo-500 bg-indigo-500/5" },
+						{ name: "DNS 规则流量", icon: Network, color: "text-link bg-link/5" },
+						{ name: "全部网络请求", icon: Shuffle, color: "text-violet bg-violet/5" },
 					],
 				},
 				{
@@ -178,35 +176,35 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 							name: "广告 / 跟踪域名拦截",
 							tag: "REJECT",
 							icon: Ban,
-							color: "text-red-500 bg-red-500/5",
+							color: "text-danger bg-danger/5",
 						},
 						{
 							name: "明确白名单规则 (国外域名/IP)",
 							tag: "PROXY",
 							icon: Globe,
-							color: "text-purple-500 bg-purple-500/5",
+							color: "text-magenta bg-magenta/5",
 						},
 						{
 							name: "其余全部未匹配流量 (默认)",
 							tag: "DIRECT",
 							icon: HardDrive,
-							color: "text-emerald-500 bg-emerald-500/5",
+							color: "text-ink bg-ink/5",
 						},
 					],
 				},
 				{
 					title: "3. 出口策略组 (Outbounds)",
 					items: [
-						{ name: "REJECT", icon: Ban, color: "text-red-500 bg-red-500/5 border-red-500/20" },
+						{ name: "REJECT", icon: Ban, color: "text-danger bg-danger/5 border-danger/25" },
 						{
 							name: "DIRECT (主默认出口)",
 							icon: HardDrive,
-							color: "text-emerald-500 bg-emerald-500/5 border-emerald-500/20 animate-pulse-slow",
+							color: "text-ink bg-ink/5 border-ink/20",
 						},
 						{
 							name: "🚀 节点选择",
 							icon: Globe,
-							color: "text-indigo-600 dark:text-indigo-400 bg-indigo-500/5 border-indigo-500/20",
+							color: "text-violet bg-violet/5 border-violet/25",
 						},
 					],
 				},
@@ -219,8 +217,8 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 				{
 					title: "1. Input Traffic",
 					items: [
-						{ name: "DNS Rules", icon: Network, color: "text-blue-500 bg-blue-500/5" },
-						{ name: "Network Requests", icon: Shuffle, color: "text-indigo-500 bg-indigo-500/5" },
+						{ name: "DNS Rules", icon: Network, color: "text-link bg-link/5" },
+						{ name: "Network Requests", icon: Shuffle, color: "text-violet bg-violet/5" },
 					],
 				},
 				{
@@ -230,35 +228,35 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 							name: "Ads & Tracking domains",
 							tag: "REJECT",
 							icon: Ban,
-							color: "text-red-500 bg-red-500/5",
+							color: "text-danger bg-danger/5",
 						},
 						{
 							name: "Explicit Whitelist (Foreign domains)",
 							tag: "PROXY",
 							icon: Globe,
-							color: "text-purple-500 bg-purple-500/5",
+							color: "text-magenta bg-magenta/5",
 						},
 						{
 							name: "All other unmatched traffic (Default)",
 							tag: "DIRECT",
 							icon: HardDrive,
-							color: "text-emerald-500 bg-emerald-500/5",
+							color: "text-ink bg-ink/5",
 						},
 					],
 				},
 				{
 					title: "3. Outbounds",
 					items: [
-						{ name: "REJECT", icon: Ban, color: "text-red-500 bg-red-500/5 border-red-500/20" },
+						{ name: "REJECT", icon: Ban, color: "text-danger bg-danger/5 border-danger/25" },
 						{
 							name: "DIRECT (主默认出口)",
 							icon: HardDrive,
-							color: "text-emerald-500 bg-emerald-500/5 border-emerald-500/20 animate-pulse-slow",
+							color: "text-ink bg-ink/5 border-ink/20",
 						},
 						{
 							name: "🚀 节点选择",
 							icon: Globe,
-							color: "text-indigo-600 dark:text-indigo-400 bg-indigo-500/5 border-indigo-500/20",
+							color: "text-violet bg-violet/5 border-violet/25",
 						},
 					],
 				},
@@ -273,8 +271,8 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 				{
 					title: "1. 流量入口 (Input)",
 					items: [
-						{ name: "DNS 规则流量", icon: Network, color: "text-blue-500 bg-blue-500/5" },
-						{ name: "全部网络请求", icon: Shuffle, color: "text-indigo-500 bg-indigo-500/5" },
+						{ name: "DNS 规则流量", icon: Network, color: "text-link bg-link/5" },
+						{ name: "全部网络请求", icon: Shuffle, color: "text-violet bg-violet/5" },
 					],
 				},
 				{
@@ -284,36 +282,35 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 							name: "广告 / 跟踪域名拦截",
 							tag: "REJECT",
 							icon: Ban,
-							color: "text-red-500 bg-red-500/5",
+							color: "text-danger bg-danger/5",
 						},
 						{
 							name: "国内流量 / 局域网 / CN 规则",
 							tag: "DIRECT",
 							icon: HardDrive,
-							color: "text-emerald-500 bg-emerald-500/5",
+							color: "text-ink bg-ink/5",
 						},
 						{
 							name: "其余全部未匹配流量 (默认)",
 							tag: "PROXY",
 							icon: Globe,
-							color: "text-purple-500 bg-purple-500/5",
+							color: "text-magenta bg-magenta/5",
 						},
 					],
 				},
 				{
 					title: "3. 出口策略组 (Outbounds)",
 					items: [
-						{ name: "REJECT", icon: Ban, color: "text-red-500 bg-red-500/5 border-red-500/20" },
+						{ name: "REJECT", icon: Ban, color: "text-danger bg-danger/5 border-danger/25" },
 						{
 							name: "DIRECT",
 							icon: HardDrive,
-							color: "text-emerald-500 bg-emerald-500/5 border-emerald-500/20",
+							color: "text-ink bg-ink/5 border-ink/20",
 						},
 						{
 							name: "🚀 节点选择 (主默认出口)",
 							icon: Globe,
-							color:
-								"text-indigo-600 dark:text-indigo-400 bg-indigo-500/5 border-indigo-500/20 animate-pulse-slow",
+							color: "text-indigo-600 dark:text-indigo-400 bg-indigo-500/5 border-indigo-500/20",
 						},
 					],
 				},
@@ -326,8 +323,8 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 				{
 					title: "1. Input Traffic",
 					items: [
-						{ name: "DNS Rules", icon: Network, color: "text-blue-500 bg-blue-500/5" },
-						{ name: "Network Requests", icon: Shuffle, color: "text-indigo-500 bg-indigo-500/5" },
+						{ name: "DNS Rules", icon: Network, color: "text-link bg-link/5" },
+						{ name: "Network Requests", icon: Shuffle, color: "text-violet bg-violet/5" },
 					],
 				},
 				{
@@ -337,36 +334,35 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 							name: "Ads & Tracking domains",
 							tag: "REJECT",
 							icon: Ban,
-							color: "text-red-500 bg-red-500/5",
+							color: "text-danger bg-danger/5",
 						},
 						{
 							name: "China Traffic / LAN / CN Rules",
 							tag: "DIRECT",
 							icon: HardDrive,
-							color: "text-emerald-500 bg-emerald-500/5",
+							color: "text-ink bg-ink/5",
 						},
 						{
 							name: "All other unmatched traffic (Default)",
 							tag: "PROXY",
 							icon: Globe,
-							color: "text-purple-500 bg-purple-500/5",
+							color: "text-magenta bg-magenta/5",
 						},
 					],
 				},
 				{
 					title: "3. Outbounds",
 					items: [
-						{ name: "REJECT", icon: Ban, color: "text-red-500 bg-red-500/5 border-red-500/20" },
+						{ name: "REJECT", icon: Ban, color: "text-danger bg-danger/5 border-danger/25" },
 						{
 							name: "DIRECT",
 							icon: HardDrive,
-							color: "text-emerald-500 bg-emerald-500/5 border-emerald-500/20",
+							color: "text-ink bg-ink/5 border-ink/20",
 						},
 						{
 							name: "🚀 Proxy Select (Main Outbound)",
 							icon: Globe,
-							color:
-								"text-indigo-600 dark:text-indigo-400 bg-indigo-500/5 border-indigo-500/20 animate-pulse-slow",
+							color: "text-indigo-600 dark:text-indigo-400 bg-indigo-500/5 border-indigo-500/20",
 						},
 					],
 				},
@@ -381,11 +377,11 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 				{
 					title: "1. 流量入口 (Input)",
 					items: [
-						{ name: "DNS 解析流量", icon: Network, color: "text-blue-500 bg-blue-500/5" },
+						{ name: "DNS 解析流量", icon: Network, color: "text-link bg-link/5" },
 						{
 							name: "网络数据流 (TCP/UDP)",
 							icon: Shuffle,
-							color: "text-indigo-500 bg-indigo-500/5",
+							color: "text-violet bg-violet/5",
 						},
 					],
 				},
@@ -396,37 +392,37 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 							name: "AI 人工智能规则 (ChatGPT)",
 							tag: "AI",
 							icon: Bot,
-							color: "text-purple-500 bg-purple-500/5",
+							color: "text-magenta bg-magenta/5",
 						},
 						{
 							name: "锁区服务规则 (DMM / 动画疯)",
 							tag: "REGIONAL",
 							icon: Globe,
-							color: "text-amber-500 bg-amber-500/5",
+							color: "text-warn bg-warn/5",
 						},
 						{
 							name: "油管视频规则 (YouTube)",
 							tag: "YOUTUBE",
 							icon: Tv,
-							color: "text-red-500 bg-red-500/5",
+							color: "text-danger bg-danger/5",
 						},
 						{
 							name: "EMBY 媒体规则 (Emby)",
 							tag: "EMBY",
 							icon: Tv,
-							color: "text-orange-500 bg-orange-500/5",
+							color: "text-warn bg-warn/5",
 						},
 						{
 							name: "开发工具规则 (GitHub)",
 							tag: "DEV",
 							icon: Code,
-							color: "text-sky-500 bg-sky-500/5",
+							color: "text-link bg-link/5",
 						},
 						{
 							name: "全球手动 (剩余非CN流量)",
 							tag: "GLOBAL",
 							icon: Globe,
-							color: "text-indigo-500 bg-indigo-500/5",
+							color: "text-violet bg-violet/5",
 						},
 					],
 				},
@@ -436,12 +432,12 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 						{
 							name: "💬 AI 服务 (默认: 节点选择)",
 							icon: Bot,
-							color: "text-purple-600 dark:text-purple-400 bg-purple-500/5 border-purple-500/20",
+							color: "text-magenta bg-magenta/5 border-magenta/25",
 						},
 						{
 							name: "🇯🇵 日本服务 (默认: 日本节点)",
 							icon: Globe,
-							color: "text-pink-600 dark:text-pink-400 bg-pink-500/5 border-pink-500/20",
+							color: "text-magenta bg-magenta/5 border-magenta/25",
 						},
 						{
 							name: "🇹🇼 台湾服务 (默认: 台湾节点)",
@@ -452,23 +448,22 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 						{
 							name: "📹 油管视频 (默认: 节点选择)",
 							icon: Tv,
-							color: "text-red-600 dark:text-red-400 bg-red-500/5 border-red-500/20",
+							color: "text-danger bg-danger/5 border-danger/25",
 						},
 						{
 							name: "🎥 EMBY 专线 (默认: 节点选择)",
 							icon: Tv,
-							color: "text-orange-600 dark:text-orange-400 bg-orange-500/5 border-orange-500/20",
+							color: "text-warn bg-warn/5 border-warn/30",
 						},
 						{
 							name: "🐱 开发工具 (默认: 节点选择)",
 							icon: Code,
-							color: "text-sky-600 dark:text-sky-400 bg-sky-500/5 border-sky-500/20",
+							color: "text-link bg-link/5 border-link/25",
 						},
 						{
 							name: "🚀 节点选择 (主出向组)",
 							icon: Globe,
-							color:
-								"text-indigo-600 dark:text-indigo-400 bg-indigo-500/5 border-indigo-500/20 animate-pulse-slow",
+							color: "text-indigo-600 dark:text-indigo-400 bg-indigo-500/5 border-indigo-500/20",
 						},
 					],
 				},
@@ -481,11 +476,11 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 				{
 					title: "1. Input Traffic",
 					items: [
-						{ name: "DNS Resolve Traffic", icon: Network, color: "text-blue-500 bg-blue-500/5" },
+						{ name: "DNS Resolve Traffic", icon: Network, color: "text-link bg-link/5" },
 						{
 							name: "Data Stream (TCP/UDP)",
 							icon: Shuffle,
-							color: "text-indigo-500 bg-indigo-500/5",
+							color: "text-violet bg-violet/5",
 						},
 					],
 				},
@@ -496,37 +491,37 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 							name: "AI Services (ChatGPT/Gemini)",
 							tag: "AI",
 							icon: Bot,
-							color: "text-purple-500 bg-purple-500/5",
+							color: "text-magenta bg-magenta/5",
 						},
 						{
 							name: "Geo-Locked Rules (DMM/Bahamut)",
 							tag: "REGIONAL",
 							icon: Globe,
-							color: "text-amber-500 bg-amber-500/5",
+							color: "text-warn bg-warn/5",
 						},
 						{
 							name: "YouTube Stream Rules",
 							tag: "YOUTUBE",
 							icon: Tv,
-							color: "text-red-500 bg-red-500/5",
+							color: "text-danger bg-danger/5",
 						},
 						{
 							name: "EMBY Media Rules",
 							tag: "EMBY",
 							icon: Tv,
-							color: "text-orange-500 bg-orange-500/5",
+							color: "text-warn bg-warn/5",
 						},
 						{
 							name: "Dev Tools (GitHub/Docker)",
 							tag: "DEV",
 							icon: Code,
-							color: "text-sky-500 bg-sky-500/5",
+							color: "text-link bg-link/5",
 						},
 						{
 							name: "Other Global Traffic",
 							tag: "GLOBAL",
 							icon: Globe,
-							color: "text-indigo-500 bg-indigo-500/5",
+							color: "text-violet bg-violet/5",
 						},
 					],
 				},
@@ -536,12 +531,12 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 						{
 							name: "💬 AI Services (Default: Proxy)",
 							icon: Bot,
-							color: "text-purple-600 dark:text-purple-400 bg-purple-500/5 border-purple-500/20",
+							color: "text-magenta bg-magenta/5 border-magenta/25",
 						},
 						{
 							name: "🇯🇵 Japan Services (Default: JP Node)",
 							icon: Globe,
-							color: "text-pink-600 dark:text-pink-400 bg-pink-500/5 border-pink-500/20",
+							color: "text-magenta bg-magenta/5 border-magenta/25",
 						},
 						{
 							name: "🇹🇼 Taiwan Services (Default: TW Node)",
@@ -552,23 +547,22 @@ export const FLOW_DATA: Record<Mode, Record<Lang, FlowData>> = {
 						{
 							name: "📹 YouTube (Default: Proxy)",
 							icon: Tv,
-							color: "text-red-600 dark:text-red-400 bg-red-500/5 border-red-500/20",
+							color: "text-danger bg-danger/5 border-danger/25",
 						},
 						{
 							name: "🎥 EMBY Services (Default: Proxy)",
 							icon: Tv,
-							color: "text-orange-600 dark:text-orange-400 bg-orange-500/5 border-orange-500/20",
+							color: "text-warn bg-warn/5 border-warn/30",
 						},
 						{
 							name: "🐱 Developer Tools (Default: Proxy)",
 							icon: Code,
-							color: "text-sky-600 dark:text-sky-400 bg-sky-500/5 border-sky-500/20",
+							color: "text-link bg-link/5 border-link/25",
 						},
 						{
 							name: "🚀 Proxy Select (Main Outbound)",
 							icon: Globe,
-							color:
-								"text-indigo-600 dark:text-indigo-400 bg-indigo-500/5 border-indigo-500/20 animate-pulse-slow",
+							color: "text-indigo-600 dark:text-indigo-400 bg-indigo-500/5 border-indigo-500/20",
 						},
 					],
 				},

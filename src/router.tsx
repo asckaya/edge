@@ -1,22 +1,28 @@
 import { createRouter } from "@tanstack/react-router";
+import NotFound from "./components/layout/NotFound";
 import { routeTree } from "./routeTree.gen";
 
-export function getRouter() {
-	return router;
+/**
+ * A router instance must never be shared between SSR requests: the router keeps
+ * per-request state (matched routes, pending redirects). A module-level singleton
+ * leaked that state across requests — a canonicalising redirect from one request
+ * (`/links?admin=1` → `/links`) made the *next* request's not-found branch redirect
+ * too, which is what drove the prerender redirect loop.
+ */
+function makeRouter() {
+	return createRouter({
+		routeTree,
+		scrollRestoration: true,
+		defaultNotFoundComponent: () => <NotFound />,
+	});
 }
 
-export const router = createRouter({
-	routeTree,
-	scrollRestoration: true,
-	defaultNotFoundComponent: () => (
-		<div className="min-h-screen flex items-center justify-center bg-zinc-950 text-white font-mono text-sm">
-			Page Not Found
-		</div>
-	),
-});
+export function getRouter() {
+	return makeRouter();
+}
 
 declare module "@tanstack/react-router" {
 	interface Register {
-		router: typeof router;
+		router: ReturnType<typeof makeRouter>;
 	}
 }

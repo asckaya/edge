@@ -3,6 +3,15 @@ import { app } from "../core/[[path]]";
 import type { EdgeEnv } from "../core/src/env";
 
 type WorkerEnv = Omit<EdgeEnv, "ASSETS"> & { ASSETS: { fetch: typeof fetch } };
+
+/** Paths that look like a static file (has an extension) or a bundled asset. */
+const ASSET_PATH = /\.[a-zA-Z0-9]+$/;
+
+/**
+ * Static tool pages are real `.html` files (see `public/`). Their extensionless
+ * form is kept alive as a permanent redirect so old bookmarks keep working.
+ */
+const TOOL_PAGES = new Set(["ip", "dns", "webrtc", "claude", "tools"]);
 type WorkerExecutionContext = ExecutionContext;
 
 const tanstackFetch = createStartHandler(defaultStreamHandler);
@@ -32,12 +41,22 @@ const server = {
 		if (url.pathname === "/" && url.searchParams.toString() !== "") {
 			return app.fetch(request, env, ctx);
 		}
-		// Serve static assets from Cloudflare Assets if available
-		if (env.ASSETS) {
+		// Legacy extensionless tool URLs (`/ip` → `/ip.html`).
+		const toolSlug = url.pathname.slice(1);
+		if (TOOL_PAGES.has(toolSlug)) {
+			const target = new URL(url);
+			target.pathname = `/${toolSlug}.html`;
+			return Response.redirect(target.toString(), 308);
+		}
+
+		// Files come from Cloudflare Assets; every other path is an app route and is
+		// rendered by TanStack. Asking Assets about route paths made Assets and the
+		// router canonicalise trailing slashes in opposite directions — an endless
+		// 307 loop that broke prerendering — so only file-like paths are forwarded.
+		const isAssetPath = ASSET_PATH.test(url.pathname) || url.pathname.startsWith("/assets/");
+		if (env.ASSETS && isAssetPath) {
 			const res = await env.ASSETS.fetch(request);
-			if (res.status !== 404 || url.pathname.startsWith("/assets/")) {
-				return withMarkdownCharset(url, res);
-			}
+			return withMarkdownCharset(url, res);
 		}
 		// Fallback to TanStack Start handler (useful in local dev / dev server)
 		const res = await tanstackFetch(request);

@@ -10,12 +10,12 @@ interface FieldProps {
 
 /**
  * Reusable label + control wrapper for the node modal forms.
- * Renders the canonical `space-y-1.5` / `label-caps` / control block.
+ * Renders the canonical eyebrow label + control block.
  */
 export default function Field({ label, htmlFor, children, className = "" }: FieldProps) {
 	return (
-		<div className={`space-y-1.5 ${className}`}>
-			<label htmlFor={htmlFor} className="label-caps">
+		<div className={`space-y-1 ${className}`}>
+			<label htmlFor={htmlFor} className="eyebrow block text-[10px] text-mute">
 				{label}
 			</label>
 			{children}

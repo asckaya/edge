@@ -1,5 +1,6 @@
-import { AlertCircle, Globe, Link2, Plus, Trash2 } from "lucide-react";
+import { Globe, Link2, Plus, Trash2 } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
+import { cn } from "@/lib/cn";
 import {
 	isSafeSubscriptionName,
 	isValidSubscriptionUrl,
@@ -16,7 +17,7 @@ interface Props {
 
 const TRANSLATIONS_PANEL = {
 	zh: {
-		namePlaceholder: "订阅名称 (如: Airport1)",
+		namePlaceholder: "订阅名称 (如 Airport1)",
 		urlPlaceholder: "订阅源完整链接 (HTTP / HTTPS)",
 		invalidName: "无效名称格式（仅支持字母、数字、下划线及中文）",
 		conflictName: "名称冲突：该订阅提供商名称已存在",
@@ -55,108 +56,101 @@ export default function SubscriptionPanel({ subs, setSubs, lang = "zh", duplicat
 	const t = TRANSLATIONS_PANEL[lang];
 
 	return (
-		<div className="space-y-4">
-			<div className="flex flex-col gap-3">
-				{subs.map((sub) => {
-					const nameTrimmed = sub.name.trim();
-					const urlTrimmed = sub.url.trim();
-					const isRowCompletelyEmpty = nameTrimmed === "" && urlTrimmed === "";
+		<div className="space-y-2.5">
+			{subs.map((sub, index) => {
+				const nameTrimmed = sub.name.trim();
+				const urlTrimmed = sub.url.trim();
+				const isRowCompletelyEmpty = nameTrimmed === "" && urlTrimmed === "";
 
-					let nameError = "";
-					let urlError = "";
+				let nameError = "";
+				let urlError = "";
 
-					if (!isRowCompletelyEmpty) {
-						if (nameTrimmed === "") {
-							nameError = t.nameRequired;
-						} else if (!isSafeSubscriptionName(nameTrimmed)) {
-							nameError = t.invalidName;
-						} else if (duplicateNames.has(nameTrimmed)) {
-							nameError = t.conflictName;
-						}
-
-						if (urlTrimmed === "") {
-							urlError = t.urlRequired;
-						} else if (!isValidSubscriptionUrl(urlTrimmed)) {
-							urlError = t.invalidUrl;
-						}
+				if (!isRowCompletelyEmpty) {
+					if (nameTrimmed === "") {
+						nameError = t.nameRequired;
+					} else if (!isSafeSubscriptionName(nameTrimmed)) {
+						nameError = t.invalidName;
+					} else if (duplicateNames.has(nameTrimmed)) {
+						nameError = t.conflictName;
 					}
 
-					const hasError = Boolean(nameError || urlError);
+					if (urlTrimmed === "") {
+						urlError = t.urlRequired;
+					} else if (!isValidSubscriptionUrl(urlTrimmed)) {
+						urlError = t.invalidUrl;
+					}
+				}
 
-					return (
-						<div
-							key={sub.id}
-							className="group flex flex-col gap-1.5 transition-all duration-300 animate-reveal"
-						>
-							<div className="flex items-center gap-3 relative">
-								<div className="flex-1 grid grid-cols-1 sm:grid-cols-12 gap-3">
-									<div className="sm:col-span-4 relative flex items-center">
-										<div className="absolute left-3.5 text-zinc-500 dark:text-zinc-500 pointer-events-none group-focus-within:text-zinc-700 dark:group-focus-within:text-zinc-300 transition-colors">
-											<Globe className="h-4 w-4" />
-										</div>
-										{/* Fixed overlapping by using !pl-10 and adjusted placeholder text colors */}
-										<input
-											type="text"
-											placeholder={t.namePlaceholder}
-											value={sub.name}
-											onChange={(e) => updateSub(sub.id, "name", e.target.value)}
-											className={`w-full modern-input !pl-10 font-semibold placeholder:text-zinc-400 dark:placeholder:text-zinc-600 ${
-												nameError
-													? "border-red-300 dark:border-red-900/50 bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-200 focus:border-red-500 dark:focus:border-red-800 focus:ring-red-100 dark:focus:ring-red-950/40"
-													: ""
-											}`}
-										/>
-									</div>
-									<div className="sm:col-span-8 relative flex items-center">
-										<div className="absolute left-3.5 text-zinc-500 dark:text-zinc-500 pointer-events-none group-focus-within:text-zinc-700 dark:group-focus-within:text-zinc-300 transition-colors">
-											<Link2 className="h-4 w-4" />
-										</div>
-										{/* Fixed overlapping by using !pl-10 and adjusted placeholder text colors */}
-										<input
-											type="text"
-											placeholder={t.urlPlaceholder}
-											value={sub.url}
-											onChange={(e) => updateSub(sub.id, "url", e.target.value)}
-											className={`w-full modern-input !pl-10 font-mono text-[12px] placeholder:text-zinc-400 dark:placeholder:text-zinc-600 ${
-												urlError
-													? "border-red-300 dark:border-red-900/50 bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-200 focus:border-red-500 dark:focus:border-red-800 focus:ring-red-100 dark:focus:ring-red-950/40"
-													: ""
-											}`}
-										/>
-									</div>
-								</div>
+				const hasError = Boolean(nameError || urlError);
 
-								{subs.length > 1 && (
-									<button
-										type="button"
-										onClick={() => removeSubRow(sub.id)}
-										className="p-2.5 text-zinc-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg opacity-80 sm:opacity-0 group-hover:opacity-100 transition-all border border-zinc-200 dark:border-zinc-800/40 hover:border-red-300 dark:hover:border-red-900/30 bg-white dark:bg-zinc-950/50 shrink-0 cursor-pointer"
-										title={t.removeTitle}
-									>
-										<Trash2 className="h-4 w-4" />
-									</button>
-								)}
+				return (
+					<div key={sub.id} className="group/row">
+						<div className="flex items-center gap-1.5">
+							<span className="w-6 shrink-0 select-none font-mono text-[10px] tabular-nums text-faint">
+								{String(index + 1).padStart(2, "0")}
+							</span>
+
+							<div className="relative flex min-w-0 flex-1 items-center">
+								<Globe
+									className="pointer-events-none absolute left-2.5 size-3.5 text-faint transition-colors group-focus-within/row:text-ink"
+									strokeWidth={2}
+								/>
+								<input
+									type="text"
+									placeholder={t.namePlaceholder}
+									value={sub.name}
+									onChange={(e) => updateSub(sub.id, "name", e.target.value)}
+									className="input w-full min-w-0 pl-8 sm:w-[34%]"
+									data-invalid={nameError ? "true" : "false"}
+								/>
 							</div>
 
-							{hasError && (
-								<div className="flex items-center gap-1.5 pl-3.5 text-red-600 dark:text-red-400">
-									<AlertCircle className="h-3.5 w-3.5 shrink-0" />
-									<span className="text-[11px] font-medium tracking-wide">
-										{nameError || urlError}
-									</span>
-								</div>
+							<div className="relative flex min-w-0 flex-[2] items-center">
+								<Link2
+									className="pointer-events-none absolute left-2.5 size-3.5 text-faint transition-colors group-focus-within/row:text-ink"
+									strokeWidth={2}
+								/>
+								<input
+									type="text"
+									placeholder={t.urlPlaceholder}
+									value={sub.url}
+									onChange={(e) => updateSub(sub.id, "url", e.target.value)}
+									className="input w-full min-w-0 pl-8 font-mono text-[11.5px]"
+									data-invalid={urlError ? "true" : "false"}
+								/>
+							</div>
+
+							{subs.length > 1 && (
+								<button
+									type="button"
+									onClick={() => removeSubRow(sub.id)}
+									title={t.removeTitle}
+									aria-label={t.removeTitle}
+									className={cn(
+										"btn-square-ghost w-8 shrink-0 px-0 text-mute",
+										"hover:border-danger/40 hover:bg-danger/5 hover:text-danger",
+									)}
+								>
+									<Trash2 className="size-3.5" strokeWidth={2} />
+								</button>
 							)}
 						</div>
-					);
-				})}
-			</div>
+
+						{hasError && (
+							<p className="mt-1 pl-7.5 font-mono text-[10.5px] text-danger">
+								{nameError || urlError}
+							</p>
+						)}
+					</div>
+				);
+			})}
 
 			<button
 				type="button"
 				onClick={addSubRow}
-				className="group btn-outline !py-2.5 w-full justify-center text-[12px] uppercase tracking-wider font-semibold border-dashed border-zinc-300 dark:border-zinc-800 hover:border-zinc-500 dark:hover:border-zinc-600 cursor-pointer"
+				className="flex h-9 w-full items-center justify-center gap-1.5 rounded-sm border border-dashed border-hairline bg-canvas text-[11.5px] font-semibold text-mute transition-colors hover:border-ink/30 hover:text-ink"
 			>
-				<Plus className="h-4 w-4 text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-200 transition-colors" />
+				<Plus className="size-3.5" strokeWidth={2.4} />
 				{t.addProvider}
 			</button>
 		</div>

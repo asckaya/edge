@@ -50,7 +50,10 @@ export default defineConfig({
 		markdownCharset(),
 		cloudflare({ viteEnvironment: { name: "ssr" } }),
 		tanstackStart({
-			prerender: { enabled: true, crawlLinks: false },
+			// Every HTML route is rendered by TanStack on demand (Assets only serves
+			// files), so there is nothing to prerender — and prerendering route paths
+			// through Assets is what used to trigger the trailing-slash 307 loop.
+			prerender: { enabled: false },
 			router: { routesDirectory: "app" },
 		}),
 		react({

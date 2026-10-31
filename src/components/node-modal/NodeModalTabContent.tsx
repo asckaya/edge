@@ -69,16 +69,16 @@ export default function NodeModalTabContent({
 			: t.uuid;
 
 	return (
-		<div className="p-6 overflow-y-auto space-y-6 text-zinc-800 dark:text-zinc-200">
+		<div className="space-y-5 overflow-y-auto p-5 md:p-6 text-body">
 			{/* TAB 1: Topology */}
 			{activeTab === "basic" && (
-				<div className="space-y-4 animate-reveal">
+				<div className="space-y-3.5">
 					<Field label={t.protocol}>
 						<div className="relative">
 							<select
 								value={protocol}
 								onChange={(e) => changeProtocol(e.target.value as NodeProtocol)}
-								className="w-full modern-input appearance-none bg-white dark:bg-zinc-950 pr-10 cursor-pointer"
+								className="input pr-8"
 							>
 								<option value="vless">
 									VLESS (Reality / CDN {lang === "zh" ? "推荐" : "Rec"})
@@ -114,21 +114,21 @@ export default function NodeModalTabContent({
 									HTTP ({lang === "zh" ? "标准明文/TLS代理" : "HTTP/HTTPS Proxy"})
 								</option>
 							</select>
-							<div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+							<div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-mute">
 								<Sliders className="h-4 w-4" />
 							</div>
 						</div>
 					</Field>
 
 					{protocol !== "tailscale" && (
-						<div className="grid grid-cols-12 gap-4">
+						<div className="grid grid-cols-12 gap-3">
 							<Field label={t.server} className="col-span-8">
 								<input
 									type="text"
 									value={host}
 									onChange={(e) => updateField("host", e.target.value)}
 									placeholder="node.example.com"
-									className="w-full modern-input font-mono text-sm"
+									className="input font-mono"
 								/>
 							</Field>
 							<Field label={t.port} className="col-span-4">
@@ -147,7 +147,7 @@ export default function NodeModalTabContent({
 													? "80"
 													: "443"
 									}
-									className="w-full modern-input font-mono text-sm"
+									className="input font-mono"
 								/>
 							</Field>
 						</div>
@@ -159,7 +159,7 @@ export default function NodeModalTabContent({
 							value={name}
 							onChange={(e) => updateField("name", e.target.value)}
 							placeholder={lang === "zh" ? "例如: HKG-Premium-01" : "e.g. HKG-Premium-01"}
-							className="w-full modern-input"
+							className="input"
 						/>
 					</Field>
 				</div>
@@ -167,7 +167,7 @@ export default function NodeModalTabContent({
 
 			{/* TAB 2: Credentials */}
 			{activeTab === "auth" && (
-				<div className="space-y-4 animate-reveal">
+				<div className="space-y-3.5">
 					{(protocol === "vless" ||
 						protocol === "vmess" ||
 						protocol === "tuic" ||
@@ -183,7 +183,7 @@ export default function NodeModalTabContent({
 										? "admin"
 										: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 								}
-								className="w-full modern-input font-mono text-[12px]"
+								className="input font-mono"
 							/>
 						</Field>
 					)}
@@ -202,7 +202,7 @@ export default function NodeModalTabContent({
 								value={password}
 								onChange={(e) => updateField("password", e.target.value)}
 								placeholder={protocol === "tailscale" ? "tskey-auth-..." : "••••••••"}
-								className="w-full modern-input font-mono text-[12px]"
+								className="input font-mono"
 							/>
 						</Field>
 					)}
@@ -212,7 +212,7 @@ export default function NodeModalTabContent({
 							<select
 								value={cipher}
 								onChange={(e) => updateField("cipher", e.target.value)}
-								className="w-full modern-input bg-white dark:bg-zinc-950 cursor-pointer"
+								className="input"
 							>
 								<option value="aes-128-gcm">aes-128-gcm</option>
 								<option value="aes-256-gcm">aes-256-gcm</option>
@@ -223,13 +223,13 @@ export default function NodeModalTabContent({
 
 					{/* Wireguard keys */}
 					{protocol === "wireguard" && (
-						<div className="space-y-4">
+						<div className="space-y-3.5">
 							<Field label={t.privateKey}>
 								<input
 									type="text"
 									value={privateKey}
 									onChange={(e) => updateField("privateKey", e.target.value)}
-									className="w-full modern-input font-mono text-[12px]"
+									className="input font-mono"
 								/>
 							</Field>
 							<Field label={t.publicKey}>
@@ -237,7 +237,7 @@ export default function NodeModalTabContent({
 									type="text"
 									value={publicKey}
 									onChange={(e) => updateField("publicKey", e.target.value)}
-									className="w-full modern-input font-mono text-[12px]"
+									className="input font-mono"
 								/>
 							</Field>
 						</div>
@@ -245,7 +245,7 @@ export default function NodeModalTabContent({
 
 					{/* Informative text for tailscale */}
 					{protocol === "tailscale" && (
-						<div className="p-3 bg-indigo-50 dark:bg-indigo-500/5 border border-indigo-100 dark:border-indigo-500/10 rounded-lg text-xs text-indigo-700 dark:text-indigo-300 leading-relaxed">
+						<div className="rounded-sm border border-link/25 bg-link/5 p-3 text-[11.5px] leading-relaxed text-body">
 							{t.tailscaleInfo}
 						</div>
 					)}
@@ -254,7 +254,7 @@ export default function NodeModalTabContent({
 
 			{/* TAB 3: Advanced */}
 			{activeTab === "advanced" && !isTailscaleOrWG && (
-				<div className="space-y-4 animate-reveal">
+				<div className="space-y-3.5">
 					{(protocol === "vless" ||
 						protocol === "vmess" ||
 						protocol === "trojan" ||
@@ -270,7 +270,7 @@ export default function NodeModalTabContent({
 								disabled={protocol !== "socks" && protocol !== "http" && security === "none"}
 								onChange={(e) => updateField("sni", e.target.value)}
 								placeholder="domain.example.com"
-								className="w-full modern-input font-mono text-sm disabled:opacity-50"
+								className="input font-mono disabled:opacity-50"
 							/>
 						</Field>
 					)}
@@ -280,7 +280,7 @@ export default function NodeModalTabContent({
 							<select
 								value={security}
 								onChange={(e) => updateField("security", e.target.value)}
-								className="w-full modern-input bg-white dark:bg-zinc-950 cursor-pointer"
+								className="input"
 							>
 								<option value="none">{lang === "zh" ? "明文 (None)" : "None"}</option>
 								<option value="tls">TLS</option>
@@ -289,12 +289,12 @@ export default function NodeModalTabContent({
 					)}
 
 					{protocol === "vless" && (
-						<div className="grid grid-cols-2 gap-4">
+						<div className="grid grid-cols-2 gap-3">
 							<Field label={t.flow}>
 								<select
 									value={encryption}
 									onChange={(e) => updateField("encryption", e.target.value)}
-									className="w-full modern-input bg-white dark:bg-zinc-950 cursor-pointer"
+									className="input"
 								>
 									<option value="none">{lang === "zh" ? "无 (None)" : "None"}</option>
 									<option value="xtls-rprx-vision">XTLS Vision</option>
@@ -304,7 +304,7 @@ export default function NodeModalTabContent({
 								<select
 									value={network}
 									onChange={(e) => updateField("network", e.target.value)}
-									className="w-full modern-input bg-white dark:bg-zinc-950 cursor-pointer"
+									className="input"
 								>
 									<option value="tcp">TCP</option>
 									<option value="ws">WebSocket (WS)</option>
@@ -315,20 +315,20 @@ export default function NodeModalTabContent({
 					)}
 
 					{protocol === "tuic" && (
-						<div className="grid grid-cols-2 gap-4">
+						<div className="grid grid-cols-2 gap-3">
 							<Field label={t.alpn}>
 								<input
 									type="text"
 									value={alpn}
 									onChange={(e) => updateField("alpn", e.target.value)}
-									className="w-full modern-input font-mono"
+									className="input font-mono"
 								/>
 							</Field>
 							<Field label={t.congestion}>
 								<select
 									value={congestion}
 									onChange={(e) => updateField("congestion", e.target.value)}
-									className="w-full modern-input bg-white dark:bg-zinc-950 cursor-pointer"
+									className="input"
 								>
 									<option value="bbr">BBR</option>
 									<option value="cubic">CUBIC</option>
@@ -338,13 +338,13 @@ export default function NodeModalTabContent({
 					)}
 
 					{protocol === "hysteria2" && (
-						<div className="space-y-4">
-							<div className="grid grid-cols-2 gap-4">
+						<div className="space-y-3.5">
+							<div className="grid grid-cols-2 gap-3">
 								<Field label={t.obfs}>
 									<select
 										value={obfs}
 										onChange={(e) => updateField("obfs", e.target.value)}
-										className="w-full modern-input bg-white dark:bg-zinc-950 cursor-pointer"
+										className="input"
 									>
 										<option value="none">{lang === "zh" ? "无 (None)" : "None"}</option>
 										<option value="salamander">Salamander</option>
@@ -356,7 +356,7 @@ export default function NodeModalTabContent({
 											type="password"
 											value={obfsPassword}
 											onChange={(e) => updateField("obfsPassword", e.target.value)}
-											className="w-full modern-input font-mono"
+											className="input font-mono"
 										/>
 									</Field>
 								)}
@@ -365,12 +365,12 @@ export default function NodeModalTabContent({
 					)}
 
 					{protocol === "anytls" && (
-						<div className="grid grid-cols-2 gap-4">
+						<div className="grid grid-cols-2 gap-3">
 							<Field label={t.fingerprint}>
 								<select
 									value={fingerprint}
 									onChange={(e) => updateField("fingerprint", e.target.value)}
-									className="w-full modern-input bg-white dark:bg-zinc-950 cursor-pointer"
+									className="input"
 								>
 									<option value="chrome">Chrome ({lang === "zh" ? "默认" : "Default"})</option>
 									<option value="firefox">Firefox</option>
@@ -384,7 +384,7 @@ export default function NodeModalTabContent({
 									value={idleTimeout}
 									onChange={(e) => updateField("idleTimeout", e.target.value)}
 									placeholder="30"
-									className="w-full modern-input font-mono"
+									className="input font-mono"
 								/>
 							</Field>
 						</div>
@@ -394,15 +394,15 @@ export default function NodeModalTabContent({
 
 			{/* TAB SPECIAL: WireGuard & Tailscale Specific Settings */}
 			{activeTab === "basic" && isTailscaleOrWG && (
-				<div className="space-y-4 border-t border-zinc-200 dark:border-zinc-800 pt-4 animate-reveal">
+				<div className="space-y-4 border-t border-hairline pt-4">
 					{protocol === "wireguard" && (
-						<div className="grid grid-cols-2 gap-4">
+						<div className="grid grid-cols-2 gap-3">
 							<Field label={t.localIp}>
 								<input
 									type="text"
 									value={localIp}
 									onChange={(e) => updateField("localIp", e.target.value)}
-									className="w-full modern-input font-mono text-xs"
+									className="input font-mono"
 								/>
 							</Field>
 							<Field label={t.mtu}>
@@ -410,30 +410,30 @@ export default function NodeModalTabContent({
 									type="number"
 									value={mtu}
 									onChange={(e) => updateField("mtu", e.target.value)}
-									className="w-full modern-input font-mono text-xs"
+									className="input font-mono"
 								/>
 							</Field>
 						</div>
 					)}
 
 					{protocol === "tailscale" && (
-						<div className="space-y-4">
+						<div className="space-y-3.5">
 							<Field label={t.controlUrl}>
 								<input
 									type="text"
 									value={controlUrl}
 									onChange={(e) => updateField("controlUrl", e.target.value)}
-									className="w-full modern-input font-mono text-xs"
+									className="input font-mono"
 								/>
 							</Field>
-							<div className="grid grid-cols-2 gap-4">
+							<div className="grid grid-cols-2 gap-3">
 								<Field label={t.hostname}>
 									<input
 										type="text"
 										value={hostname}
 										onChange={(e) => updateField("hostname", e.target.value)}
 										placeholder="edge-node"
-										className="w-full modern-input font-mono text-xs"
+										className="input font-mono"
 									/>
 								</Field>
 								<Field label={t.exitNode}>
@@ -442,7 +442,7 @@ export default function NodeModalTabContent({
 										value={exitNode}
 										onChange={(e) => updateField("exitNode", e.target.value)}
 										placeholder="100.64.0.1"
-										className="w-full modern-input font-mono text-xs"
+										className="input font-mono"
 									/>
 								</Field>
 							</div>
@@ -452,27 +452,27 @@ export default function NodeModalTabContent({
 										type="checkbox"
 										checked={tailscaleUdp}
 										onChange={(e) => updateField("tailscaleUdp", e.target.checked)}
-										className="accent-indigo-500 rounded cursor-pointer w-4 h-4"
+										className="size-3.5 accent-ink"
 									/>
-									<span className="text-xs text-zinc-600 dark:text-zinc-400">{t.udp}</span>
+									<span className="text-[11.5px] text-body">{t.udp}</span>
 								</label>
 								<label className="flex items-center gap-2 cursor-pointer select-none">
 									<input
 										type="checkbox"
 										checked={acceptRoutes}
 										onChange={(e) => updateField("acceptRoutes", e.target.checked)}
-										className="accent-indigo-500 rounded cursor-pointer w-4 h-4"
+										className="size-3.5 accent-ink"
 									/>
-									<span className="text-xs text-zinc-600 dark:text-zinc-400">{t.acceptRoutes}</span>
+									<span className="text-[11.5px] text-body">{t.acceptRoutes}</span>
 								</label>
 								<label className="flex items-center gap-2 cursor-pointer select-none">
 									<input
 										type="checkbox"
 										checked={ephemeral}
 										onChange={(e) => updateField("ephemeral", e.target.checked)}
-										className="accent-indigo-500 rounded cursor-pointer w-4 h-4"
+										className="size-3.5 accent-ink"
 									/>
-									<span className="text-xs text-zinc-600 dark:text-zinc-400">{t.ephemeral}</span>
+									<span className="text-[11.5px] text-body">{t.ephemeral}</span>
 								</label>
 							</div>
 						</div>

@@ -1,5 +1,6 @@
-import { ArrowRight, HelpCircle } from "lucide-react";
-import type { FlowData, FlowStep, Lang, Mode } from "./RoutingFlow.data";
+import { ArrowRight } from "lucide-react";
+import { cn } from "@/lib/cn";
+import type { FlowData, FlowItem, FlowStep, Lang, Mode } from "./RoutingFlow.data";
 import { FLOW_DATA } from "./RoutingFlow.data";
 
 interface RoutingFlowProps {
@@ -7,84 +8,52 @@ interface RoutingFlowProps {
 	lang: Lang;
 }
 
+function ColumnHead({ step }: { step: FlowStep }) {
+	return (
+		<div className="flex items-baseline justify-between gap-2 pb-3">
+			<span className="eyebrow text-[9.5px] text-ink">{step.title}</span>
+			<span className="font-mono text-[9.5px] text-faint">{step.items.length}</span>
+		</div>
+	);
+}
+
+function FlowItemRow({ item, tag }: { item: FlowItem; tag?: string }) {
+	return (
+		<div className="flex items-center justify-between gap-2 rounded-sm border border-hairline bg-canvas px-2.5 py-2 transition-colors hover:border-ink/15">
+			<div className="flex min-w-0 items-center gap-2">
+				<span
+					className={cn(
+						"flex size-6 shrink-0 items-center justify-center rounded-sm border border-hairline",
+						item.color,
+					)}
+				>
+					<item.icon className="size-3.5" />
+				</span>
+				<span className="truncate text-[11.5px] font-medium text-ink">{item.name}</span>
+			</div>
+			{tag && (
+				<span
+					className={cn(
+						"chip shrink-0 border-transparent bg-transparent px-0 font-mono text-[9px]",
+						tag === "DIRECT" && "text-ink",
+						tag === "REJECT" && "text-danger",
+						tag !== "DIRECT" && tag !== "REJECT" && "text-link",
+					)}
+				>
+					{tag}
+				</span>
+			)}
+		</div>
+	);
+}
+
 function FlowColumn({ step }: { step: FlowStep }) {
 	return (
-		<div className="space-y-3">
-			<span className="text-[9px] font-extrabold uppercase tracking-widest text-zinc-600 dark:text-zinc-300 block mb-1">
-				{step.title}
-			</span>
-			<div className="space-y-2">
+		<div>
+			<ColumnHead step={step} />
+			<div className="space-y-1.5">
 				{step.items.map((item) => (
-					<div
-						key={item.name}
-						className="flex items-center gap-2.5 p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/70 shadow-sm hover:scale-[1.01] transition-all"
-					>
-						<div className={`p-1.5 rounded-lg ${item.color}`}>
-							<item.icon className="h-4 w-4" />
-						</div>
-						<span className="text-xs font-bold text-zinc-800 dark:text-zinc-100">{item.name}</span>
-					</div>
-				))}
-			</div>
-		</div>
-	);
-}
-
-function RuleColumn({ step }: { step: FlowStep }) {
-	return (
-		<div className="space-y-3">
-			<span className="text-[9px] font-extrabold uppercase tracking-widest text-zinc-600 dark:text-zinc-300 block mb-1">
-				{step.title}
-			</span>
-			<div className="space-y-2">
-				{step.items.map((item) => (
-					<div
-						key={item.name}
-						className="flex items-center justify-between p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/70 shadow-sm hover:scale-[1.01] transition-all"
-					>
-						<div className="flex items-center gap-2.5">
-							<div className={`p-1.5 rounded-lg ${item.color}`}>
-								<item.icon className="h-4 w-4" />
-							</div>
-							<span className="text-xs font-bold text-zinc-800 dark:text-zinc-100">
-								{item.name}
-							</span>
-						</div>
-						{item.tag && (
-							<span
-								className={`text-[8px] font-mono font-extrabold py-0.5 px-1.5 rounded uppercase ${
-									item.tag === "DIRECT"
-										? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 border border-emerald-500/20"
-										: item.tag === "REJECT"
-											? "bg-red-500/10 text-red-600 dark:text-red-300 border border-red-500/20"
-											: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 border border-indigo-500/20"
-								}`}
-							>
-								{item.tag}
-							</span>
-						)}
-					</div>
-				))}
-			</div>
-		</div>
-	);
-}
-
-function OutboundColumn({ step }: { step: FlowStep }) {
-	return (
-		<div className="space-y-3">
-			<span className="text-[9px] font-extrabold uppercase tracking-widest text-zinc-600 dark:text-zinc-300 block mb-1">
-				{step.title}
-			</span>
-			<div className="space-y-2">
-				{step.items.map((item) => (
-					<div
-						key={item.name}
-						className={`flex items-center gap-2.5 p-2.5 rounded-xl border shadow-sm hover:scale-[1.01] transition-all ${item.color}`}
-					>
-						<item.icon className="h-4 w-4 shrink-0" />
-						<span className="text-xs font-extrabold truncate">{item.name}</span>
-					</div>
+					<FlowItemRow key={item.name} item={item} tag={item.tag} />
 				))}
 			</div>
 		</div>
@@ -98,58 +67,45 @@ export default function RoutingFlow({ mode, lang }: RoutingFlowProps) {
 	if (!(step1 && step2 && step3)) return null;
 
 	return (
-		<div className="p-6 bg-white dark:bg-zinc-950/30 rounded-xl border border-zinc-200/80 dark:border-zinc-900/60 shadow-sm hover:border-zinc-300 dark:hover:border-zinc-800 transition-all space-y-5 animate-reveal">
-			<div className="border-b border-zinc-100 dark:border-zinc-900/60 pb-3 flex flex-col md:flex-row md:items-center justify-between gap-2">
-				<div className="flex flex-col gap-1">
-					<span className="text-[10px] font-extrabold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
-						{isChinese ? "📐 当前模式架构分流路径可视化" : "📐 Path Routing Visualization"}
-					</span>
-					<h3 className="text-sm font-extrabold text-zinc-900 dark:text-white">{flow.title}</h3>
+		<div className="card overflow-hidden">
+			<div className="flex flex-col gap-1 border-b border-hairline px-5 py-4 md:flex-row md:items-center md:justify-between">
+				<div className="flex items-center gap-2">
+					<span className="eyebrow text-[10.5px] text-ink">{flow.title}</span>
 				</div>
-				<p className="text-[11px] text-zinc-500 dark:text-zinc-300 max-w-md md:text-right font-medium">
+				<p className="max-w-md text-[11.5px] leading-relaxed text-mute md:text-right">
 					{flow.desc}
 				</p>
 			</div>
 
-			{/* Visual Flow Grid */}
-			<div className="grid grid-cols-1 md:grid-cols-11 gap-4 items-center">
-				{/* Step 1: Input */}
+			<div className="grid grid-cols-1 items-start gap-6 p-5 md:grid-cols-11 md:gap-3 md:p-6">
 				<div className="md:col-span-3">
 					<FlowColumn step={step1} />
 				</div>
 
-				{/* Arrow 1 */}
-				<div className="hidden md:flex md:col-span-1 justify-center">
-					<ArrowRight className="h-5 w-5 text-indigo-500 animate-pulse-slow" />
+				<div className="hidden justify-center pt-10 md:col-span-1 md:flex">
+					<ArrowRight className="size-3.5 text-faint" strokeWidth={2} />
 				</div>
 
-				{/* Step 2: Rules */}
 				<div className="md:col-span-3">
-					<RuleColumn step={step2} />
+					<FlowColumn step={step2} />
 				</div>
 
-				{/* Arrow 2 */}
-				<div className="hidden md:flex md:col-span-1 justify-center">
-					<ArrowRight className="h-5 w-5 text-indigo-500 animate-pulse-slow" />
+				<div className="hidden justify-center pt-10 md:col-span-1 md:flex">
+					<ArrowRight className="size-3.5 text-faint" strokeWidth={2} />
 				</div>
 
-				{/* Step 3: Outbounds */}
 				<div className="md:col-span-3">
-					<OutboundColumn step={step3} />
+					<FlowColumn step={step3} />
 				</div>
 			</div>
 
-			{/* Configuration Hint Box */}
-			<div className="mt-4 p-3 bg-indigo-500/5 border border-indigo-500/10 rounded-xl flex items-start gap-2.5">
-				<HelpCircle className="h-4 w-4 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
-				<div className="text-[11px] leading-relaxed text-zinc-600 dark:text-zinc-300">
-					<strong>
-						{isChinese ? "💡 配置与交互提示：" : "💡 Configuration & Interactive Tip:"}
-					</strong>
+			<div className="border-t border-hairline bg-canvas px-5 py-3.5 md:px-6">
+				<p className="text-[11px] leading-relaxed text-mute">
+					<span className="mr-1.5 font-semibold text-ink">{isChinese ? "note //" : "note //"}</span>
 					{isChinese
-						? "所有特化场景策略组（如 AI 服务、油管视频等）的默认出向均设为「🚀 节点选择」。用户可以在客户端软件的界面中，为各个场景独立选择不同的出向（例如：手动将 AI 服务切到「美国节点」，将油管视频切到「香港自动」），从而轻松实现上述定制化分流方案。"
-						: 'All scenario groups default to "🚀 Proxy Select". You can freely override this in your client UI by selecting a specific region or auto-test group for each scenario individually (e.g. directing AI to US nodes and YouTube to HK auto-test).'}
-				</div>
+						? "所有场景分组默认出向均为「🚀 节点选择」，可在客户端为单个场景覆盖为具体地区或自动测速组。"
+						: 'Every scenario group defaults to "🚀 Proxy Select"; override each one in your client with a region or auto-test group.'}
+				</p>
 			</div>
 		</div>
 	);
