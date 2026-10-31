@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import { type EventContext, handle } from "hono/cloudflare-pages";
-import { cors } from "hono/cors";
 import * as v from "valibot";
 import { version } from "../package.json";
 import type { EdgeEnv } from "./src/env";
@@ -56,7 +55,21 @@ function extractCustomProxyNames(nodes: Array<{ name: string }>, rawLines: strin
 	return names;
 }
 
-app.use("*", cors());
+// Every rendered subscription embeds the subscriber's credentials — `secret`,
+// provider URLs, node passwords — in the request URL itself. Nothing may cache
+// or index them, and browsers must never echo them as a Referer.
+//
+// No CORS headers are emitted on purpose: the UI and the API are served by this
+// same Worker (same origin, so browsers never need CORS), and native proxy
+// clients ignore CORS entirely. A wildcard policy would instead let any website
+// read a subscription URL it managed to obtain.
+app.use("*", async (c, next) => {
+	await next();
+	c.header("Cache-Control", "no-store");
+	c.header("Vary", "User-Agent");
+	c.header("Referrer-Policy", "no-referrer");
+	c.header("X-Robots-Tag", "noindex, nofollow");
+});
 
 // ---------- Version API ----------
 app.get("/api/version", (c) => c.json({ version }));

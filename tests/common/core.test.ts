@@ -32,6 +32,15 @@ describe("Core Routing & Security", () => {
 		expect(json.route.final).toBe("direct");
 	});
 
+	test("Rendered configs are private: no wildcard CORS, never cached, never indexed", async () => {
+		const res = await callWorker(`http://localhost/?proxies=${customProxy}`);
+		expect(res.headers.get("access-control-allow-origin")).toBeNull();
+		expect(res.headers.get("cache-control")).toBe("no-store");
+		expect(res.headers.get("vary")).toBe("User-Agent");
+		expect(res.headers.get("referrer-policy")).toBe("no-referrer");
+		expect(res.headers.get("x-robots-tag")).toContain("noindex");
+	});
+
 	test("Detects Stash from User-Agent", async () => {
 		const res = await callWorker(`http://localhost/?proxies=${customProxy}`, "StAsH/3.2.0");
 		const text = await res.text();
