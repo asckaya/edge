@@ -387,17 +387,66 @@ describe("Shortlink API", () => {
 			expect(res.status).toBe(404);
 		});
 
-		test("returns null target when record has no target", async () => {
+		test("returns 404 for a malformed slug", async () => {
+			kv.store.set("sl:ok", JSON.stringify({ target: "https://target.com" }));
+			const res = await shortlinkApp.request("/api/expand/../ok", {}, envWith(kv));
+			expect(res.status).toBe(404);
+		});
+
+		test("returns 404 when record has no target", async () => {
 			kv.store.set("sl:empty", JSON.stringify({}));
 			const res = await shortlinkApp.request("/api/expand/empty", {}, envWith(kv));
-			expect(res.status).toBe(200);
-			const json = (await res.json()) as Record<string, unknown>;
-			expect(json.target).toBeNull();
+			expect(res.status).toBe(404);
 		});
 
 		test("returns 500 when KV is not bound", async () => {
 			const res = await shortlinkApp.request("/api/expand/abc", {}, {});
 			expect(res.status).toBe(500);
+		});
+
+		// A key-protected link must not leak its target to whoever holds the slug.
+		describe("access-key protected", () => {
+			beforeEach(() => {
+				kv.store.set(
+					"sl:locked",
+					JSON.stringify({ target: "https://secret.com/api/sub?token=abc", accessKey: "pass1234" }),
+				);
+			});
+
+			test("404s without a key", async () => {
+				const res = await shortlinkApp.request("/api/expand/locked", {}, envWith(kv));
+				expect(res.status).toBe(404);
+			});
+
+			test("404s with the wrong key", async () => {
+				const res = await shortlinkApp.request("/api/expand/locked?key=nope", {}, envWith(kv));
+				expect(res.status).toBe(404);
+			});
+
+			test("returns the target with the matching key", async () => {
+				const res = await shortlinkApp.request("/api/expand/locked?key=pass1234", {}, envWith(kv));
+				expect(res.status).toBe(200);
+				const json = (await res.json()) as Record<string, unknown>;
+				expect(json.target).toBe("https://secret.com/api/sub?token=abc");
+			});
+
+			test("lets the admin key bypass the access key", async () => {
+				const res = await shortlinkApp.request(
+					"/api/expand/locked",
+					{ headers: { "x-admin-key": ADMIN_KEY } },
+					envWith(kv),
+				);
+				expect(res.status).toBe(200);
+			});
+
+			test("ignores a wrong admin key", async () => {
+				const res = await shortlinkApp.request(
+					"/api/expand/locked",
+					{ headers: { "x-admin-key": "wrong" } },
+					envWith(kv),
+				);
+				expect(res.status).toBe(404);
+			});
 		});
 	});
 

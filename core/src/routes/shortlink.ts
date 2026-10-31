@@ -218,12 +218,35 @@ shortlinkApp.get("/api/expand/:slug", async (c) => {
 		return c.json({ error: "KV not bound" }, 500);
 	}
 	const slug = c.req.param("slug");
+	if (!SLUG_PATTERN.test(slug)) {
+		return c.json({ error: "Not found" }, 404);
+	}
 	const raw = await kv.get(`sl:${slug}`);
 	if (!raw) {
 		return c.json({ error: "Not found" }, 404);
 	}
-	const record = JSON.parse(raw) as { target?: string };
-	return c.json({ slug, target: record.target ?? null });
+
+	let record: { target?: string; accessKey?: string };
+	try {
+		record = JSON.parse(raw);
+	} catch {
+		return c.json({ error: "Not found" }, 404);
+	}
+	if (!record.target) {
+		return c.json({ error: "Not found" }, 404);
+	}
+
+	// Accessibility parity with GET /s/:slug: a key-protected link must not reveal
+	// its target just because the slug leaked. Admins bypass with x-admin-key.
+	if (record.accessKey) {
+		const adminKey = c.env?.EDGE_ADMIN_KEY;
+		const isAdmin = Boolean(adminKey) && c.req.header("x-admin-key") === adminKey;
+		if (!isAdmin && c.req.query("key") !== record.accessKey) {
+			return c.json({ error: "Not found" }, 404);
+		}
+	}
+
+	return c.json({ slug, target: record.target });
 });
 
 const ShortenUpdateSchema = v.object({
