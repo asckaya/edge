@@ -6,6 +6,8 @@ export const BaseProxySchema = v.object({
 	server: v.string(),
 	port: v.union([v.number(), v.string()]),
 	udp: v.optional(v.boolean(), true),
+	// mihomo BasicOption (`dialer-proxy`) and Stash 3.2.5+ accept this on any proxy.
+	"dialer-proxy": v.optional(v.string()),
 });
 
 export const Hysteria2Schema = v.object({
@@ -24,6 +26,20 @@ export const Hysteria2Schema = v.object({
 	"hop-interval": v.optional(v.string()),
 	"fast-open": v.optional(v.boolean()),
 	fingerprint: v.optional(v.string()),
+	// mihomo-only tuning surface (hysteria2.en.md).
+	"server-cert-fingerprint": v.optional(v.string()),
+	"bbr-profile": v.optional(v.string()),
+	cwnd: v.optional(v.union([v.number(), v.string()])),
+	"udp-mtu": v.optional(v.union([v.number(), v.string()])),
+	"handshake-timeout": v.optional(v.union([v.number(), v.string()])),
+	"obfs-min-packet-size": v.optional(v.union([v.number(), v.string()])),
+	"obfs-max-packet-size": v.optional(v.union([v.number(), v.string()])),
+	"realm-opts": v.optional(v.unknown()),
+	"ech-opts": v.optional(v.unknown()),
+	"initial-stream-receive-window": v.optional(v.union([v.number(), v.string()])),
+	"max-stream-receive-window": v.optional(v.union([v.number(), v.string()])),
+	"initial-connection-receive-window": v.optional(v.union([v.number(), v.string()])),
+	"max-connection-receive-window": v.optional(v.union([v.number(), v.string()])),
 });
 
 export const VlessSchema = v.object({
@@ -44,6 +60,12 @@ export const VlessSchema = v.object({
 	alpn: v.optional(v.array(v.string())),
 	"packet-encoding": v.optional(v.string()),
 	fingerprint: v.optional(v.string()),
+	// mihomo transports/encodings for vless (transport.en.md).
+	"xhttp-opts": v.optional(v.unknown()),
+	"http-opts": v.optional(v.unknown()),
+	"packet-addr": v.optional(v.boolean()),
+	xudp: v.optional(v.boolean()),
+	"ech-opts": v.optional(v.unknown()),
 	smux: v.optional(v.unknown()),
 });
 
@@ -61,6 +83,7 @@ export const TrojanSchema = v.object({
 	"grpc-opts": v.optional(v.unknown()),
 	"h2-opts": v.optional(v.unknown()),
 	"reality-opts": v.optional(v.unknown()),
+	"ss-opts": v.optional(v.unknown()),
 	fingerprint: v.optional(v.string()),
 	smux: v.optional(v.unknown()),
 });
@@ -74,6 +97,7 @@ export const SsSchema = v.object({
 	"plugin-opts": v.optional(v.record(v.string(), v.unknown())),
 	"udp-over-tcp": v.optional(v.boolean()),
 	"udp-over-tcp-version": v.optional(v.string()),
+	"client-fingerprint": v.optional(v.string()),
 	smux: v.optional(v.unknown()),
 });
 
@@ -98,6 +122,17 @@ export const VmessSchema = v.object({
 	"authenticated-length": v.optional(v.boolean()),
 	"reality-opts": v.optional(v.unknown()),
 	fingerprint: v.optional(v.string()),
+	// mihomo vmess extras (vmess.go).
+	"packet-addr": v.optional(v.boolean()),
+	xudp: v.optional(v.boolean()),
+	"http-opts": v.optional(v.unknown()),
+	"mkcp-opts": v.optional(v.unknown()),
+	"mekya-opts": v.optional(v.unknown()),
+	"tlsmirror-opts": v.optional(v.unknown()),
+	"shadow-tls-opts": v.optional(v.unknown()),
+	"restls-opts": v.optional(v.unknown()),
+	"jls-opts": v.optional(v.unknown()),
+	"ech-opts": v.optional(v.unknown()),
 	smux: v.optional(v.unknown()),
 });
 
@@ -122,6 +157,15 @@ export const TuicSchema = v.object({
 	"request-timeout": v.optional(v.union([v.number(), v.string()])),
 	"max-udp-relay-packet-size": v.optional(v.union([v.number(), v.string()])),
 	"max-open-streams": v.optional(v.union([v.number(), v.string()])),
+	// mihomo/stash tuning knobs (tuic.go, tuic.en.md).
+	"udp-over-stream-version": v.optional(v.union([v.number(), v.string()])),
+	"bbr-profile": v.optional(v.string()),
+	cwnd: v.optional(v.union([v.number(), v.string()])),
+	"recv-window-conn": v.optional(v.union([v.number(), v.string()])),
+	"recv-window": v.optional(v.union([v.number(), v.string()])),
+	"disable-mtu-discovery": v.optional(v.boolean()),
+	"max-datagram-frame-size": v.optional(v.union([v.number(), v.string()])),
+	"ech-opts": v.optional(v.unknown()),
 });
 
 export const AnyTlsSchema = v.object({
@@ -138,6 +182,9 @@ export const AnyTlsSchema = v.object({
 	"idle-session-timeout": v.optional(v.union([v.number(), v.string()])),
 	"min-idle-session": v.optional(v.union([v.number(), v.string()])),
 	fingerprint: v.optional(v.string()),
+	// mihomo anytls extras (anytls.go); REALITY is NOT one of them.
+	"disable-reuse": v.optional(v.boolean()),
+	"client-metadata": v.optional(v.unknown()),
 	smux: v.optional(v.unknown()),
 });
 
@@ -156,6 +203,12 @@ export const WireguardSchema = v.object({
 	"persistent-keepalive": v.optional(v.union([v.number(), v.string()])),
 	"remote-dns-resolve": v.optional(v.boolean()),
 	dns: v.optional(v.union([v.string(), v.array(v.string())])),
+	// mihomo wireguard.go extras (single-peer flat form is embedded too).
+	peers: v.optional(v.unknown()),
+	workers: v.optional(v.union([v.number(), v.string()])),
+	"ip-stack": v.optional(v.string()),
+	"amnezia-wg-option": v.optional(v.unknown()),
+	"refresh-server-ip-interval": v.optional(v.union([v.number(), v.string()])),
 });
 
 export const TailscaleSchema = v.object({
@@ -256,6 +309,10 @@ export const MasqueSchema = v.object({
 	"dialer-proxy": v.optional(v.string()),
 	"remote-dns-resolve": v.optional(v.boolean()),
 	dns: v.optional(v.union([v.string(), v.array(v.string())])),
+	// mihomo masque extras (masque.go).
+	uri: v.optional(v.string()),
+	cwnd: v.optional(v.union([v.number(), v.string()])),
+	"ip-stack": v.optional(v.string()),
 });
 
 export const MieruSchema = v.object({
@@ -288,6 +345,7 @@ export const TrusttunnelSchema = v.object({
 	"max-connections": v.optional(v.union([v.number(), v.string()])),
 	"min-streams": v.optional(v.union([v.number(), v.string()])),
 	"max-streams": v.optional(v.union([v.number(), v.string()])),
+	cwnd: v.optional(v.union([v.number(), v.string()])),
 });
 
 export const ShadowtlsSchema = v.object({

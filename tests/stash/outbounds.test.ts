@@ -83,12 +83,13 @@ describe("toStashOutbound", () => {
 		expect(out?.["obfs-password"]).toBe("obfspw");
 	});
 
-	test("tuic: version forced to 5; strips 10 mihomo-only fields", () => {
+	test("tuic: keeps version unpinned, token + congestion-controller (v4 supported)", () => {
 		const node = makeNode({
 			type: "tuic",
 			name: "TU",
 			uuid: "uuid",
 			password: "tuicpw",
+			token: "v4-token",
 			"disable-sni": false,
 			"reduce-rtt": true,
 			"fast-open": true,
@@ -103,21 +104,23 @@ describe("toStashOutbound", () => {
 			alpn: ["h3"],
 		});
 		const out = toStashOutbound(node);
-		expect(out?.version).toBe(5);
-		// all 10 stripped
+		// Stash supports v4 and v5 — never pin a version, or v4 token nodes break.
+		expect(out?.version).toBeUndefined();
+		// stripped: undocumented / mihomo-only for stash
 		expect(out?.["disable-sni"]).toBeUndefined();
 		expect(out?.["reduce-rtt"]).toBeUndefined();
 		expect(out?.["fast-open"]).toBeUndefined();
 		expect(out?.["udp-relay-mode"]).toBeUndefined();
-		expect(out?.["congestion-controller"]).toBeUndefined();
 		expect(out?.ip).toBeUndefined();
 		expect(out?.["heartbeat-interval"]).toBeUndefined();
 		expect(out?.["request-timeout"]).toBeUndefined();
 		expect(out?.["max-udp-relay-packet-size"]).toBeUndefined();
 		expect(out?.["max-open-streams"]).toBeUndefined();
-		// kept
+		// kept: documented by Stash
 		expect(out?.uuid).toBe("uuid");
 		expect(out?.password).toBe("tuicpw");
+		expect(out?.token).toBe("v4-token");
+		expect(out?.["congestion-controller"]).toBe("bbr");
 		expect(out?.sni).toBe("tuic.example.com");
 	});
 
@@ -238,8 +241,9 @@ describe("toStashOutbound", () => {
 		expect(out?.["congestion-controller"]).toBeUndefined();
 		expect(out?.["bbr-profile"]).toBeUndefined();
 		expect(out?.["handshake-timeout"]).toBeUndefined();
-		expect(out?.["dialer-proxy"]).toBeUndefined();
 		expect(out?.["remote-dns-resolve"]).toBeUndefined();
+		// Stash documents dialer-proxy on every proxy (3.2.5+ / 4.1+).
+		expect(out?.["dialer-proxy"]).toBe("proxy1");
 	});
 
 	test("mieru: passes through to Stash", () => {

@@ -85,7 +85,9 @@ describe("parseProxyUri", () => {
 			port: 443,
 			"private-key": "priv_key",
 			"public-key": "peer_pub",
-			ip: ["10.0.0.2/24", "fd00::2"],
+			// mihomo decodes `ip` as a single string; the extra CIDR moves to `ipv6`.
+			ip: "10.0.0.2/24",
+			ipv6: "fd00::2",
 			mtu: 1420,
 			reserved: [1, 2, 3],
 		});
@@ -501,14 +503,16 @@ describe("parseProxyUri", () => {
 			name: "Mieru-Node",
 			type: "mieru",
 			server: "mieru.server.com",
-			port: 443,
 			username: "user",
 			password: "pass",
 			"port-range": "20000-40000",
-			transport: "tcp",
+			// mihomo hard-errors unless transport is exactly TCP/UDP.
+			transport: "TCP",
 			multiplexing: "true",
 			"traffic-pattern": "pattern1",
 		});
+		// mihomo errors when both are set: port-range wins, port is dropped.
+		expect(parsed.proxies[0].port).toBeUndefined();
 	});
 
 	test("parses trusttunnel protocol with quic", () => {

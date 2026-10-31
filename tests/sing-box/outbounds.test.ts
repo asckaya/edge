@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import { makeNode } from "../_helpers/make-node";
 import type { ProxyNode } from "../../core/src/types";
 import { buildSingBoxConfig } from "../../core/src/utils/sing-box/index";
 import { buildOutbounds, toSingBoxOutbound } from "../../core/src/utils/sing-box/outbounds";
@@ -135,5 +136,89 @@ describe("sing-box wireguard endpoint migration", () => {
 
 		const outbounds = config.outbounds as unknown as Record<string, unknown>[];
 		expect(outbounds.some((o) => o.type === "wireguard")).toBe(false);
+	});
+});
+
+describe("sing-box 1.14 field correctness", () => {
+	test("ws transport emits early_data_header_name (early_data_header is a fatal unknown field)", () => {
+		const out = toSingBoxOutbound(
+			makeNode({
+				type: "vless",
+				name: "WS",
+				uuid: "u",
+				tls: true,
+				network: "ws",
+				server: "ws.example.com",
+				"ws-opts": {
+					path: "/ws",
+					headers: { Host: "ws.example.com" },
+					"max-early-data": 2048,
+					"early-data-header-name": "Sec-WebSocket-Protocol",
+				},
+			}),
+			"WS",
+		);
+		const transport = out?.transport as Record<string, unknown>;
+		expect(transport.early_data_header_name).toBe("Sec-WebSocket-Protocol");
+		expect(transport.early_data_header).toBeUndefined();
+	});
+
+	test("hysteria2 port range uses the colon separator sing-quic requires", () => {
+		const out = toSingBoxOutbound(
+			makeNode({ type: "hysteria2", name: "H", password: "p", ports: "20000-30000" }),
+			"H",
+		);
+		expect(out?.server_ports).toEqual(["20000:30000"]);
+	});
+
+	test("tuic never emits udp_relay_mode together with udp_over_stream", () => {
+		const out = toSingBoxOutbound(
+			makeNode({ type: "tuic", name: "TU", uuid: "u", password: "p", "udp-over-stream": true }),
+			"TU",
+		);
+		expect(out?.udp_over_stream).toBe(true);
+		expect(out?.udp_relay_mode).toBeUndefined();
+	});
+
+	test("socks outbound has no tls field (unknown field is fatal)", () => {
+		const out = toSingBoxOutbound(
+			makeNode({ type: "socks", name: "S", username: "u", password: "p", tls: true }),
+			"S",
+		);
+		expect(out?.tls).toBeUndefined();
+	});
+
+	test("snell accepts only version 4 or 6", () => {
+		const v5 = toSingBoxOutbound(
+			makeNode({ type: "snell", name: "SN", psk: "k", version: 5 }),
+			"SN",
+		);
+		const v6 = toSingBoxOutbound(
+			makeNode({ type: "snell", name: "SN", psk: "k", version: 6 }),
+			"SN",
+		);
+		expect(v5?.version).toBe(4);
+		expect(v6?.version).toBe(6);
+	});
+
+	test("naive drops TLS keys it rejects outright", () => {
+		const out = toSingBoxOutbound(
+			makeNode({
+				type: "naive",
+				name: "NV",
+				username: "u",
+				password: "p",
+				sni: "n.example.com",
+				alpn: ["h2"],
+				"skip-cert-verify": true,
+				"client-fingerprint": "chrome",
+			}),
+			"NV",
+		);
+		const tls = out?.tls as Record<string, unknown>;
+		expect(tls.server_name).toBe("n.example.com");
+		expect(tls.insecure).toBeUndefined();
+		expect(tls.alpn).toBeUndefined();
+		expect(tls.utls).toBeUndefined();
 	});
 });

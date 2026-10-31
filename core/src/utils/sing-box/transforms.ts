@@ -54,6 +54,26 @@ function toDuration(v: unknown): string | undefined {
 	return s;
 }
 
+/**
+ * sing-box `server_ports` entries use `start:end` — sing-quic's `ParsePorts`
+ * errors on a bare port or on mihomo's `a-b` range form.
+ */
+function toSingBoxPortRange(ports: string): string {
+	const value = ports.trim();
+	if (!value) return value;
+	if (value.includes(":")) return value;
+	const [start, end] = value.split("-");
+	return end ? `${start}:${end}` : `${value}:${value}`;
+}
+
+/** Inverse of `toSingBoxPortRange`: mihomo expects `a-b` (or a bare port). */
+function toCanonicalPortRange(ports: unknown): string {
+	const value = String(ports).trim();
+	const [start, end] = value.split(":");
+	if (end == null) return value;
+	return start === end ? start : `${start}-${end}`;
+}
+
 // ---------------------------------------------------------------------------
 // Forward: canonical → sing-box (buildTls / buildTransport)
 // ---------------------------------------------------------------------------
@@ -106,7 +126,9 @@ export function buildTransport(node: LooseProxyNode): Record<string, unknown> | 
 		if (ws?.headers && typeof ws.headers === "object") t.headers = ws.headers;
 		if (ws?.["max-early-data"] != null) t.max_early_data = Number(ws["max-early-data"]);
 		const earlyDataHeader = ws?.["early-data-header-name"] ?? ws?.["early-data-header"];
-		if (earlyDataHeader) t.early_data_header = String(earlyDataHeader);
+		// sing-box names this `early_data_header_name`; any other spelling is a fatal
+		// "unknown field" decode error.
+		if (earlyDataHeader) t.early_data_header_name = String(earlyDataHeader);
 		return t;
 	}
 	if (node.network === "grpc") {
@@ -216,8 +238,10 @@ export function toSingBoxOutbound(
 			password: node.password,
 			tls: buildTls(node) || { enabled: true },
 		};
-		if (node.ports) o.server_ports = [String(node.ports)];
-		if (node.obfs) o.obfs = { type: node.obfs, password: node["obfs-password"] || "" };
+		if (node.ports) o.server_ports = [toSingBoxPortRange(node.ports)];
+		// sing-box rejects an obfs block without a password.
+		if (node.obfs && node["obfs-password"])
+			o.obfs = { type: node.obfs, password: node["obfs-password"] };
 		const upNum = toMbps(node.up);
 		if (upNum != null) o.up_mbps = upNum;
 		const downNum = toMbps(node.down);
@@ -282,13 +306,14 @@ export function toSingBoxOutbound(
 			uuid: node.uuid,
 			password: node.password,
 			congestion_control: node["congestion-controller"] || "cubic",
-			udp_relay_mode: node["udp-relay-mode"] || "native",
 			tls: buildTls(node) || { enabled: true },
 		};
 		const heartbeat = toDuration(node["heartbeat-interval"]);
 		if (heartbeat) o.heartbeat = heartbeat;
 		if (node["reduce-rtt"] === true) o.zero_rtt_handshake = true;
-		if (node["udp-over-stream"] != null) o.udp_over_stream = node["udp-over-stream"];
+		// `udp_over_stream` conflicts with `udp_relay_mode` — emit exactly one.
+		if (node["udp-over-stream"] === true) o.udp_over_stream = true;
+		else o.udp_relay_mode = node["udp-relay-mode"] || "native";
 		return o;
 	}
 	if (node.type === "anytls") {
@@ -313,29 +338,33 @@ export function toSingBoxOutbound(
 			o.username = node.username || "";
 			o.password = node.password || "";
 		}
-		if (node.type === "socks" && node.version != null) o.version = node.version;
+		if (node.type === "socks" && node.version != null) o.version = String(node.version);
+		// Only HTTP carries TLS in sing-box — `tls` on the SOCKS outbound is a fatal
+		// "unknown field" decode error.
 		if (node.type === "http") {
 			if (node.path) o.path = node.path;
 			if (node.headers && typeof node.headers === "object") o.headers = node.headers;
+			const tls = buildTls(node);
+			if (tls) o.tls = tls;
 		}
-		const tls = buildTls(node);
-		if (tls) o.tls = tls;
 		return o;
 	}
 	if (node.type === "snell") {
+		// sing-box accepts only 4 or 6 (v5 is wire-identical to v4); anything else
+		// is a fatal `snell: unsupported version` decode error.
+		const version = Number(node.version || 4) >= 6 ? 6 : 4;
 		const o: Record<string, unknown> = {
 			type: "snell",
 			tag,
 			server,
 			server_port: port,
-			version: Number(node.version || 4),
+			version,
 			psk: String(node.psk || ""),
 		};
 		if (node.userkey) o.userkey = node.userkey;
 		if (node.reuse === true) o.reuse = true;
 		if (node.network) o.network = node.network;
-		const v = Number(node.version || 4);
-		if (v >= 6) {
+		if (version >= 6) {
 			if (node.mode) o.mode = node.mode;
 		} else {
 			const obfs = node["obfs-opts"] as Record<string, unknown> | undefined;
@@ -347,12 +376,26 @@ export function toSingBoxOutbound(
 		return o;
 	}
 	if (node.type === "naive") {
+		const naiveTls = buildTls(node) || { enabled: true, server_name: node.sni || node.server };
+		// naive only supports server_name / certificate(_path) / ech — every other TLS
+		// key is an explicit hard error in sing-box (insecure, alpn, utls, reality…).
+		for (const key of [
+			"insecure",
+			"alpn",
+			"utls",
+			"reality",
+			"disable_sni",
+			"min_version",
+			"max_version",
+			"cipher_suites",
+		])
+			delete naiveTls[key];
 		const o: Record<string, unknown> = {
 			type: "naive",
 			tag,
 			server,
 			server_port: port,
-			tls: buildTls(node) || { enabled: true, server_name: node.sni || node.server },
+			tls: naiveTls,
 		};
 		if (node.username) o.username = node.username;
 		if (node.password) o.password = node.password;
@@ -449,8 +492,11 @@ function applyTransport(node: Record<string, unknown>, outbound: Record<string, 
 				? { headers: transport.headers }
 				: {}),
 			...(transport.max_early_data == null ? {} : { "max-early-data": transport.max_early_data }),
-			...(transport.early_data_header
-				? { "early-data-header-name": transport.early_data_header }
+			...((transport.early_data_header_name ?? transport.early_data_header)
+				? {
+						"early-data-header-name":
+							transport.early_data_header_name ?? transport.early_data_header,
+					}
 				: {}),
 		};
 	} else if (transport.type === "grpc") {
@@ -549,7 +595,7 @@ export function parseOutbound(outbound: unknown): LooseProxyNode | null {
 		case "hysteria2":
 			node.password = source.password || "";
 			if (Array.isArray(source.server_ports) && source.server_ports.length > 0)
-				node.ports = source.server_ports.join(",");
+				node.ports = source.server_ports.map(toCanonicalPortRange).join(",");
 			if (source.obfs && typeof source.obfs === "object") {
 				const obfs = source.obfs as Record<string, unknown>;
 				node.obfs = obfs.type;

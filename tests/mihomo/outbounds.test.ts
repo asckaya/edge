@@ -139,4 +139,83 @@ describe("toMihomoOutbound", () => {
 		expect(out?.headers).toEqual({ Host: "example.com" });
 		expect(out?.path).toBeUndefined();
 	});
+
+	test("anytls: strips reality-opts (mihomo will never support AnyTLS+REALITY)", () => {
+		const node = makeNode({
+			type: "anytls",
+			name: "AT",
+			password: "pw",
+			sni: "www.singaporeair.com",
+			"client-fingerprint": "chrome",
+			"reality-opts": {
+				"public-key": "bHyvi6-Mmfxuyb-jg6v_Mjas-hYp6oZoQG8mx4A7GX4",
+				"short-id": "baea26e6",
+			},
+		});
+		const out = toMihomoOutbound(node);
+		expect(out).not.toBeNull();
+		expect(out?.["reality-opts"]).toBeUndefined();
+		expect(out?.sni).toBe("www.singaporeair.com");
+		expect(out?.["client-fingerprint"]).toBe("chrome");
+	});
+
+	test("socks: strips sni (Socks5Option has no sni field)", () => {
+		const node = makeNode({ type: "socks", name: "S", username: "u", password: "p", sni: "x.com" });
+		expect(toMihomoOutbound(node)?.sni).toBeUndefined();
+	});
+
+	test("trojan: strips h2-opts (ws/grpc only)", () => {
+		const node = makeNode({
+			type: "trojan",
+			name: "T",
+			password: "p",
+			network: "h2",
+			"h2-opts": { path: "/x", host: ["h.com"] },
+		});
+		expect(toMihomoOutbound(node)?.["h2-opts"]).toBeUndefined();
+	});
+
+	test("hysteria2: strips fast-open (mihomo knob is tfo)", () => {
+		const node = makeNode({ type: "hysteria2", name: "H", password: "p", "fast-open": true });
+		expect(toMihomoOutbound(node)?.["fast-open"]).toBeUndefined();
+	});
+
+	test("tuic: keeps udp-over-stream (supported since v1.19)", () => {
+		const node = makeNode({
+			type: "tuic",
+			name: "TU",
+			uuid: "u",
+			password: "p",
+			"udp-over-stream": true,
+		});
+		expect(toMihomoOutbound(node)?.["udp-over-stream"]).toBe(true);
+	});
+
+	test("wireguard: array ip is folded into ip + ipv6 (array is a hard decode error)", () => {
+		const node = makeNode({
+			type: "wireguard",
+			name: "WG",
+			ip: ["10.0.0.2/24", "fd00::2"],
+			"private-key": "priv",
+			"public-key": "pub",
+		});
+		const out = toMihomoOutbound(node);
+		expect(out?.ip).toBe("10.0.0.2/24");
+		expect(out?.ipv6).toBe("fd00::2");
+	});
+
+	test("mieru: transport uppercased and port dropped when port-range is set", () => {
+		const node = makeNode({
+			type: "mieru",
+			name: "M",
+			username: "u",
+			password: "p",
+			"port-range": "20000-40000",
+			transport: "tcp",
+		});
+		const out = toMihomoOutbound(node);
+		expect(out?.transport).toBe("TCP");
+		expect(out?.port).toBeUndefined();
+		expect(out?.["port-range"]).toBe("20000-40000");
+	});
 });
