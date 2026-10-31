@@ -197,468 +197,470 @@ h4 {
 	letter-spacing: -0.02em;
 }
 
-/* --------------------------------------------------------- typography ---- */
+@layer components {
+	/* --------------------------------------------------------- typography ---- */
 
-/* Geist Mono spec-sheet eyebrow: uppercase, small, technical. */
-.eyebrow {
-	font-family: var(--font-maple);
-	font-size: 10px;
-	font-weight: 600;
-	line-height: 1.4;
-	text-transform: uppercase;
-	letter-spacing: 0.12em;
-	color: var(--mute);
-}
-
-.display-xl {
-	font-family: var(--font-maple);
-	font-size: clamp(30px, 4.4vw, 44px);
-	font-weight: 600;
-	line-height: 1.1;
-	letter-spacing: -0.035em;
-	color: var(--ink);
-}
-
-.heading-lg {
-	font-family: var(--font-maple);
-	font-size: clamp(22px, 2.6vw, 30px);
-	font-weight: 600;
-	line-height: 1.2;
-	letter-spacing: -0.025em;
-	color: var(--ink);
-}
-
-.heading-md {
-	font-family: var(--font-maple);
-	font-size: 18px;
-	font-weight: 600;
-	line-height: 1.35;
-	letter-spacing: -0.015em;
-	color: var(--ink);
-}
-
-.label-sm {
-	font-family: var(--font-maple);
-	font-size: 13px;
-	font-weight: 600;
-	line-height: 1.4;
-	color: var(--ink);
-}
-
-.mono-accent {
-	color: var(--link);
-}
-
-/* Terminal caret used in the hero eyebrow. */
-.caret::after {
-	content: "";
-	display: inline-block;
-	width: 0.45em;
-	height: 0.9em;
-	margin-left: 0.15em;
-	background: currentColor;
-	vertical-align: -0.1em;
-	animation: blink 1.4s steps(2, start) infinite;
-}
-
-/* -------------------------------------------------------------- layout ---- */
-
-.shell {
-	width: 100%;
-	max-width: 1200px;
-	margin-inline: auto;
-	padding-inline: 24px;
-}
-
-@media (max-width: 640px) {
-	.shell {
-		padding-inline: 16px;
+	/* Geist Mono spec-sheet eyebrow: uppercase, small, technical. */
+	.eyebrow {
+		font-family: var(--font-maple);
+		font-size: 10px;
+		font-weight: 600;
+		line-height: 1.4;
+		text-transform: uppercase;
+		letter-spacing: 0.12em;
+		color: var(--mute);
 	}
-}
 
-/* Hairline section divider that spans the container. */
-.rule {
-	height: 1px;
-	width: 100%;
-	background: var(--hairline);
-	border: 0;
-}
+	.display-xl {
+		font-family: var(--font-maple);
+		font-size: clamp(30px, 4.4vw, 44px);
+		font-weight: 600;
+		line-height: 1.1;
+		letter-spacing: -0.035em;
+		color: var(--ink);
+	}
 
-/* Hairline card: the workhorse surface. Flat by default. */
-.card {
-	background: var(--elevated);
-	border: 1px solid var(--hairline);
-	border-radius: var(--radius-md);
-	transition:
-		border-color 0.18s ease,
-		background-color 0.18s ease;
-}
+	.heading-lg {
+		font-family: var(--font-maple);
+		font-size: clamp(22px, 2.6vw, 30px);
+		font-weight: 600;
+		line-height: 1.2;
+		letter-spacing: -0.025em;
+		color: var(--ink);
+	}
 
-.card-quiet {
-	background: var(--canvas);
-	border: 1px solid var(--hairline);
-	border-radius: var(--radius-md);
-}
+	.heading-md {
+		font-family: var(--font-maple);
+		font-size: 18px;
+		font-weight: 600;
+		line-height: 1.35;
+		letter-spacing: -0.015em;
+		color: var(--ink);
+	}
 
-.card-hover:hover {
-	border-color: color-mix(in srgb, var(--ink) 22%, var(--hairline));
-}
+	.label-sm {
+		font-family: var(--font-maple);
+		font-size: 13px;
+		font-weight: 600;
+		line-height: 1.4;
+		color: var(--ink);
+	}
 
-.card-float {
-	background: var(--elevated);
-	border: 1px solid var(--hairline);
-	border-radius: var(--radius-lg);
-	box-shadow: var(--shadow-float);
-}
+	.mono-accent {
+		color: var(--link);
+	}
 
-/* Blueprint grid backdrop — the only texture outside the hero mesh. */
-.grid-texture::before {
-	content: "";
-	position: absolute;
-	inset: 0;
-	background-image:
-		linear-gradient(to right, var(--grid-ink) 1px, transparent 1px),
-		linear-gradient(to bottom, var(--grid-ink) 1px, transparent 1px);
-	background-size: 48px 48px;
-	mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 10%, transparent 75%);
-	pointer-events: none;
-	z-index: 0;
-}
+	/* Terminal caret used in the hero eyebrow. */
+	.caret::after {
+		content: "";
+		display: inline-block;
+		width: 0.45em;
+		height: 0.9em;
+		margin-left: 0.15em;
+		background: currentColor;
+		vertical-align: -0.1em;
+		animation: blink 1.4s steps(2, start) infinite;
+	}
 
-/* Hero mesh — the single chromatic flourish of the system. */
-.mesh {
-	position: absolute;
-	inset-inline: 0;
-	top: -180px;
-	height: 560px;
-	pointer-events: none;
-	opacity: var(--mesh-opacity);
-	filter: blur(72px) saturate(108%);
-	z-index: 0;
-	mask-image: radial-gradient(ellipse 78% 74% at 50% 26%, #000 0%, #000 34%, transparent 82%);
-	background:
-		radial-gradient(
-			30% 38% at 30% 34%,
-			color-mix(in srgb, var(--develop-a) 20%, transparent) 0%,
-			transparent 72%
-		),
-		radial-gradient(
-			26% 34% at 58% 22%,
-			color-mix(in srgb, var(--preview-a) 17%, transparent) 0%,
-			transparent 72%
-		),
-		radial-gradient(
-			24% 30% at 78% 44%,
-			color-mix(in srgb, var(--preview-b) 13%, transparent) 0%,
-			transparent 72%
-		),
-		radial-gradient(
-			26% 32% at 46% 58%,
-			color-mix(in srgb, var(--develop-b) 13%, transparent) 0%,
-			transparent 72%
-		),
-		radial-gradient(
-			22% 26% at 16% 58%,
-			color-mix(in srgb, var(--ship-b) 11%, transparent) 0%,
-			transparent 74%
-		);
-}
+	/* -------------------------------------------------------------- layout ---- */
 
-/* ------------------------------------------------------------- buttons ---- */
+	.shell {
+		width: 100%;
+		max-width: 1200px;
+		margin-inline: auto;
+		padding-inline: 24px;
+	}
 
-/* Marketing CTA: full pill, ink fill. */
-.btn-pill {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	gap: 8px;
-	height: 40px;
-	padding-inline: 18px;
-	border-radius: var(--radius-pill);
-	border: 1px solid var(--ink);
-	background: var(--ink);
-	color: var(--ink-inverse);
-	font-family: var(--font-maple);
-	font-size: 14px;
-	font-weight: 600;
-	letter-spacing: -0.01em;
-	white-space: nowrap;
-	cursor: pointer;
-	transition:
-		background-color 0.16s ease,
-		color 0.16s ease,
-		border-color 0.16s ease,
-		opacity 0.16s ease;
-}
+	@media (max-width: 640px) {
+		.shell {
+			padding-inline: 16px;
+		}
+	}
 
-.btn-pill:hover {
-	background: color-mix(in srgb, var(--ink) 84%, var(--canvas));
-	border-color: color-mix(in srgb, var(--ink) 84%, var(--canvas));
-}
+	/* Hairline section divider that spans the container. */
+	.rule {
+		height: 1px;
+		width: 100%;
+		background: var(--hairline);
+		border: 0;
+	}
 
-.btn-pill:disabled,
-.btn-pill[aria-disabled="true"] {
-	background: transparent;
-	color: var(--faint);
-	border-color: var(--hairline);
-	cursor: not-allowed;
-}
+	/* Hairline card: the workhorse surface. Flat by default. */
+	.card {
+		background: var(--elevated);
+		border: 1px solid var(--hairline);
+		border-radius: var(--radius-md);
+		transition:
+			border-color 0.18s ease,
+			background-color 0.18s ease;
+	}
 
-/* Marketing secondary: same pill, inverted fill. */
-.btn-pill-ghost {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	gap: 8px;
-	height: 40px;
-	padding-inline: 18px;
-	border-radius: var(--radius-pill);
-	border: 1px solid var(--hairline);
-	background: var(--elevated);
-	color: var(--ink);
-	font-family: var(--font-maple);
-	font-size: 14px;
-	font-weight: 600;
-	letter-spacing: -0.01em;
-	white-space: nowrap;
-	cursor: pointer;
-	transition:
-		background-color 0.16s ease,
-		border-color 0.16s ease,
-		color 0.16s ease;
-}
+	.card-quiet {
+		background: var(--canvas);
+		border: 1px solid var(--hairline);
+		border-radius: var(--radius-md);
+	}
 
-.btn-pill-ghost:hover {
-	border-color: color-mix(in srgb, var(--ink) 30%, var(--hairline));
-	background: var(--soft);
-}
+	.card-hover:hover {
+		border-color: color-mix(in srgb, var(--ink) 22%, var(--hairline));
+	}
 
-/* App / nav control: tight 6px square. */
-.btn-square {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	gap: 6px;
-	height: 30px;
-	padding-inline: 10px;
-	border-radius: var(--radius-sm);
-	border: 1px solid var(--ink);
-	background: var(--ink);
-	color: var(--ink-inverse);
-	font-family: var(--font-maple);
-	font-size: 12px;
-	font-weight: 600;
-	white-space: nowrap;
-	cursor: pointer;
-	transition:
-		background-color 0.16s ease,
-		color 0.16s ease,
-		border-color 0.16s ease;
-}
+	.card-float {
+		background: var(--elevated);
+		border: 1px solid var(--hairline);
+		border-radius: var(--radius-lg);
+		box-shadow: var(--shadow-float);
+	}
 
-.btn-square:hover {
-	background: color-mix(in srgb, var(--ink) 84%, var(--canvas));
-}
+	/* Blueprint grid backdrop — the only texture outside the hero mesh. */
+	.grid-texture::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		background-image:
+			linear-gradient(to right, var(--grid-ink) 1px, transparent 1px),
+			linear-gradient(to bottom, var(--grid-ink) 1px, transparent 1px);
+		background-size: 48px 48px;
+		mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 10%, transparent 75%);
+		pointer-events: none;
+		z-index: 0;
+	}
 
-.btn-square-ghost {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	gap: 6px;
-	height: 30px;
-	padding-inline: 10px;
-	border-radius: var(--radius-sm);
-	border: 1px solid var(--hairline);
-	background: var(--elevated);
-	color: var(--ink);
-	font-family: var(--font-maple);
-	font-size: 12px;
-	font-weight: 600;
-	white-space: nowrap;
-	cursor: pointer;
-	transition:
-		background-color 0.16s ease,
-		border-color 0.16s ease;
-}
+	/* Hero mesh — the single chromatic flourish of the system. */
+	.mesh {
+		position: absolute;
+		inset-inline: 0;
+		top: -180px;
+		height: 560px;
+		pointer-events: none;
+		opacity: var(--mesh-opacity);
+		filter: blur(72px) saturate(108%);
+		z-index: 0;
+		mask-image: radial-gradient(ellipse 78% 74% at 50% 26%, #000 0%, #000 34%, transparent 82%);
+		background:
+			radial-gradient(
+				30% 38% at 30% 34%,
+				color-mix(in srgb, var(--develop-a) 20%, transparent) 0%,
+				transparent 72%
+			),
+			radial-gradient(
+				26% 34% at 58% 22%,
+				color-mix(in srgb, var(--preview-a) 17%, transparent) 0%,
+				transparent 72%
+			),
+			radial-gradient(
+				24% 30% at 78% 44%,
+				color-mix(in srgb, var(--preview-b) 13%, transparent) 0%,
+				transparent 72%
+			),
+			radial-gradient(
+				26% 32% at 46% 58%,
+				color-mix(in srgb, var(--develop-b) 13%, transparent) 0%,
+				transparent 72%
+			),
+			radial-gradient(
+				22% 26% at 16% 58%,
+				color-mix(in srgb, var(--ship-b) 11%, transparent) 0%,
+				transparent 74%
+			);
+	}
 
-.btn-square-ghost:hover {
-	background: var(--soft);
-	border-color: color-mix(in srgb, var(--ink) 22%, var(--hairline));
-}
+	/* ------------------------------------------------------------- buttons ---- */
 
-.btn-square-ghost:disabled {
-	color: var(--faint);
-	cursor: not-allowed;
-	background: var(--canvas);
-}
+	/* Marketing CTA: full pill, ink fill. */
+	.btn-pill {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
+		height: 40px;
+		padding-inline: 18px;
+		border-radius: var(--radius-pill);
+		border: 1px solid var(--ink);
+		background: var(--ink);
+		color: var(--ink-inverse);
+		font-family: var(--font-maple);
+		font-size: 14px;
+		font-weight: 600;
+		letter-spacing: -0.01em;
+		white-space: nowrap;
+		cursor: pointer;
+		transition:
+			background-color 0.16s ease,
+			color 0.16s ease,
+			border-color 0.16s ease,
+			opacity 0.16s ease;
+	}
 
-/* Category tab pill (Vercel's 64px "AI Apps / Web Apps" shape). */
-.tab-pill {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	gap: 6px;
-	height: 34px;
-	padding-inline: 16px;
-	border-radius: var(--radius-category);
-	border: 1px solid var(--hairline);
-	background: var(--elevated);
-	color: var(--body);
-	font-family: var(--font-maple);
-	font-size: 12.5px;
-	font-weight: 600;
-	white-space: nowrap;
-	cursor: pointer;
-	transition:
-		color 0.16s ease,
-		border-color 0.16s ease,
-		background-color 0.16s ease;
-}
+	.btn-pill:hover {
+		background: color-mix(in srgb, var(--ink) 84%, var(--canvas));
+		border-color: color-mix(in srgb, var(--ink) 84%, var(--canvas));
+	}
 
-.tab-pill:hover {
-	color: var(--ink);
-	border-color: color-mix(in srgb, var(--ink) 24%, var(--hairline));
-}
+	.btn-pill:disabled,
+	.btn-pill[aria-disabled="true"] {
+		background: transparent;
+		color: var(--faint);
+		border-color: var(--hairline);
+		cursor: not-allowed;
+	}
 
-.tab-pill[data-active="true"] {
-	background: var(--ink);
-	border-color: var(--ink);
-	color: var(--ink-inverse);
-}
+	/* Marketing secondary: same pill, inverted fill. */
+	.btn-pill-ghost {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
+		height: 40px;
+		padding-inline: 18px;
+		border-radius: var(--radius-pill);
+		border: 1px solid var(--hairline);
+		background: var(--elevated);
+		color: var(--ink);
+		font-family: var(--font-maple);
+		font-size: 14px;
+		font-weight: 600;
+		letter-spacing: -0.01em;
+		white-space: nowrap;
+		cursor: pointer;
+		transition:
+			background-color 0.16s ease,
+			border-color 0.16s ease,
+			color 0.16s ease;
+	}
 
-/* -------------------------------------------------------------- inputs ---- */
+	.btn-pill-ghost:hover {
+		border-color: color-mix(in srgb, var(--ink) 30%, var(--hairline));
+		background: var(--soft);
+	}
 
-.input,
-.textarea {
-	width: 100%;
-	background: var(--elevated);
-	color: var(--ink);
-	border: 1px solid var(--hairline);
-	border-radius: var(--radius-sm);
-	padding: 8px 12px;
-	font-family: var(--font-maple);
-	font-size: 12.5px;
-	line-height: 1.6;
-	transition:
-		border-color 0.16s ease,
-		box-shadow 0.16s ease;
-}
+	/* App / nav control: tight 6px square. */
+	.btn-square {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 6px;
+		height: 30px;
+		padding-inline: 10px;
+		border-radius: var(--radius-sm);
+		border: 1px solid var(--ink);
+		background: var(--ink);
+		color: var(--ink-inverse);
+		font-family: var(--font-maple);
+		font-size: 12px;
+		font-weight: 600;
+		white-space: nowrap;
+		cursor: pointer;
+		transition:
+			background-color 0.16s ease,
+			color 0.16s ease,
+			border-color 0.16s ease;
+	}
 
-.input::placeholder,
-.textarea::placeholder {
-	color: var(--faint);
-}
+	.btn-square:hover {
+		background: color-mix(in srgb, var(--ink) 84%, var(--canvas));
+	}
 
-.input:hover,
-.textarea:hover {
-	border-color: color-mix(in srgb, var(--ink) 18%, var(--hairline));
-}
+	.btn-square-ghost {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 6px;
+		height: 30px;
+		padding-inline: 10px;
+		border-radius: var(--radius-sm);
+		border: 1px solid var(--hairline);
+		background: var(--elevated);
+		color: var(--ink);
+		font-family: var(--font-maple);
+		font-size: 12px;
+		font-weight: 600;
+		white-space: nowrap;
+		cursor: pointer;
+		transition:
+			background-color 0.16s ease,
+			border-color 0.16s ease;
+	}
 
-.input:focus,
-.textarea:focus {
-	outline: none;
-	border-color: var(--ink);
-	box-shadow: 0 0 0 3px color-mix(in srgb, var(--link) 14%, transparent);
-}
+	.btn-square-ghost:hover {
+		background: var(--soft);
+		border-color: color-mix(in srgb, var(--ink) 22%, var(--hairline));
+	}
 
-.input[data-invalid="true"] {
-	border-color: var(--danger);
-	color: var(--ink);
-	box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 12%, transparent);
-}
+	.btn-square-ghost:disabled {
+		color: var(--faint);
+		cursor: not-allowed;
+		background: var(--canvas);
+	}
 
-.textarea {
-	resize: vertical;
-	min-height: 132px;
-	background: var(--canvas);
-}
+	/* Category tab pill (Vercel's 64px "AI Apps / Web Apps" shape). */
+	.tab-pill {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 6px;
+		height: 34px;
+		padding-inline: 16px;
+		border-radius: var(--radius-category);
+		border: 1px solid var(--hairline);
+		background: var(--elevated);
+		color: var(--body);
+		font-family: var(--font-maple);
+		font-size: 12.5px;
+		font-weight: 600;
+		white-space: nowrap;
+		cursor: pointer;
+		transition:
+			color 0.16s ease,
+			border-color 0.16s ease,
+			background-color 0.16s ease;
+	}
 
-select.input {
-	appearance: none;
-	background-image:
-		linear-gradient(45deg, transparent 50%, var(--mute) 50%),
-		linear-gradient(135deg, var(--mute) 50%, transparent 50%);
-	background-position:
-		calc(100% - 15px) calc(50% + 1px),
-		calc(100% - 10px) calc(50% + 1px);
-	background-size:
-		5px 5px,
-		5px 5px;
-	background-repeat: no-repeat;
-	padding-right: 30px;
-	cursor: pointer;
-}
+	.tab-pill:hover {
+		color: var(--ink);
+		border-color: color-mix(in srgb, var(--ink) 24%, var(--hairline));
+	}
 
-/* Code / endpoint surface. */
-.code-block {
-	background: var(--canvas);
-	border: 1px solid var(--hairline);
-	border-radius: var(--radius-md);
-	font-family: var(--font-maple);
-	font-size: 11.5px;
-	line-height: 1.75;
-	color: var(--body);
-	overflow-wrap: anywhere;
-}
+	.tab-pill[data-active="true"] {
+		background: var(--ink);
+		border-color: var(--ink);
+		color: var(--ink-inverse);
+	}
 
-/* Small technical chip / tag. */
-.chip {
-	display: inline-flex;
-	align-items: center;
-	gap: 5px;
-	height: 20px;
-	padding-inline: 7px;
-	border-radius: var(--radius-sm);
-	border: 1px solid var(--hairline);
-	background: var(--canvas);
-	color: var(--mute);
-	font-family: var(--font-maple);
-	font-size: 10px;
-	font-weight: 600;
-	letter-spacing: 0.06em;
-	text-transform: uppercase;
-	white-space: nowrap;
-}
+	/* -------------------------------------------------------------- inputs ---- */
 
-.chip-ink {
-	border-color: var(--ink);
-	background: var(--ink);
-	color: var(--ink-inverse);
-}
+	.input,
+	.textarea {
+		width: 100%;
+		background: var(--elevated);
+		color: var(--ink);
+		border: 1px solid var(--hairline);
+		border-radius: var(--radius-sm);
+		padding: 8px 12px;
+		font-family: var(--font-maple);
+		font-size: 12.5px;
+		line-height: 1.6;
+		transition:
+			border-color 0.16s ease,
+			box-shadow 0.16s ease;
+	}
 
-.chip-link {
-	border-color: color-mix(in srgb, var(--link) 30%, var(--hairline));
-	background: color-mix(in srgb, var(--link) 8%, var(--elevated));
-	color: var(--link);
-}
+	.input::placeholder,
+	.textarea::placeholder {
+		color: var(--faint);
+	}
 
-.chip-danger {
-	border-color: color-mix(in srgb, var(--danger) 30%, var(--hairline));
-	background: color-mix(in srgb, var(--danger) 7%, var(--elevated));
-	color: var(--danger);
-}
+	.input:hover,
+	.textarea:hover {
+		border-color: color-mix(in srgb, var(--ink) 18%, var(--hairline));
+	}
 
-.chip-warn {
-	border-color: color-mix(in srgb, var(--warn) 36%, var(--hairline));
-	background: color-mix(in srgb, var(--warn) 9%, var(--elevated));
-	color: var(--warn-deep);
-}
+	.input:focus,
+	.textarea:focus {
+		outline: none;
+		border-color: var(--ink);
+		box-shadow: 0 0 0 3px color-mix(in srgb, var(--link) 14%, transparent);
+	}
 
-.chip-violet {
-	border-color: color-mix(in srgb, var(--violet) 28%, var(--hairline));
-	background: color-mix(in srgb, var(--violet) 7%, var(--elevated));
-	color: var(--violet);
-}
+	.input[data-invalid="true"] {
+		border-color: var(--danger);
+		color: var(--ink);
+		box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 12%, transparent);
+	}
 
-/* Section head: mono eyebrow + hairline, Vercel spec-sheet rhythm. */
-.section-head {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: baseline;
-	justify-content: space-between;
-	gap: 8px 16px;
-	padding-bottom: 14px;
-	border-bottom: 1px solid var(--hairline);
+	.textarea {
+		resize: vertical;
+		min-height: 132px;
+		background: var(--canvas);
+	}
+
+	select.input {
+		appearance: none;
+		background-image:
+			linear-gradient(45deg, transparent 50%, var(--mute) 50%),
+			linear-gradient(135deg, var(--mute) 50%, transparent 50%);
+		background-position:
+			calc(100% - 15px) calc(50% + 1px),
+			calc(100% - 10px) calc(50% + 1px);
+		background-size:
+			5px 5px,
+			5px 5px;
+		background-repeat: no-repeat;
+		padding-right: 30px;
+		cursor: pointer;
+	}
+
+	/* Code / endpoint surface. */
+	.code-block {
+		background: var(--canvas);
+		border: 1px solid var(--hairline);
+		border-radius: var(--radius-md);
+		font-family: var(--font-maple);
+		font-size: 11.5px;
+		line-height: 1.75;
+		color: var(--body);
+		overflow-wrap: anywhere;
+	}
+
+	/* Small technical chip / tag. */
+	.chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 5px;
+		height: 20px;
+		padding-inline: 7px;
+		border-radius: var(--radius-sm);
+		border: 1px solid var(--hairline);
+		background: var(--canvas);
+		color: var(--mute);
+		font-family: var(--font-maple);
+		font-size: 10px;
+		font-weight: 600;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		white-space: nowrap;
+	}
+
+	.chip-ink {
+		border-color: var(--ink);
+		background: var(--ink);
+		color: var(--ink-inverse);
+	}
+
+	.chip-link {
+		border-color: color-mix(in srgb, var(--link) 30%, var(--hairline));
+		background: color-mix(in srgb, var(--link) 8%, var(--elevated));
+		color: var(--link);
+	}
+
+	.chip-danger {
+		border-color: color-mix(in srgb, var(--danger) 30%, var(--hairline));
+		background: color-mix(in srgb, var(--danger) 7%, var(--elevated));
+		color: var(--danger);
+	}
+
+	.chip-warn {
+		border-color: color-mix(in srgb, var(--warn) 36%, var(--hairline));
+		background: color-mix(in srgb, var(--warn) 9%, var(--elevated));
+		color: var(--warn-deep);
+	}
+
+	.chip-violet {
+		border-color: color-mix(in srgb, var(--violet) 28%, var(--hairline));
+		background: color-mix(in srgb, var(--violet) 7%, var(--elevated));
+		color: var(--violet);
+	}
+
+	/* Section head: mono eyebrow + hairline, Vercel spec-sheet rhythm. */
+	.section-head {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 8px 16px;
+		padding-bottom: 14px;
+		border-bottom: 1px solid var(--hairline);
+	}
 }
 
 /* --------------------------------------------------------- scrollbars ---- */

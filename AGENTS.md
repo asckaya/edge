@@ -127,7 +127,8 @@ The system operates across 3 target kernels with 4 orchestration depth settings 
   - `vitest.config.ts`: environment `node`, v8 coverage, `unstubGlobals: true`.
 
 - **Short-link API (`core/src/routes/shortlink.ts`)**:
-  - 5 routes: `POST /api/shorten` (nanoid slug, custom slug requires `x-admin-key`, validated via `sValidator('json', ShortenRequestSchema)`), `GET /s/:slug` (302 redirect, access-key fail returns 404 to hide existence, query params merge into stored target), `GET /api/expand/:slug`, `PUT /api/shorten/:slug` (admin, `sValidator`), `DELETE /api/shorten/:slug` (admin).
+  - 5 routes: `POST /api/shorten` (nanoid slug, custom slug requires `x-admin-key`, validated via `sValidator('json', ShortenRequestSchema)`), `GET /s/:slug` (302 redirect, access-key fail returns 404 to hide existence, query params merge into stored target), `GET /api/expand/:slug` (returns `{slug, target}`; a key-protected link requires the same `?key=` as the redirect, `x-admin-key` bypasses — knowing the slug alone must never reveal a target), `PUT /api/shorten/:slug` (admin, `sValidator`), `DELETE /api/shorten/:slug` (admin).
+  - Read paths share one rule: **the access key gates the target, not the slug**. `/s/:slug` and `/api/expand/:slug` both 404 on a missing/wrong key so existence is never confirmed.
   - KV key prefix `sl:`. Kernel-agnostic target storage — one short link serves all kernels via UA/query override at access time.
   - Lifecycle: ordinary (random-slug) links default to a **90-day sliding TTL** (`ORDINARY_TTL_SECONDS`), renewed at most once per day on access (`RENEW_INTERVAL_MS`) so unused links are GC'd by KV itself. Admin custom slugs stay permanent unless an explicit `ttlSeconds` is passed.
   - Abuse control: `POST /api/shorten` is throttled per client IP (`createWindows`, 20/hour fixed window, `429` + `Retry-After`), per isolate. `resetCreateQuota()` is the test hook.

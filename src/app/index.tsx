@@ -57,6 +57,75 @@ function FieldLabel({ children, htmlFor }: { children: React.ReactNode; htmlFor?
 	);
 }
 
+/**
+ * Card header shared by every panel in the workspace: icon, mono title, optional
+ * count chip and an optional trailing control. Fixed minimum height keeps the
+ * hairline divider on the same baseline whether or not the trailing slot holds
+ * a 30px button.
+ */
+function CardHead({
+	icon: Icon,
+	title,
+	count,
+	aside,
+}: {
+	icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+	title: string;
+	count?: number;
+	aside?: React.ReactNode;
+}) {
+	return (
+		<div className="border-b border-hairline pb-4">
+			<div className="flex min-h-[30px] flex-wrap items-center justify-between gap-3">
+				<div className="flex items-center gap-2">
+					<Icon className="size-3.5 text-mute" strokeWidth={2} />
+					<span className="eyebrow text-[10.5px] text-ink">{title}</span>
+					{count !== undefined && <span className="chip ml-1">{count}</span>}
+				</div>
+				{aside}
+			</div>
+		</div>
+	);
+}
+
+/**
+ * Segmented choice tile shared by the kernel and orchestration-mode pickers.
+ * Both rows use the same height, radius and internal rhythm so the two pickers
+ * read as one stacked control instead of two competing shapes.
+ */
+function ChoiceTile({
+	label,
+	sub,
+	active,
+	onClick,
+}: {
+	label: string;
+	sub: string;
+	active: boolean;
+	onClick: () => void;
+}) {
+	return (
+		<button
+			type="button"
+			onClick={onClick}
+			aria-pressed={active}
+			className={cn(
+				"flex h-11 min-w-0 flex-col items-center justify-center gap-0.5 rounded-sm border px-2 transition-colors",
+				active
+					? "border-ink bg-ink text-on-ink"
+					: "border-hairline bg-elevated text-body hover:border-ink/25 hover:text-ink",
+			)}
+		>
+			<span className="truncate text-[11.5px] font-semibold leading-none">{label}</span>
+			<span
+				className={cn("truncate text-[9px] leading-none", active ? "text-on-ink/70" : "text-faint")}
+			>
+				{sub}
+			</span>
+		</button>
+	);
+}
+
 /* -------------------------------------------------------------------------- */
 /*                                    page                                    */
 /* -------------------------------------------------------------------------- */
@@ -310,25 +379,25 @@ function HomeComponent() {
 					}
 				/>
 
-				<div className="grid items-start gap-4 lg:grid-cols-12">
-					<div className="flex flex-col gap-4 lg:col-span-7">
+				<div className="grid gap-4 lg:grid-cols-2">
+					<div className="flex flex-col gap-4">
 						{/* raw proxies */}
-						<section className="card p-5 md:p-6">
-							<div className="flex flex-wrap items-center justify-between gap-3 border-b border-hairline pb-4">
-								<div className="flex items-center gap-2">
-									<Cpu className="size-3.5 text-mute" strokeWidth={2} />
-									<span className="eyebrow text-[10.5px] text-ink">{t.rawProxies}</span>
-									<span className="chip ml-1">{customNodeCount}</span>
-								</div>
-								<button
-									type="button"
-									onClick={() => setIsModalOpen(true)}
-									className="btn-square-ghost"
-								>
-									<Plus className="size-3" strokeWidth={2.6} />
-									{t.injectNode}
-								</button>
-							</div>
+						<section className="card flex flex-1 flex-col p-5 md:p-6">
+							<CardHead
+								icon={Cpu}
+								title={t.rawProxies}
+								count={customNodeCount}
+								aside={
+									<button
+										type="button"
+										onClick={() => setIsModalOpen(true)}
+										className="btn-square-ghost"
+									>
+										<Plus className="size-3" strokeWidth={2.6} />
+										{t.injectNode}
+									</button>
+								}
+							/>
 
 							<textarea
 								id="proxies-textarea"
@@ -340,7 +409,7 @@ function HomeComponent() {
 										: "vless://… vmess://… tailscale://…"
 								}
 								spellCheck="false"
-								className="textarea mt-4 min-h-[152px] font-mono text-[12px] leading-[1.9]"
+								className="textarea mt-4 min-h-[152px] flex-1 font-mono text-[12px] leading-[1.9]"
 							/>
 
 							<div className="mt-3 space-y-1.5 empty:hidden">
@@ -361,16 +430,16 @@ function HomeComponent() {
 
 						{/* remote providers */}
 						<section className="card p-5 md:p-6">
-							<div className="flex flex-wrap items-center justify-between gap-3 border-b border-hairline pb-4">
-								<div className="flex items-center gap-2">
-									<Network className="size-3.5 text-mute" strokeWidth={2} />
-									<span className="eyebrow text-[10.5px] text-ink">{t.remoteProviders}</span>
-									<span className="chip ml-1">{subscriptionAnalysis.activeCount}</span>
-								</div>
-								<span className="font-mono text-[10px] text-faint">
-									{zh ? "同一名称会生成独立分组" : "one group per provider"}
-								</span>
-							</div>
+							<CardHead
+								icon={Network}
+								title={t.remoteProviders}
+								count={subscriptionAnalysis.activeCount}
+								aside={
+									<span className="font-mono text-[10px] text-faint">
+										{zh ? "同一名称会生成独立分组" : "one group per provider"}
+									</span>
+								}
+							/>
 							<div className="mt-4">
 								<SubscriptionPanel
 									subs={subs}
@@ -383,42 +452,22 @@ function HomeComponent() {
 					</div>
 
 					{/* orchestration */}
-					<section className="card p-5 md:p-6 lg:sticky lg:top-[70px] lg:col-span-5">
-						<div className="flex items-center gap-2 border-b border-hairline pb-4">
-							<Settings2 className="size-3.5 text-mute" strokeWidth={2} />
-							<span className="eyebrow text-[10.5px] text-ink">{t.settings}</span>
-						</div>
+					<section className="card p-5 md:p-6">
+						<CardHead icon={Settings2} title={t.settings} />
 
 						<div className="mt-5 space-y-6">
 							<div>
 								<FieldLabel>{t.targetKernel}</FieldLabel>
 								<div className="grid grid-cols-3 gap-1.5">
-									{kernels.map((k) => {
-										const active = selectedKernel === k.id;
-										return (
-											<button
-												key={k.id}
-												type="button"
-												onClick={() => changeKernel(k.id)}
-												className={cn(
-													"flex h-[52px] flex-col items-center justify-center gap-1 rounded-[64px] border transition-colors",
-													active
-														? "border-ink bg-ink text-on-ink"
-														: "border-hairline bg-elevated text-body hover:border-ink/25 hover:text-ink",
-												)}
-											>
-												<span className="text-[12px] font-semibold leading-none">{k.label}</span>
-												<span
-													className={cn(
-														"text-[9px] leading-none",
-														active ? "text-on-ink/55" : "text-faint",
-													)}
-												>
-													{k.sub}
-												</span>
-											</button>
-										);
-									})}
+									{kernels.map((k) => (
+										<ChoiceTile
+											key={k.id}
+											label={k.label}
+											sub={k.sub}
+											active={selectedKernel === k.id}
+											onClick={() => changeKernel(k.id)}
+										/>
+									))}
 								</div>
 							</div>
 
@@ -441,32 +490,15 @@ function HomeComponent() {
 								</div>
 
 								<div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
-									{modes.map((m) => {
-										const active = selectedMode === m.id;
-										return (
-											<button
-												key={m.id || "full"}
-												type="button"
-												onClick={() => changeMode(m.id)}
-												className={cn(
-													"flex h-[46px] flex-col items-start justify-center rounded-sm border px-2 text-left transition-colors",
-													active
-														? "border-ink bg-ink text-on-ink"
-														: "border-hairline bg-elevated text-body hover:border-ink/25 hover:text-ink",
-												)}
-											>
-												<span className="text-[11.5px] font-semibold leading-tight">{m.label}</span>
-												<span
-													className={cn(
-														"text-[9px] leading-tight",
-														active ? "text-on-ink/60" : "text-faint",
-													)}
-												>
-													{m.sub}
-												</span>
-											</button>
-										);
-									})}
+									{modes.map((m) => (
+										<ChoiceTile
+											key={m.id || "full"}
+											label={m.label}
+											sub={m.sub}
+											active={selectedMode === m.id}
+											onClick={() => changeMode(m.id)}
+										/>
+									))}
 								</div>
 
 								{showHelpPopover && (

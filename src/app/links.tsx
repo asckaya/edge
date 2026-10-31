@@ -88,6 +88,7 @@ const COPY = {
 		copied: "已复制",
 		open: "打开",
 		notFound: "短链不存在",
+		lookupDenied: "未找到，或访问密钥不匹配",
 		confirmDelete: "确认删除该短链？删除后不可恢复。",
 		slugNote: "仅允许字母、数字、- 和 _，长度 3–64",
 		urlNote: "请输入完整的 http(s) 地址",
@@ -126,6 +127,7 @@ const COPY = {
 		copied: "Copied",
 		open: "Open",
 		notFound: "Short link not found",
+		lookupDenied: "Not found, or the access key does not match",
 		confirmDelete: "Delete this short link? This cannot be undone.",
 		slugNote: "letters, digits, - and _ only, length 3–64",
 		urlNote: "enter a full http(s) URL",
@@ -252,15 +254,20 @@ function LinksComponent() {
 		if (!value) return;
 		setBusy("lookup");
 		try {
+			// The target of a key-protected link is only readable with the same key the
+			// redirect requires; admins may read any link with their admin key.
+			const query = accessKey ? `?key=${encodeURIComponent(accessKey)}` : "";
 			const result = await apiRequest<{ slug: string; target: string | null }>(
-				`/api/expand/${encodeURIComponent(value)}`,
+				`/api/expand/${encodeURIComponent(value)}${query}`,
+				{ adminKey: admin ? adminKey : undefined },
 			);
 			setResolved(result);
 			setUpdateTarget(result.target ?? "");
 			pushLog("EXPAND", "info", `${result.slug} → ${result.target ?? "—"}`);
 		} catch (err) {
 			setResolved(null);
-			pushLog("EXPAND", "err", err instanceof Error ? err.message : String(err));
+			const message = err instanceof Error ? err.message : String(err);
+			pushLog("EXPAND", "err", message.includes("404") ? t.lookupDenied : message);
 		} finally {
 			setBusy(null);
 		}

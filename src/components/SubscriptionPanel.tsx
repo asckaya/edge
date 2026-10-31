@@ -17,7 +17,7 @@ interface Props {
 
 const TRANSLATIONS_PANEL = {
 	zh: {
-		namePlaceholder: "订阅名称 (如 Airport1)",
+		namePlaceholder: "订阅名称 (Airport1)",
 		urlPlaceholder: "订阅源完整链接 (HTTP / HTTPS)",
 		invalidName: "无效名称格式（仅支持字母、数字、下划线及中文）",
 		conflictName: "名称冲突：该订阅提供商名称已存在",
@@ -28,8 +28,8 @@ const TRANSLATIONS_PANEL = {
 		urlRequired: "订阅链接不能为空",
 	},
 	en: {
-		namePlaceholder: "Provider Name (e.g. Airport1)",
-		urlPlaceholder: "Subscription URL (HTTP / HTTPS)",
+		namePlaceholder: "Provider Name",
+		urlPlaceholder: "Subscription URL (http/https)",
 		invalidName: "Invalid Syntax (alphanumeric, underscore and Chinese chars only)",
 		conflictName: "Conflict: Provider name already exists",
 		invalidUrl: "Invalid subscription connection protocol (must start with http/https)",
@@ -90,7 +90,7 @@ export default function SubscriptionPanel({ subs, setSubs, lang = "zh", duplicat
 								{String(index + 1).padStart(2, "0")}
 							</span>
 
-							<div className="relative flex min-w-0 flex-1 items-center">
+							<div className="relative flex w-[40%] min-w-0 shrink-0 items-center">
 								<Globe
 									className="pointer-events-none absolute left-2.5 size-3.5 text-faint transition-colors group-focus-within/row:text-ink"
 									strokeWidth={2}
@@ -100,7 +100,7 @@ export default function SubscriptionPanel({ subs, setSubs, lang = "zh", duplicat
 									placeholder={t.namePlaceholder}
 									value={sub.name}
 									onChange={(e) => updateSub(sub.id, "name", e.target.value)}
-									className="input w-full min-w-0 pl-8 sm:w-[34%]"
+									className="input w-full min-w-0 pl-8"
 									data-invalid={nameError ? "true" : "false"}
 								/>
 							</div>
@@ -115,7 +115,7 @@ export default function SubscriptionPanel({ subs, setSubs, lang = "zh", duplicat
 									placeholder={t.urlPlaceholder}
 									value={sub.url}
 									onChange={(e) => updateSub(sub.id, "url", e.target.value)}
-									className="input w-full min-w-0 pl-8 font-mono text-[11.5px]"
+									className="input w-full min-w-0 pl-8"
 									data-invalid={urlError ? "true" : "false"}
 								/>
 							</div>
@@ -145,14 +145,16 @@ export default function SubscriptionPanel({ subs, setSubs, lang = "zh", duplicat
 				);
 			})}
 
-			<button
-				type="button"
-				onClick={addSubRow}
-				className="flex h-9 w-full items-center justify-center gap-1.5 rounded-sm border border-dashed border-hairline bg-canvas text-[11.5px] font-semibold text-mute transition-colors hover:border-ink/30 hover:text-ink"
-			>
-				<Plus className="size-3.5" strokeWidth={2.4} />
-				{t.addProvider}
-			</button>
+			<div className="pl-7.5">
+				<button
+					type="button"
+					onClick={addSubRow}
+					className="flex h-9 w-full items-center justify-center gap-1.5 rounded-sm border border-dashed border-hairline bg-canvas text-[11.5px] font-semibold text-mute transition-colors hover:border-ink/30 hover:text-ink"
+				>
+					<Plus className="size-3.5" strokeWidth={2.4} />
+					{t.addProvider}
+				</button>
+			</div>
 		</div>
 	);
 }
