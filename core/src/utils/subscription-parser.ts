@@ -17,11 +17,19 @@ const ALERT_KEYWORDS = [
 	"导入",
 	"失效",
 	"过期",
+	"不支持",
+	"换用",
+	"官网",
+	"维护",
+	"通知",
+	"耗尽",
+	"续费",
 	"warning",
 	"alert",
 	"expired",
 	"invalid",
 	"banned",
+	"unsupported",
 ];
 
 const BASE64_PATTERN = /^[A-Za-z0-9+/=_-\s]+$/;
@@ -114,8 +122,9 @@ function isLoopbackPlaceholderNode(node: LooseProxyNode): boolean {
 	const server = String(node.server || "")
 		.trim()
 		.toLowerCase();
-	const port = Number(node.port);
-	return (server === "127.0.0.1" || server === "localhost" || server === "::1") && port === 1;
+	return (
+		server === "127.0.0.1" || server === "localhost" || server === "::1" || server === "0.0.0.0"
+	);
 }
 
 function isAlertPlaceholderNode(node: LooseProxyNode): boolean {
@@ -199,10 +208,10 @@ async function fetchSingleSubscription(
 		// Fall through to attempt fallback when applicable.
 	}
 
-	// Fallback to "clash/mihomo" for sing-box if no valid non-alert nodes were retrieved
+	// Fallback to "mihomo clash.meta" for sing-box if no valid non-alert nodes were retrieved
 	if (userAgent === "sing-box") {
 		try {
-			const fallbackBody = await fetchWithCache(url, "clash/mihomo");
+			const fallbackBody = await fetchWithCache(url, "mihomo clash.meta");
 			const fallbackNodes = parseSubscriptionContent(fallbackBody);
 			if (fallbackNodes.length > 0) {
 				return fallbackNodes;

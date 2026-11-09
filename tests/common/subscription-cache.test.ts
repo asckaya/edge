@@ -85,7 +85,7 @@ describe("subscription cache initialization", () => {
 		expect(resolved.map((s) => s.name)).toEqual(["One", "Two", "Three"]);
 	});
 
-	test("falls back to clash/mihomo User-Agent when sing-box UA fails with HTTP error", async () => {
+	test("falls back to mihomo clash.meta User-Agent when sing-box UA fails with HTTP error", async () => {
 		vi.stubGlobal("caches", undefined);
 		const mockFetch = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
 			const reqHeaders =
@@ -99,7 +99,7 @@ describe("subscription cache initialization", () => {
 			if (ua === "sing-box") {
 				return new Response("Not Found / Unsupported Client", { status: 404 });
 			}
-			if (ua === "clash/mihomo") {
+			if (ua === "mihomo clash.meta") {
 				const clashYaml = `
 proxies:
   - name: "Clash Trojan Node"
@@ -129,7 +129,7 @@ proxies:
 		expect(resolved[0].nodes[0].type).toBe("trojan");
 	});
 
-	test("falls back to clash/mihomo User-Agent when sing-box UA returns HTML or 0 valid nodes", async () => {
+	test("falls back to mihomo clash.meta User-Agent when sing-box UA returns HTML or 0 valid nodes", async () => {
 		vi.stubGlobal("caches", undefined);
 		const mockFetch = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
 			const reqHeaders =
@@ -147,7 +147,7 @@ proxies:
 					headers: { "Content-Type": "text/html" },
 				});
 			}
-			if (ua === "clash/mihomo") {
+			if (ua === "mihomo clash.meta") {
 				const clashYaml = `
 proxies:
   - name: "HK Reality Node"
@@ -177,7 +177,7 @@ proxies:
 		expect(resolved[0].nodes[0].type).toBe("vless");
 	});
 
-	test("falls back to clash/mihomo User-Agent when sing-box UA returns only alert placeholder nodes", async () => {
+	test("falls back to mihomo clash.meta User-Agent when sing-box UA returns only alert placeholder nodes", async () => {
 		vi.stubGlobal("caches", undefined);
 		const mockFetch = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
 			const reqHeaders =
@@ -209,7 +209,7 @@ proxies:
 					},
 				);
 			}
-			if (ua === "clash/mihomo") {
+			if (ua === "mihomo clash.meta") {
 				const clashYaml = `
 proxies:
   - name: "Working Clash Node"
@@ -237,5 +237,31 @@ proxies:
 		expect(resolved[0].nodes.length).toBe(1);
 		expect(resolved[0].nodes[0].name).toBe("Working Clash Node");
 		expect(resolved[0].nodes[0].type).toBe("trojan");
+	});
+
+	test("collapses loopback alert placeholder nodes with non-standard ports (e.g. 6666)", async () => {
+		vi.stubGlobal("caches", undefined);
+		const mockFetch = vi.fn(async () => {
+			const yamlWithAlerts = `
+proxies:
+  - { name: "不支持您的代理软件", type: ss, server: 127.0.0.1, port: 6666, cipher: aes-128-gcm, password: pw }
+  - { name: "请换用支持的代理软件", type: ss, server: 127.0.0.1, port: 6666, cipher: aes-128-gcm, password: pw }
+  - { name: "官网地址:https://example.com", type: ss, server: 127.0.0.1, port: 6666, cipher: aes-128-gcm, password: pw }
+`;
+			return new Response(yamlWithAlerts, {
+				status: 200,
+				headers: { "Content-Type": "text/yaml" },
+			});
+		});
+		globalThis.fetch = mockFetch as unknown as typeof fetch;
+
+		const resolved = await fetchSubscriptionNodes(
+			[{ name: "MySub", url: "https://airport.example.com/sub" }],
+			"clash",
+		);
+
+		expect(resolved.length).toBe(1);
+		expect(resolved[0].nodes.length).toBe(1);
+		expect(resolved[0].nodes[0].name).toContain("MySub 订阅失效");
 	});
 });

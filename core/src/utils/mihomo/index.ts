@@ -43,7 +43,7 @@ export function buildMihomoConfig(options: BuildMihomoOptions): string {
 	);
 
 	// Build proxy-providers and subscription-specific groups
-	const userAgent = "clash/mihomo";
+	const userAgent = "mihomo clash.meta";
 	const isSingleSub = subscriptions.length === 1;
 
 	const providerNames = subscriptions.map((sub) => sub.name);
